@@ -4,7 +4,7 @@
   "description": "Vocabulary Browser for schema.org based vocabularies",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/semantifyit/schema-org-vocab-browser.git"
+    "url": "https://github.com/semantifyit/schema-org-vocab-browser.git"
   },
   "keywords": [
     "schema.org",
