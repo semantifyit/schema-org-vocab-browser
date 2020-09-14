@@ -55,7 +55,7 @@ class SDOVocabBrowser {
                 this.generateVocabSection(this.dataTypes, 'Data Types');
         } else if (this.type === TYPES.LIST) {
             this.elem.innerHTML = this.generateListTable();
-
+            this.addListEventListener();
         }
     }
 
@@ -142,16 +142,29 @@ class SDOVocabBrowser {
     }
 
     generateListTbody() {
-        console.log(this.list);
         return this.list['schema:hasPart'].map((vocab) => {
             return '' +
                 '<tr>' +
-                    '<td>' + /*TODO: vocab.name + */ '</td>' +
+                    '<td><a class="a-vocab-name">TODO</a></td>' +
                     '<td><a target="_blank" href="' + vocab['@id'] + '">' + vocab['@id'] + '</a></td>' +
                     '<td>' + /*TODO: vocab.author + */ '</td>' +
                     '<td>' + /*TODO: vocab.description + */ '</td>' +
                 '</tr>';
         }).join('');
+    }
+
+    addListEventListener() {
+        const aVocabNames = document.getElementsByClassName('a-vocab-name');
+        const self = this;
+        for (const aVocabName of aVocabNames) { // forEach() not possible ootb for HTMLCollections
+            aVocabName.addEventListener('click', () => {
+               self.nav();
+            });
+        }
+    }
+
+    nav() {
+        console.log('TODO');
     }
 }
 
