@@ -1,42 +1,48 @@
 const SDOAdapter = require('schema-org-adapter');
 
+const TYPES = {
+    VOCAB: 'VOCAB',
+    LIST: 'LIST'
+};
+
 class SDOVocabBrowser {
-    constructor(elem, vocabOrVocabList) {
-        return(async () => {
+    constructor(elem, vocabOrVocabList, type=TYPES.VOCAB) {
             this.elem = elem;
             this.vocabOrVocabList = vocabOrVocabList;
+            this.type = type;
             this.sdoAdapter = new SDOAdapter();
+    }
 
-            // TODO: differentiate between vocab and list
-            // TODO: Add loader
+    async init() {
+        if (this.type === TYPES.VOCAB) {
             const sdoURL = await this.sdoAdapter.constructSDOVocabularyURL('latest', 'all-layers');
-            await this.sdoAdapter.addVocabularies([sdoURL, vocabOrVocabList]);
+            await this.sdoAdapter.addVocabularies([sdoURL, this.vocabOrVocabList]);
 
             this.vocabs = this.sdoAdapter.getVocabularies(this.vocabOrVocabList);
             delete this.vocabs['schema'];
             const vocabNames = Object.keys(this.vocabs);
 
-            this.classes = this.sdoAdapter.getListOfClasses({ fromVocabulary: vocabNames});
+            this.classes = this.sdoAdapter.getListOfClasses({fromVocabulary: vocabNames});
             this.properties = this.sdoAdapter.getListOfProperties({fromVocabulary: vocabNames});
             this.enumerations = this.sdoAdapter.getListOfEnumerations({fromVocabulary: vocabNames});
             this.enumerationMembers = this.sdoAdapter.getListOfEnumerationMembers({fromVocabulary: vocabNames});
             this.dataTypes = this.sdoAdapter.getListOfDataTypes({fromVocabulary: vocabNames});
-
-            this.generateHTML();
-
-            return this;
-        })();
+        }
     }
 
-    generateHTML() {
-        this.elem.innerHTML =
-            this.generateHeading() +
-            this.generateContentSection() +
-            this.generateSection(this.classes, 'Classes') +
-            this.generateSection(this.properties, 'Properties') +
-            this.generateSection(this.enumerations, 'Enumerations') +
-            this.generateSection(this.enumerationMembers, 'Enumeration Members') +
-            this.generateSection(this.dataTypes, 'Data Types');
+    async generateHTML() {
+        await this.init();
+
+        if (this.type === TYPES.VOCAB) {
+            this.elem.innerHTML =
+                this.generateHeading() +
+                this.generateContentSection() +
+                this.generateSection(this.classes, 'Classes') +
+                this.generateSection(this.properties, 'Properties') +
+                this.generateSection(this.enumerations, 'Enumerations') +
+                this.generateSection(this.enumerationMembers, 'Enumeration Members') +
+                this.generateSection(this.dataTypes, 'Data Types');
+        }
     }
 
     generateHeading() {
