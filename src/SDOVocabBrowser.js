@@ -12,9 +12,10 @@ class SDOVocabBrowser {
             const sdoURL = await this.sdoAdapter.constructSDOVocabularyURL('latest', 'all-layers');
             await this.sdoAdapter.addVocabularies([sdoURL, vocabOrVocabList]);
 
-            let vocabs = this.sdoAdapter.getVocabularies(this.vocabOrVocabList);
-            delete vocabs['schema'];
-            const vocabNames = Object.keys(vocabs);
+            this.vocabs = this.sdoAdapter.getVocabularies(this.vocabOrVocabList);
+            delete this.vocabs['schema'];
+            const vocabNames = Object.keys(this.vocabs);
+
             this.classes = this.sdoAdapter.getListOfClasses({ fromVocabulary: vocabNames});
             this.properties = this.sdoAdapter.getListOfProperties({fromVocabulary: vocabNames});
             this.enumerations = this.sdoAdapter.getListOfEnumerations({fromVocabulary: vocabNames});
@@ -28,7 +29,21 @@ class SDOVocabBrowser {
     }
 
     generateHTML() {
-        this.elem.innerHTML = this.generateContentSection() + this.generateClassSection();
+        this.elem.innerHTML =
+            this.generateHeading() +
+            this.generateContentSection() +
+            this.generateSection(this.classes, 'Classes') +
+            this.generateSection(this.properties, 'Properties') +
+            this.generateSection(this.enumerations, 'Enumerations') +
+            this.generateSection(this.enumerationMembers, 'Enumeration Members') +
+            this.generateSection(this.dataTypes, 'Data Types');
+    }
+
+    generateHeading() {
+        return '' +
+            '<h1>' +
+                Object.entries(this.vocabs).map((vocab) => {return vocab[0] + ':' + vocab[1]}) +
+            '</h1>';
     }
 
     generateContentSection() {
@@ -59,19 +74,19 @@ class SDOVocabBrowser {
         return html;
     }
 
-    generateClassSection() {
+    generateSection(objects, objectType) {
         let html = '';
-        if (this.classes.length !== 0) {
+        if (objects.length !== 0) {
              html += '' +
                  '<table>' +
                      '<thead>' +
                          '<tr>' +
-                             '<th>Classes</th>' +
+                             '<th>' + objectType + '</th>' +
                              '<th>Description</th>' +
                          '</tr>' +
                      '</thead>' +
                      '<tbody>' +
-                         this.generateTbodyClasses() +
+                         this.generateTbody(objects) +
                      '</tbody>' +
                  '</table>'
         }
@@ -79,12 +94,12 @@ class SDOVocabBrowser {
         return html;
     }
 
-    generateTbodyClasses() {
-        return this.classes.map((className) => {
+    generateTbody(objects) {
+        return objects.map((name) => {
             return '' +
                 '<tr>' +
-                    '<td>' + className + '</td>' +
-                    '<td>' + this.sdoAdapter.getClass(className).getDescription() + '</td>' +
+                    '<td>' + name + '</td>' +
+                    '<td>' + this.sdoAdapter.getTerm(name).getDescription() + '</td>' +
                 '</tr>'
         }).join('');
     }
