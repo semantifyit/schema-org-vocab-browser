@@ -28,11 +28,7 @@ class SDOVocabBrowser {
     }
 
     generateHTML() {
-        let html = this.generateContentSection();
-
-        // TODO: Add other html
-
-        this.elem.innerHTML = html;
+        this.elem.innerHTML = this.generateContentSection() + this.generateClassSection();
     }
 
     generateContentSection() {
@@ -61,6 +57,36 @@ class SDOVocabBrowser {
 
         html += '</ul>';
         return html;
+    }
+
+    generateClassSection() {
+        let html = '';
+        if (this.classes.length !== 0) {
+             html += '' +
+                 '<table>' +
+                     '<thead>' +
+                         '<tr>' +
+                             '<th>Classes</th>' +
+                             '<th>Description</th>' +
+                         '</tr>' +
+                     '</thead>' +
+                     '<tbody>' +
+                         this.generateTbodyClasses() +
+                     '</tbody>' +
+                 '</table>'
+        }
+
+        return html;
+    }
+
+    generateTbodyClasses() {
+        return this.classes.map((className) => {
+            return '' +
+                '<tr>' +
+                    '<td>' + className + '</td>' +
+                    '<td>' + this.sdoAdapter.getClass(className).getDescription() + '</td>' +
+                '</tr>'
+        }).join('');
     }
 }
 
