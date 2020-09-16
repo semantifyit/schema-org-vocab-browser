@@ -94,6 +94,7 @@ class SDOVocabBrowser {
         }
 
         this.elem.innerHTML = html;
+        this.addTermEventListener();
     }
 
     generateClassHeader() {
@@ -104,16 +105,15 @@ class SDOVocabBrowser {
         if (superClasses) {
             html += '<h4>';
             superClasses.reverse().forEach((superClass) => {
-                let href;
+                let attr;
                 if (this.classes.includes(superClass)) {
-                    // TODO
-                    href = '';
+                    attr = util.createAttrForJSLink('a-term-name', 'term', superClass);
                 }  else {
-                    href = 'href="' + this.sdoAdapter.getClass(superClass).getIRI() + '"';
+                    attr = 'href="' + this.sdoAdapter.getClass(superClass).getIRI() + '"';
                 }
-                html += '<a ' + href + '>' + superClass + '</a> > ';
+                html += '<a ' + attr + '>' + superClass + '</a> > ';
             });
-            html += '<a>' + termIRI + '</a>' +
+            html += util.createJSLink('a-term-name', 'term', termIRI) +
                 '</h4>';
         }
 
@@ -130,7 +130,7 @@ class SDOVocabBrowser {
             this.generateVocabSection(this.enumerations, 'Enumerations') +
             this.generateVocabSection(this.enumerationMembers, 'Enumeration Members') +
             this.generateVocabSection(this.dataTypes, 'Data Types');
-        this.addVocabEventListener();
+        this.addTermEventListener();
     }
 
     generateVocabHeading() {
@@ -192,7 +192,7 @@ class SDOVocabBrowser {
         return objects.map((name) => {
             return '' +
                 '<tr>' +
-                    '<td><a class="a-term-name" href="?term=' + name + '" onclick="return false;">' + name + '</a></td>' +
+                    '<td>' + util.createJSLink('a-term-name', 'term', name) + '</td>' +
                     '<td>' + this.sdoAdapter.getTerm(name).getDescription() + '</td>' +
                 '</tr>'
         }).join('');
@@ -219,7 +219,7 @@ class SDOVocabBrowser {
         return this.list['schema:hasPart'].map((vocab, i) => {
             return '' +
                 '<tr>' +
-                    '<td><a class="a-vocab-name" href="?voc=' + (i + 1) + '" onclick="return false;">TODO</a></td>' +
+                    '<td>' + util.createJSLink('a-vocab-name', 'voc', i + 1,'TODO') + '</td>' +
                     '<td><a target="_blank" href="' + vocab['@id'] + '">' + vocab['@id'] + '</a></td>' +
                     '<td>' + /*TODO: vocab.author + */ '</td>' +
                     '<td>' + /*TODO: vocab.description + */ '</td>' +
@@ -227,12 +227,12 @@ class SDOVocabBrowser {
         }).join('');
     }
 
-    addVocabEventListener() {
+    addTermEventListener() {
         const aTermNames = document.getElementsByClassName('a-term-name');
 
         for (const aTermName of aTermNames) { // forEach() not possible ootb for HTMLCollections
             aTermName.addEventListener('click', async () => {
-                history.pushState(null, null, util.addQueryParam('term', aTermName.innerText));
+                history.pushState(null, null, util.createIRIwithQueryParam('term', aTermName.innerText));
                 await this.generateHTML();
             });
         }
@@ -249,7 +249,7 @@ class SDOVocabBrowser {
         for (let i = 0; i < aVocabNames.length; i++) { // forEach() not possible ootb for HTMLCollections
             const aVocabName = aVocabNames[i];
             aVocabName.addEventListener('click', async () => {
-                history.pushState(null, null, util.addQueryParam('voc', i + 1));
+                history.pushState(null, null, util.createIRIwithQueryParam('voc', i + 1));
                 await this.generateHTML();
             });
         }
