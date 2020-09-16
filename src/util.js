@@ -1,3 +1,9 @@
+function addQueryParam(key, val) {
+    const searchParams = new URLSearchParams(window.location.search);
+    searchParams.set(key, val);
+    return window.location.origin + window.location.pathname + '?' + searchParams.toString();
+}
+
 function get(url) {
     return new Promise(function (resolve, reject) {
         let xhr = new XMLHttpRequest();
@@ -32,7 +38,10 @@ function isValidUrl(string) {
     return true;
 }
 
+
+
 module.exports = {
+    addQueryParam: addQueryParam,
     get: get,
     isValidUrl: isValidUrl
 };

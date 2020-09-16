@@ -11,40 +11,66 @@ class SDOVocabBrowser {
         this.elem = elem;
         this.vocabOrVocabList = vocabOrVocabList;
         this.type = type;
-        this.sdoAdapter = new SDOAdapter();
+        this.sdoAdapter = null;
+
+        window.addEventListener('popstate', async (e) => {
+            await this.generateHTML();
+        });
     }
 
     async init() {
-        if (this.type === TYPES.VOCAB) {
-            const sdoURL = await this.sdoAdapter.constructSDOVocabularyURL('latest', 'all-layers');
-            // JSON or URL can both be parsed
-            await this.sdoAdapter.addVocabularies([sdoURL, this.vocabOrVocabList]);
-
-            this.vocabs = this.sdoAdapter.getVocabularies(this.vocabOrVocabList);
-            delete this.vocabs['schema'];
-            const vocabNames = Object.keys(this.vocabs);
-
-            this.classes = this.sdoAdapter.getListOfClasses({fromVocabulary: vocabNames});
-            this.properties = this.sdoAdapter.getListOfProperties({fromVocabulary: vocabNames});
-            this.enumerations = this.sdoAdapter.getListOfEnumerations({fromVocabulary: vocabNames});
-            this.enumerationMembers = this.sdoAdapter.getListOfEnumerationMembers({fromVocabulary: vocabNames});
-            this.dataTypes = this.sdoAdapter.getListOfDataTypes({fromVocabulary: vocabNames});
-        } else if (this.type === TYPES.LIST) {
+        // Init list
+        if (this.type === TYPES.LIST && !this.list) {
             let jsonString;
             if (util.isValidUrl(this.vocabOrVocabList)) {
                 jsonString = await util.get(this.vocabOrVocabList);
             } else {
                 jsonString = this.vocabOrVocabList;
             }
-            this.list = JSON.parse(jsonString);
+            this.list = JSON.parse(jsonString)
+        }
+
+        // Init vocab
+        if (this.isVocabRendering()) {
+            await this.initVocab();
         }
     }
 
+    isVocabRendering() {
+        const searchParams = new URLSearchParams(window.location.search);
+        return (this.type === TYPES.VOCAB || searchParams.get('voc'));
+    }
+
+    async initVocab() {
+        let vocab;
+        if (this.type === TYPES.VOCAB) {
+            vocab = this.vocabOrVocabList;
+        } else if (this.type === TYPES.LIST) {
+            const searchParams = new URLSearchParams(window.location.search);
+            const listNumber = searchParams.get('voc');
+            vocab = this.list['schema:hasPart'][listNumber-1]['@id'];
+        }
+
+        this.sdoAdapter = new SDOAdapter();
+        const sdoURL = await this.sdoAdapter.constructSDOVocabularyURL('latest', 'all-layers');
+        // JSON or URL can both be parsed
+        await this.sdoAdapter.addVocabularies([sdoURL, vocab]);
+
+        this.vocabs = this.sdoAdapter.getVocabularies(vocab);
+        delete this.vocabs['schema'];
+        const vocabNames = Object.keys(this.vocabs);
+
+        this.classes = this.sdoAdapter.getListOfClasses({fromVocabulary: vocabNames});
+        this.properties = this.sdoAdapter.getListOfProperties({fromVocabulary: vocabNames});
+        this.enumerations = this.sdoAdapter.getListOfEnumerations({fromVocabulary: vocabNames});
+        this.enumerationMembers = this.sdoAdapter.getListOfEnumerationMembers({fromVocabulary: vocabNames});
+        this.dataTypes = this.sdoAdapter.getListOfDataTypes({fromVocabulary: vocabNames});
+    }
 
     async generateHTML() {
         await this.init();
 
-        if (this.type === TYPES.VOCAB) {
+        if (this.isVocabRendering()) {
             this.elem.innerHTML =
                 this.generateVocabHeading() +
                 this.generateVocabContentSection() +
@@ -142,10 +168,10 @@ class SDOVocabBrowser {
     }
 
     generateListTbody() {
-        return this.list['schema:hasPart'].map((vocab) => {
+        return this.list['schema:hasPart'].map((vocab, i) => {
             return '' +
                 '<tr>' +
-                    '<td><a class="a-vocab-name">TODO</a></td>' +
+                    '<td><p class="a-vocab-name" href="#" onclick="return false;">TODO</p></td>' +
                     '<td><a target="_blank" href="' + vocab['@id'] + '">' + vocab['@id'] + '</a></td>' +
                     '<td>' + /*TODO: vocab.author + */ '</td>' +
                     '<td>' + /*TODO: vocab.description + */ '</td>' +
@@ -155,16 +181,14 @@ class SDOVocabBrowser {
 
     addListEventListener() {
         const aVocabNames = document.getElementsByClassName('a-vocab-name');
-        const self = this;
-        for (const aVocabName of aVocabNames) { // forEach() not possible ootb for HTMLCollections
-            aVocabName.addEventListener('click', () => {
-               self.nav();
+
+        for (let i = 0; i < aVocabNames.length; i++) { // forEach() not possible ootb for HTMLCollections
+            const aVocabName = aVocabNames[i];
+            aVocabName.addEventListener('click', async () => {
+                history.pushState(null, null, util.addQueryParam('voc', i + 1));
+                await this.generateHTML();
             });
         }
-    }
-
-    nav() {
-        console.log('TODO');
     }
 }
 
