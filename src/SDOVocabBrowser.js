@@ -76,21 +76,28 @@ class SDOVocabBrowser {
         await this.init();
 
         if (this.isTermRendering()) {
-            this.elem.innerHTML = 'TODO';
+            this.generateTerm();
         } else if (this.isVocabRendering()) {
-            this.elem.innerHTML =
-                this.generateVocabHeading() +
-                this.generateVocabContentSection() +
-                this.generateVocabSection(this.classes, 'Classes') +
-                this.generateVocabSection(this.properties, 'Properties') +
-                this.generateVocabSection(this.enumerations, 'Enumerations') +
-                this.generateVocabSection(this.enumerationMembers, 'Enumeration Members') +
-                this.generateVocabSection(this.dataTypes, 'Data Types');
-            this.addVocabEventListener();
+            this.generateVocab();
         } else if (this.type === TYPES.LIST) {
-            this.elem.innerHTML = this.generateListTable();
-            this.addListEventListener();
+            this.generateList();
         }
+    }
+
+    generateTerm() {
+        this.elem.innerHTML = 'TODO';
+    }
+
+    generateVocab() {
+        this.elem.innerHTML =
+            this.generateVocabHeading() +
+            this.generateVocabContentSection() +
+            this.generateVocabSection(this.classes, 'Classes') +
+            this.generateVocabSection(this.properties, 'Properties') +
+            this.generateVocabSection(this.enumerations, 'Enumerations') +
+            this.generateVocabSection(this.enumerationMembers, 'Enumeration Members') +
+            this.generateVocabSection(this.dataTypes, 'Data Types');
+        this.addVocabEventListener();
     }
 
     generateVocabHeading() {
@@ -187,6 +194,22 @@ class SDOVocabBrowser {
         }).join('');
     }
 
+    addVocabEventListener() {
+        const aTermNames = document.getElementsByClassName('a-term-name');
+
+        for (const aTermName of aTermNames) { // forEach() not possible ootb for HTMLCollections
+            aTermName.addEventListener('click', async () => {
+                history.pushState(null, null, util.addQueryParam('term', aTermName.innerText));
+                await this.generateHTML();
+            });
+        }
+    }
+
+    generateList() {
+        this.elem.innerHTML = this.generateListTable();
+        this.addListEventListener();
+    }
+
     addListEventListener() {
         const aVocabNames = document.getElementsByClassName('a-vocab-name');
 
@@ -194,17 +217,6 @@ class SDOVocabBrowser {
             const aVocabName = aVocabNames[i];
             aVocabName.addEventListener('click', async () => {
                 history.pushState(null, null, util.addQueryParam('voc', i + 1));
-                await this.generateHTML();
-            });
-        }
-    }
-
-    addVocabEventListener() {
-        const aTermNames = document.getElementsByClassName('a-term-name');
-
-        for (const aTermName of aTermNames) { // forEach() not possible ootb for HTMLCollections
-            aTermName.addEventListener('click', async () => {
-                history.pushState(null, null, util.addQueryParam('term', aTermName.innerText));
                 await this.generateHTML();
             });
         }
