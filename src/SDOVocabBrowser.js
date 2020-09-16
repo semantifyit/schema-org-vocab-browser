@@ -86,23 +86,39 @@ class SDOVocabBrowser {
 
     generateTerm() {
         const searchParams = new URLSearchParams(window.location.search);
-        const term = this.sdoAdapter.getTerm(searchParams.get('term'));
-        const termIRI = term.getIRI(true);
-        let html;
-        if (term.getTermType() === 'rdfs:Class') {
-            html = '' +
-                '<h1>' + termIRI + '</h1>';
+        this.term = this.sdoAdapter.getTerm(searchParams.get('term'));
 
-            const superClasses = term.getSuperClasses();
-            if (superClasses) {
-                superClasses.reverse().forEach((superClass) => {
-                    html += '<a>' + superClass + '</a> > '
-                });
-                html += '<a>' + termIRI + '</a>';
-            }
+        let html;
+        if (this.term.getTermType() === 'rdfs:Class') {
+            html = this.generateClassHeader();
         }
 
         this.elem.innerHTML = html;
+    }
+
+    generateClassHeader() {
+        const termIRI = this.term.getIRI(true);
+        let html = '<h1>' + termIRI + '</h1>';
+
+        const superClasses = this.term.getSuperClasses();
+        if (superClasses) {
+            html += '<h4>';
+            superClasses.reverse().forEach((superClass) => {
+                let href;
+                if (this.classes.includes(superClass)) {
+                    // TODO
+                    href = '';
+                }  else {
+                    href = 'href="' + this.sdoAdapter.getClass(superClass).getIRI() + '"';
+                }
+                html += '<a ' + href + '>' + superClass + '</a> > ';
+            });
+            html += '<a>' + termIRI + '</a>' +
+                '</h4>';
+        }
+
+        html += '<div>' + this.term.getDescription() +  '<br><br></div>';
+        return html;
     }
 
     generateVocab() {
