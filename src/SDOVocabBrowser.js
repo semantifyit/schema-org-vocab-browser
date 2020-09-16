@@ -85,7 +85,24 @@ class SDOVocabBrowser {
     }
 
     generateTerm() {
-        this.elem.innerHTML = 'TODO';
+        const searchParams = new URLSearchParams(window.location.search);
+        const term = this.sdoAdapter.getTerm(searchParams.get('term'));
+        const termIRI = term.getIRI(true);
+        let html;
+        if (term.getTermType() === 'rdfs:Class') {
+            html = '' +
+                '<h1>' + termIRI + '</h1>';
+
+            const superClasses = term.getSuperClasses();
+            if (superClasses) {
+                superClasses.reverse().forEach((superClass) => {
+                    html += '<a>' + superClass + '</a> > '
+                });
+                html += '<a>' + termIRI + '</a>';
+            }
+        }
+
+        this.elem.innerHTML = html;
     }
 
     generateVocab() {
