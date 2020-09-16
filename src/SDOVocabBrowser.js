@@ -202,8 +202,7 @@ class SDOVocabBrowser {
     addVocabEventListener() {
         const aTermNames = document.getElementsByClassName('a-term-name');
 
-        for (let i = 0; i < aTermNames.length; i++) { // forEach() not possible ootb for HTMLCollections
-            const aTermName = aTermNames[i];
+        for (const aTermName of aTermNames) { // forEach() not possible ootb for HTMLCollections
             aTermName.addEventListener('click', async () => {
                 history.pushState(null, null, util.addQueryParam('term', aTermName.innerText));
                 await this.generateHTML();
