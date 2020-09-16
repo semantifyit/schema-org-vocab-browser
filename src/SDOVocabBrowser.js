@@ -38,7 +38,12 @@ class SDOVocabBrowser {
 
     isVocabRendering() {
         const searchParams = new URLSearchParams(window.location.search);
-        return (this.type === TYPES.VOCAB || searchParams.get('voc'));
+        return (this.type === TYPES.VOCAB && !searchParams.get('term') || searchParams.get('voc'));
+    }
+
+    isTermRendering() {
+        const searchParams = new URLSearchParams(window.location.search);
+        return searchParams.get('term');
     }
 
     async initVocab() {
@@ -70,7 +75,9 @@ class SDOVocabBrowser {
     async generateHTML() {
         await this.init();
 
-        if (this.isVocabRendering()) {
+        if (this.isTermRendering()) {
+            this.elem.innerHTML = 'TODO';
+        } else if (this.isVocabRendering()) {
             this.elem.innerHTML =
                 this.generateVocabHeading() +
                 this.generateVocabContentSection() +
@@ -79,6 +86,7 @@ class SDOVocabBrowser {
                 this.generateVocabSection(this.enumerations, 'Enumerations') +
                 this.generateVocabSection(this.enumerationMembers, 'Enumeration Members') +
                 this.generateVocabSection(this.dataTypes, 'Data Types');
+            this.addVocabEventListener();
         } else if (this.type === TYPES.LIST) {
             this.elem.innerHTML = this.generateListTable();
             this.addListEventListener();
@@ -144,7 +152,7 @@ class SDOVocabBrowser {
         return objects.map((name) => {
             return '' +
                 '<tr>' +
-                    '<td>' + name + '</td>' +
+                    '<td><a class="a-term-name" href="?term=' + name + '" onclick="return false;">' + name + '</a></td>' +
                     '<td>' + this.sdoAdapter.getTerm(name).getDescription() + '</td>' +
                 '</tr>'
         }).join('');
@@ -186,6 +194,18 @@ class SDOVocabBrowser {
             const aVocabName = aVocabNames[i];
             aVocabName.addEventListener('click', async () => {
                 history.pushState(null, null, util.addQueryParam('voc', i + 1));
+                await this.generateHTML();
+            });
+        }
+    }
+
+    addVocabEventListener() {
+        const aTermNames = document.getElementsByClassName('a-term-name');
+
+        for (let i = 0; i < aTermNames.length; i++) { // forEach() not possible ootb for HTMLCollections
+            const aTermName = aTermNames[i];
+            aTermName.addEventListener('click', async () => {
+                history.pushState(null, null, util.addQueryParam('term', aTermName.innerText));
                 await this.generateHTML();
             });
         }
