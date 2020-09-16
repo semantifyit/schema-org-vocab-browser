@@ -171,7 +171,7 @@ class SDOVocabBrowser {
         return this.list['schema:hasPart'].map((vocab, i) => {
             return '' +
                 '<tr>' +
-                    '<td><p class="a-vocab-name" href="#" onclick="return false;">TODO</p></td>' +
+                    '<td><a class="a-vocab-name" href="?voc=' + (i + 1) + '" onclick="return false;">TODO</a></td>' +
                     '<td><a target="_blank" href="' + vocab['@id'] + '">' + vocab['@id'] + '</a></td>' +
                     '<td>' + /*TODO: vocab.author + */ '</td>' +
                     '<td>' + /*TODO: vocab.description + */ '</td>' +
