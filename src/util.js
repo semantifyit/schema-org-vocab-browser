@@ -3,6 +3,10 @@ function createAttrForJSLink(className, queryKey, queryVal) {
     return 'class="' + className + '" href="' + iri + '" onclick="return false;"';
 }
 
+function createExternalLink(href, text) {
+    return '<a href="' + href + '" target="_blank">' + text + '</a>';
+}
+
 function createIRIwithQueryParam(key, val) {
     const searchParams = new URLSearchParams(window.location.search);
     searchParams.set(key, val);
@@ -51,6 +55,7 @@ function isValidUrl(string) {
 
 module.exports = {
     createAttrForJSLink: createAttrForJSLink,
+    createExternalLink: createExternalLink,
     createIRIwithQueryParam: createIRIwithQueryParam,
     createJSLink: createJSLink,
     get: get,

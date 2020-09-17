@@ -137,13 +137,23 @@ class SDOVocabBrowser {
     generateListTbody() {
         return this.list['schema:hasPart'].map((vocab, i) => {
             return '' +
-                '<tr typeof="http://vocab.sti2.at/ds/Vocabulary" resource="' + util.createIRIwithQueryParam('voc', i + 1) + '">' +
-                this.generateMainColEntry('schema:name', util.createJSLink('a-vocab-name', 'voc', i + 1, 'TODO')) +
-                '<td property="@id"><a target="_blank" href="' + vocab['@id'] + '">' + vocab['@id'] + '</a></td>' +
-                '<td property="schema:author">' + /*TODO: vocab.author + */ '</td>' +
-                '<td property="schema:description">' + /*TODO: vocab.description + */ '</td>' +
-                '</tr>';
+                this.generateTableRow("http://vocab.sti2.at/ds/Vocabulary",
+                    util.createIRIwithQueryParam('voc', i + 1) +
+                    'schema:name',
+                    util.createJSLink('a-vocab-name', 'voc', i + 1, 'TODO'),
+                    '<td property="@id"><a target="_blank" href="' + vocab['@id'] + '">' + vocab['@id'] + '</a></td>' +
+                    '<td property="schema:author">' + /*TODO: vocab.author + */ '</td>' +
+                    '<td property="schema:description">' + /*TODO: vocab.description + */ '</td>'
+                );
         }).join('');
+    }
+
+    generateTableRow(typeOf, resource, mainColProp, link, tds) {
+        return '' +
+            '<tr typeof="' + typeOf  + '" resource="' + resource + '">' +
+            this.generateMainColEntry(mainColProp, link) +
+            tds +
+            '</tr>';
     }
 
     generateMainColEntry(property, link) {
@@ -242,11 +252,11 @@ class SDOVocabBrowser {
     generateVocabSectionTbody(objects) {
         return objects.map((name) => {
             const term = this.sdoAdapter.getTerm(name);
-            return '' +
-                '<tr typeof="' + term.getTermType() + '" resource="' + util.createIRIwithQueryParam('term', name) + '">' +
-                this.generateMainColEntry('@id', util.createJSLink('a-term-name', 'term', name)) +
-                '<td property="rdfs:comment">' + term.getDescription() + '</td>' +
-                '</tr>'
+            return this.generateTableRow(term.getTermType(),
+                util.createIRIwithQueryParam('term', name),
+                '@id',
+                util.createJSLink('a-term-name', 'term', name),
+                '<td property="rdfs:comment">' + term.getDescription() + '</td>');
         }).join('');
     }
 
@@ -285,7 +295,7 @@ class SDOVocabBrowser {
                     if ((i + 1) === superClasses.length) {
                         html += '<link property="rdfs:subClassOf" href="' + href + '">';
                     }
-                    html += '<a href="' + href + '" target="_blank">' + superClass + '</a>';
+                    html += util.createExternalLink(href, superClass);
                 }
                 html += ' > ';
             });
@@ -313,8 +323,27 @@ class SDOVocabBrowser {
         classes.forEach((c) => {
             const properties = c.getProperties(false);
             if (properties.length !== 0) {
-                html += '<tbody><tr class="supertype"><th colspan="3">Properties from ' + c.getIRI(true) + '</th></tr></tbody>';
-                // TODO
+                html +=
+                    '<tbody>' +
+                    '<tr class="supertype">' +
+                    '<th colspan="3">Properties from ' + c.getIRI(true) + '</th>' +
+                    '</tr>' +
+                    '</tbody>' +
+                    '<tbody>';
+                properties.forEach((p) => {
+                    let href, link;
+                    if (this.properties.includes(p)) {
+                        href = util.createIRIwithQueryParam('term', p);
+                        link = util.createJSLink('a-term-name', 'term', p);
+                    } else {
+                        href = this.sdoAdapter.getProperty(p).getIRI();
+                        link = util.createExternalLink(href, p);
+                    }
+
+                    html += this.generateTableRow('rdfs:Property', href, 'rdfs:label', link,
+                        '<td>TODO</td><td>TODO</td>');
+                });
+                html += '</tbody>';
             }
         });
         html += '</table>';
