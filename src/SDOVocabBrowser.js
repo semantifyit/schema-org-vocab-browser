@@ -138,16 +138,21 @@ class SDOVocabBrowser {
         return this.list['schema:hasPart'].map((vocab, i) => {
             return '' +
                 '<tr typeof="http://vocab.sti2.at/ds/Vocabulary" resource="' + util.createIRIwithQueryParam('voc', i + 1) + '">' +
-                '<th scope="row">' +
-                '<code property="schema:name">' +
-                util.createJSLink('a-vocab-name', 'voc', i + 1, 'TODO') +
-                '</code>' +
-                '</th>' +
+                this.generateMainColEntry('schema:name', util.createJSLink('a-vocab-name', 'voc', i + 1, 'TODO')) +
                 '<td property="@id"><a target="_blank" href="' + vocab['@id'] + '">' + vocab['@id'] + '</a></td>' +
                 '<td property="schema:author">' + /*TODO: vocab.author + */ '</td>' +
                 '<td property="schema:description">' + /*TODO: vocab.description + */ '</td>' +
                 '</tr>';
         }).join('');
+    }
+
+    generateMainColEntry(property, link) {
+        return '' +
+            '<th scope="row">' +
+            '<code property="' + property + '">' +
+            link +
+            '</code>' +
+            '</th>';
     }
 
     addListEventListener() {
@@ -239,11 +244,7 @@ class SDOVocabBrowser {
             const term = this.sdoAdapter.getTerm(name);
             return '' +
                 '<tr typeof="' + term.getTermType() + '" resource="' + util.createIRIwithQueryParam('term', name) + '">' +
-                '<th scope="row">' +
-                '<code property="@id">' +
-                util.createJSLink('a-term-name', 'term', name) +
-                '</code>' +
-                '</th>' +
+                this.generateMainColEntry('@id', util.createJSLink('a-term-name', 'term', name)) +
                 '<td property="rdfs:comment">' + term.getDescription() + '</td>' +
                 '</tr>'
         }).join('');
