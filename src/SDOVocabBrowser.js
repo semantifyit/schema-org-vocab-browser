@@ -106,7 +106,7 @@ class SDOVocabBrowser {
 
     generateList() {
         this.elem.innerHTML = '' +
-            '<div id="mainContent"' + /*vocab="http://schema.org/" + ' typeof="rdfs:Class"*/ +' resource="' + window.location + '">' +
+            '<div id="mainContent" ' /*vocab="http://schema.org/"*/ + 'typeof="schema:DataSet" resource="' + window.location + '">' +
             this.generateListHeader() +
             this.generateListTable() +
             '</div';
