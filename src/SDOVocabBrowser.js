@@ -260,7 +260,7 @@ class SDOVocabBrowser {
 
     generateListTable() {
         return '' +
-            '<table>' +
+            '<table class="definition-table">' +
             '<thead>' +
             '<tr>' +
             '<th>Name</th>' +
@@ -269,7 +269,7 @@ class SDOVocabBrowser {
             '<th>Description</th>' +
             '</tr>' +
             '</thead>' +
-            '<tbody>' +
+            '<tbody class="supertype">' +
             this.generateListTbody() +
             '</tbody>' +
             '</table>'
@@ -278,11 +278,15 @@ class SDOVocabBrowser {
     generateListTbody() {
         return this.list['schema:hasPart'].map((vocab, i) => {
             return '' +
-                '<tr>' +
-                '<td>' + util.createJSLink('a-vocab-name', 'voc', i + 1, 'TODO') + '</td>' +
-                '<td><a target="_blank" href="' + vocab['@id'] + '">' + vocab['@id'] + '</a></td>' +
-                '<td>' + /*TODO: vocab.author + */ '</td>' +
-                '<td>' + /*TODO: vocab.description + */ '</td>' +
+                '<tr typeof="http://vocab.sti2.at/ds/Vocabulary" resource="' + util.createIRIwithQueryParam('voc', i + 1) + '">' +
+                '<th scope="row">' +
+                '<code property="schema:name">' +
+                util.createJSLink('a-vocab-name', 'voc', i + 1, 'TODO') +
+                '</code>' +
+                '</th>' +
+                '<td property="@id"><a target="_blank" href="' + vocab['@id'] + '">' + vocab['@id'] + '</a></td>' +
+                '<td property="schema:author">' + /*TODO: vocab.author + */ '</td>' +
+                '<td property="schema:description">' + /*TODO: vocab.description + */ '</td>' +
                 '</tr>';
         }).join('');
     }
@@ -299,8 +303,16 @@ class SDOVocabBrowser {
     }
 
     generateList() {
-        this.elem.innerHTML = this.generateListTable();
+        this.elem.innerHTML = '' +
+            '<div id="mainContent"' + /*vocab="http://schema.org/" + ' typeof="rdfs:Class"*/ +' resource="' + window.location + '">' +
+            this.generateListHeader() +
+            this.generateListTable() +
+            '</div';
         this.addListEventListener();
+    }
+
+    generateListHeader() {
+        return '<h1>' + this.list['schema:name'] + '</h1>';
     }
 
     addListEventListener() {
