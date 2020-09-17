@@ -173,13 +173,15 @@ class SDOVocabBrowser {
 
     generateVocab() {
         this.elem.innerHTML =
+            '<div id="mainContent"' + /*vocab="http://schema.org/" + ' typeof="rdfs:Class"*/ + ' resource="' + window.location +'">' +
             this.generateVocabHeading() +
             this.generateVocabContentSection() +
-            this.generateVocabSection(this.classes, 'Classes') +
-            this.generateVocabSection(this.properties, 'Properties') +
-            this.generateVocabSection(this.enumerations, 'Enumerations') +
-            this.generateVocabSection(this.enumerationMembers, 'Enumeration Members') +
-            this.generateVocabSection(this.dataTypes, 'Data Types');
+            this.generateVocabSection(this.classes, 'Class', 'Classes') +
+            this.generateVocabSection(this.properties, 'Property', 'Properties') +
+            this.generateVocabSection(this.enumerations, 'Enumeration', 'Enumerations') +
+            this.generateVocabSection(this.enumerationMembers, 'Enumeration Member', 'Enumeration Members') +
+            this.generateVocabSection(this.dataTypes, 'Data Type', 'Data Types') +
+            '</div>';
         this.addTermEventListener();
     }
 
@@ -191,45 +193,46 @@ class SDOVocabBrowser {
     }
 
     generateVocabContentSection() {
-        let html = '<b>Content</b>' +
+        let html = '<h2>Content</h2>' +
             '<ul>';
 
         if (this.classes.length !== 0) {
-            html += '<li>' + this.classes.length + ' Classes</li>';
+            html += '<li>' + this.classes.length + ' Class' + (this.classes.length === 1 ? '' : 'es') + '</li>';
         }
 
         if (this.properties.length !== 0) {
-            html += '<li>' + this.properties.length + ' Properties</li>';
+            html += '<li>' + this.properties.length + ' Propert' + (this.properties.length === 1 ? 'y' : 'ies') + '</li>';
         }
 
         if (this.enumerations.length !== 0) {
-            html += '<li>' + this.enumerations.length + ' Enumerations</li>';
+            html += '<li>' + this.enumerations.length + ' Enumeration' + (this.enumerations.length === 1 ? '' : 's') + '</li>';
         }
 
         if (this.enumerationMembers.length !== 0) {
-            html += '<li>' + this.enumerationMembers.length + ' Enumeration Members</li>';
+            html += '<li>' + this.enumerationMembers.length + ' Enumeration Member' + (this.enumerationMembers.length === 1 ? '' : 's') + '</li>';
         }
 
         if (this.dataTypes.length !== 0) {
-            html += '<li>' + dataTypes.length + ' Data Types</li>';
+            html += '<li>' + dataTypes.length + ' Data Type' + (this.dataTypes.length === 1 ? '' : 's') + '</li>';
         }
 
         html += '</ul>';
         return html;
     }
 
-    generateVocabSection(objects, objectType) {
+    generateVocabSection(objects, typeSingular, typePlural) {
         let html = '';
         if (objects.length !== 0) {
              html += '' +
-                 '<table>' +
+                 '<h2>' + typePlural + '</h2>' +
+                 '<table class="definition-table">' +
                      '<thead>' +
                          '<tr>' +
-                             '<th>' + objectType + '</th>' +
+                             '<th>' + typeSingular + '</th>' +
                              '<th>Description</th>' +
                          '</tr>' +
                      '</thead>' +
-                     '<tbody>' +
+                     '<tbody class="supertype">' +
                          this.generateVocabTbody(objects) +
                      '</tbody>' +
                  '</table>'
@@ -240,10 +243,15 @@ class SDOVocabBrowser {
 
     generateVocabTbody(objects) {
         return objects.map((name) => {
+            const term = this.sdoAdapter.getTerm(name);
             return '' +
-                '<tr>' +
-                    '<td>' + util.createJSLink('a-term-name', 'term', name) + '</td>' +
-                    '<td>' + this.sdoAdapter.getTerm(name).getDescription() + '</td>' +
+                '<tr typeof="' + term.getTermType() + '" resource="' + util.createIRIwithQueryParam('term', name) + '">' +
+                '<th scope="row">' +
+                '<code property="@id">' +
+                util.createJSLink('a-term-name', 'term', name) +
+                '</code>' +
+                '</th>' +
+                '<td property="rdfs:comment">' + term.getDescription() + '</td>' +
                 '</tr>'
         }).join('');
     }
