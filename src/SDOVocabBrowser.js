@@ -11,7 +11,6 @@ class SDOVocabBrowser {
         this.elem = elem;
         this.vocabOrVocabList = vocabOrVocabList;
         this.type = type;
-        this.sdoAdapter = null;
 
         window.addEventListener('popstate', async (e) => {
             await this.generateHTML();
@@ -20,7 +19,7 @@ class SDOVocabBrowser {
 
     async init() {
         // Init list
-        if (this.type === TYPES.LIST && !this.list) {
+        if (this.listNeedsInit()) {
             let jsonString;
             if (util.isValidUrl(this.vocabOrVocabList)) {
                 jsonString = await util.get(this.vocabOrVocabList);
@@ -31,14 +30,31 @@ class SDOVocabBrowser {
         }
 
         // Init vocab
-        if (this.isVocabRendering()) {
+        if (this.vocabNeedsInit()) {
             await this.initVocab();
         }
     }
 
+    listNeedsInit() {
+        return (this.type === TYPES.LIST && !this.list);
+    }
+
+    vocabNeedsInit() {
+        const searchParams = new URLSearchParams(window.location.search);
+        const listNumber = searchParams.get('voc');
+        return ((this.type === TYPES.LIST && listNumber && listNumber !== this.listNumber) ||
+            (this.type === TYPES.VOCAB && !this.vocabs));
+    }
+
+    isListRendering() {
+        const searchParams = new URLSearchParams(window.location.search);
+        return (this.type === TYPES.LIST && !searchParams.get('voc'));
+    }
+
     isVocabRendering() {
         const searchParams = new URLSearchParams(window.location.search);
-        return (this.type === TYPES.VOCAB && !searchParams.get('term') || searchParams.get('voc'));
+        return ((this.type === TYPES.LIST && searchParams.get('voc') && !searchParams.get('term')) ||
+            (this.type === TYPES.VOCAB && !searchParams.get('term')));
     }
 
     isTermRendering() {
@@ -52,8 +68,8 @@ class SDOVocabBrowser {
             vocab = this.vocabOrVocabList;
         } else if (this.type === TYPES.LIST) {
             const searchParams = new URLSearchParams(window.location.search);
-            const listNumber = searchParams.get('voc');
-            vocab = this.list['schema:hasPart'][listNumber-1]['@id'];
+            this.listNumber = searchParams.get('voc');
+            vocab = this.list['schema:hasPart'][this.listNumber - 1]['@id'];
         }
 
         this.sdoAdapter = new SDOAdapter();
@@ -75,12 +91,12 @@ class SDOVocabBrowser {
     async generateHTML() {
         await this.init();
 
-        if (this.isTermRendering()) {
-            this.generateTerm();
+        if (this.isListRendering()) {
+            this.generateList();
         } else if (this.isVocabRendering()) {
             this.generateVocab();
-        } else if (this.type === TYPES.LIST) {
-            this.generateList();
+        } else if (this.isTermRendering()) {
+            this.generateTerm();
         }
     }
 
