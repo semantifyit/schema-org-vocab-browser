@@ -7,7 +7,7 @@ const TYPES = {
 };
 
 class SDOVocabBrowser {
-    constructor(elem, vocabOrVocabList, type=TYPES.VOCAB) {
+    constructor(elem, vocabOrVocabList, type = TYPES.VOCAB) {
         this.elem = elem;
         this.vocabOrVocabList = vocabOrVocabList;
         this.type = type;
@@ -106,7 +106,7 @@ class SDOVocabBrowser {
 
         let html;
         if (this.term.getTermType() === 'rdfs:Class') {
-            html = '<div id="mainContent"' + /*vocab="http://schema.org/"*/ + ' typeof="rdfs:Class" resource="' + window.location +'">' +
+            html = '<div id="mainContent" ' + /*vocab="http://schema.org/"*/ +'typeof="rdfs:Class" resource="' + window.location + '">' +
                 this.generateClassHeader() +
                 this.generateClassProperties() +
                 '</div>';
@@ -118,7 +118,7 @@ class SDOVocabBrowser {
 
     generateClassHeader() {
         const termIRI = this.term.getIRI(true);
-        let html = '<h1 property="rdfs:label" class="page-title">' + termIRI + '</h1>'+
+        let html = '<h1 property="rdfs:label" class="page-title">' + termIRI + '</h1>' +
             '<h4>' +
             '<span class="breadcrumbs">';
 
@@ -130,34 +130,34 @@ class SDOVocabBrowser {
                         html += '<link property="rdfs:subClassOf" href="' + util.createIRIwithQueryParam('term', superClass) + '">';
                     }
                     html += util.createJSLink('a-term-name', 'term', superClass);
-                }  else {
+                } else {
                     const href = this.sdoAdapter.getClass(superClass).getIRI();
                     if ((i + 1) === superClasses.length) {
                         html += '<link property="rdfs:subClassOf" href="' + href + '">';
                     }
                     html += '<a href="' + href + '" target="_blank">' + superClass + '</a>';
                 }
-                html +=  ' > ';
+                html += ' > ';
             });
         }
 
         html += util.createJSLink('a-term-name', 'term', termIRI) +
             '</span>' +
             '</h4>' +
-            '<div property="rdfs:comment">' + this.term.getDescription() +  '<br><br></div>';
+            '<div property="rdfs:comment">' + this.term.getDescription() + '<br><br></div>';
         return html;
     }
 
     generateClassProperties() {
         let html = '' +
             '<table class="definition-table">' +
-                '<thead>' +
-                    '<tr>' +
-                        '<th>Property</th>' +
-                        '<th>Expected Type</th>' +
-                        '<th>Description</th>' +
-                    '</tr>' +
-                '</thead>';
+            '<thead>' +
+            '<tr>' +
+            '<th>Property</th>' +
+            '<th>Expected Type</th>' +
+            '<th>Description</th>' +
+            '</tr>' +
+            '</thead>';
 
         const classes = [this.term, ...this.term.getSuperClasses().map((c) => this.sdoAdapter.getClass(c))];
         classes.forEach((c) => {
@@ -173,7 +173,7 @@ class SDOVocabBrowser {
 
     generateVocab() {
         this.elem.innerHTML =
-            '<div id="mainContent"' + /*vocab="http://schema.org/" + ' typeof="rdfs:Class"*/ + ' resource="' + window.location +'">' +
+            '<div id="mainContent"' + /*vocab="http://schema.org/" + ' typeof="rdfs:Class"*/ +' resource="' + window.location + '">' +
             this.generateVocabHeading() +
             this.generateVocabContentSection() +
             this.generateVocabSection(this.classes, 'Class', 'Classes') +
@@ -188,7 +188,9 @@ class SDOVocabBrowser {
     generateVocabHeading() {
         return '' +
             '<h1>' +
-                Object.entries(this.vocabs).map((vocab) => {return vocab[0] + ':' + vocab[1]}) +
+            Object.entries(this.vocabs).map((vocab) => {
+                return vocab[0] + ':' + vocab[1]
+            }) +
             '</h1>';
     }
 
@@ -223,19 +225,19 @@ class SDOVocabBrowser {
     generateVocabSection(objects, typeSingular, typePlural) {
         let html = '';
         if (objects.length !== 0) {
-             html += '' +
-                 '<h2>' + typePlural + '</h2>' +
-                 '<table class="definition-table">' +
-                     '<thead>' +
-                         '<tr>' +
-                             '<th>' + typeSingular + '</th>' +
-                             '<th>Description</th>' +
-                         '</tr>' +
-                     '</thead>' +
-                     '<tbody class="supertype">' +
-                         this.generateVocabTbody(objects) +
-                     '</tbody>' +
-                 '</table>'
+            html += '' +
+                '<h2>' + typePlural + '</h2>' +
+                '<table class="definition-table">' +
+                '<thead>' +
+                '<tr>' +
+                '<th>' + typeSingular + '</th>' +
+                '<th>Description</th>' +
+                '</tr>' +
+                '</thead>' +
+                '<tbody class="supertype">' +
+                this.generateVocabTbody(objects) +
+                '</tbody>' +
+                '</table>'
         }
 
         return html;
@@ -259,17 +261,17 @@ class SDOVocabBrowser {
     generateListTable() {
         return '' +
             '<table>' +
-                '<thead>' +
-                    '<tr>' +
-                        '<th>Name</th>' +
-                        '<th>IRI</th>' +
-                        '<th>Author</th>' +
-                        '<th>Description</th>' +
-                    '</tr>' +
-                '</thead>' +
-                '<tbody>' +
-                    this.generateListTbody() +
-                '</tbody>' +
+            '<thead>' +
+            '<tr>' +
+            '<th>Name</th>' +
+            '<th>IRI</th>' +
+            '<th>Author</th>' +
+            '<th>Description</th>' +
+            '</tr>' +
+            '</thead>' +
+            '<tbody>' +
+            this.generateListTbody() +
+            '</tbody>' +
             '</table>'
     }
 
@@ -277,10 +279,10 @@ class SDOVocabBrowser {
         return this.list['schema:hasPart'].map((vocab, i) => {
             return '' +
                 '<tr>' +
-                    '<td>' + util.createJSLink('a-vocab-name', 'voc', i + 1,'TODO') + '</td>' +
-                    '<td><a target="_blank" href="' + vocab['@id'] + '">' + vocab['@id'] + '</a></td>' +
-                    '<td>' + /*TODO: vocab.author + */ '</td>' +
-                    '<td>' + /*TODO: vocab.description + */ '</td>' +
+                '<td>' + util.createJSLink('a-vocab-name', 'voc', i + 1, 'TODO') + '</td>' +
+                '<td><a target="_blank" href="' + vocab['@id'] + '">' + vocab['@id'] + '</a></td>' +
+                '<td>' + /*TODO: vocab.author + */ '</td>' +
+                '<td>' + /*TODO: vocab.description + */ '</td>' +
                 '</tr>';
         }).join('');
     }
