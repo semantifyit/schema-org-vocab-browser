@@ -17,16 +17,22 @@ class SDOVocabBrowser {
         });
     }
 
+    async generateHTML() {
+        await this.init();
+
+        if (this.isListRendering()) {
+            this.generateList();
+        } else if (this.isVocabRendering()) {
+            this.generateVocab();
+        } else if (this.isTermRendering()) {
+            this.generateTerm();
+        }
+    }
+
     async init() {
         // Init list
         if (this.listNeedsInit()) {
-            let jsonString;
-            if (util.isValidUrl(this.vocabOrVocabList)) {
-                jsonString = await util.get(this.vocabOrVocabList);
-            } else {
-                jsonString = this.vocabOrVocabList;
-            }
-            this.list = JSON.parse(jsonString)
+            await this.initList();
         }
 
         // Init vocab
@@ -39,27 +45,21 @@ class SDOVocabBrowser {
         return (this.type === TYPES.LIST && !this.list);
     }
 
+    async initList() {
+        let jsonString;
+        if (util.isValidUrl(this.vocabOrVocabList)) {
+            jsonString = await util.get(this.vocabOrVocabList);
+        } else {
+            jsonString = this.vocabOrVocabList;
+        }
+        this.list = JSON.parse(jsonString);
+    }
+
     vocabNeedsInit() {
         const searchParams = new URLSearchParams(window.location.search);
         const listNumber = searchParams.get('voc');
         return ((this.type === TYPES.LIST && listNumber && listNumber !== this.listNumber) ||
             (this.type === TYPES.VOCAB && !this.vocabs));
-    }
-
-    isListRendering() {
-        const searchParams = new URLSearchParams(window.location.search);
-        return (this.type === TYPES.LIST && !searchParams.get('voc'));
-    }
-
-    isVocabRendering() {
-        const searchParams = new URLSearchParams(window.location.search);
-        return ((this.type === TYPES.LIST && searchParams.get('voc') && !searchParams.get('term')) ||
-            (this.type === TYPES.VOCAB && !searchParams.get('term')));
-    }
-
-    isTermRendering() {
-        const searchParams = new URLSearchParams(window.location.search);
-        return searchParams.get('term');
     }
 
     async initVocab() {
@@ -88,16 +88,165 @@ class SDOVocabBrowser {
         this.dataTypes = this.sdoAdapter.getListOfDataTypes({fromVocabulary: vocabNames});
     }
 
-    async generateHTML() {
-        await this.init();
+    isListRendering() {
+        const searchParams = new URLSearchParams(window.location.search);
+        return (this.type === TYPES.LIST && !searchParams.get('voc'));
+    }
 
-        if (this.isListRendering()) {
-            this.generateList();
-        } else if (this.isVocabRendering()) {
-            this.generateVocab();
-        } else if (this.isTermRendering()) {
-            this.generateTerm();
+    isVocabRendering() {
+        const searchParams = new URLSearchParams(window.location.search);
+        return ((this.type === TYPES.LIST && searchParams.get('voc') && !searchParams.get('term')) ||
+            (this.type === TYPES.VOCAB && !searchParams.get('term')));
+    }
+
+    isTermRendering() {
+        const searchParams = new URLSearchParams(window.location.search);
+        return searchParams.get('term');
+    }
+
+    generateList() {
+        this.elem.innerHTML = '' +
+            '<div id="mainContent"' + /*vocab="http://schema.org/" + ' typeof="rdfs:Class"*/ +' resource="' + window.location + '">' +
+            this.generateListHeader() +
+            this.generateListTable() +
+            '</div';
+        this.addListEventListener();
+    }
+
+    generateListHeader() {
+        return '<h1>' + this.list['schema:name'] + '</h1>';
+    }
+
+    generateListTable() {
+        return '' +
+            '<table class="definition-table">' +
+            '<thead>' +
+            '<tr>' +
+            '<th>Name</th>' +
+            '<th>IRI</th>' +
+            '<th>Author</th>' +
+            '<th>Description</th>' +
+            '</tr>' +
+            '</thead>' +
+            '<tbody class="supertype">' +
+            this.generateListTbody() +
+            '</tbody>' +
+            '</table>'
+    }
+
+    generateListTbody() {
+        return this.list['schema:hasPart'].map((vocab, i) => {
+            return '' +
+                '<tr typeof="http://vocab.sti2.at/ds/Vocabulary" resource="' + util.createIRIwithQueryParam('voc', i + 1) + '">' +
+                '<th scope="row">' +
+                '<code property="schema:name">' +
+                util.createJSLink('a-vocab-name', 'voc', i + 1, 'TODO') +
+                '</code>' +
+                '</th>' +
+                '<td property="@id"><a target="_blank" href="' + vocab['@id'] + '">' + vocab['@id'] + '</a></td>' +
+                '<td property="schema:author">' + /*TODO: vocab.author + */ '</td>' +
+                '<td property="schema:description">' + /*TODO: vocab.description + */ '</td>' +
+                '</tr>';
+        }).join('');
+    }
+
+    addListEventListener() {
+        const aVocabNames = document.getElementsByClassName('a-vocab-name');
+
+        for (let i = 0; i < aVocabNames.length; i++) { // forEach() not possible ootb for HTMLCollections
+            const aVocabName = aVocabNames[i];
+            aVocabName.addEventListener('click', async () => {
+                history.pushState(null, null, util.createIRIwithQueryParam('voc', i + 1));
+                await this.generateHTML();
+            });
         }
+    }
+
+    generateVocab() {
+        this.elem.innerHTML =
+            '<div id="mainContent"' + /*vocab="http://schema.org/" + ' typeof="rdfs:Class"*/ +' resource="' + window.location + '">' +
+            this.generateVocabHeading() +
+            this.generateVocabContentSection() +
+            this.generateVocabSection(this.classes, 'Class', 'Classes') +
+            this.generateVocabSection(this.properties, 'Property', 'Properties') +
+            this.generateVocabSection(this.enumerations, 'Enumeration', 'Enumerations') +
+            this.generateVocabSection(this.enumerationMembers, 'Enumeration Member', 'Enumeration Members') +
+            this.generateVocabSection(this.dataTypes, 'Data Type', 'Data Types') +
+            '</div>';
+        this.addTermEventListener();
+    }
+
+    generateVocabHeading() {
+        return '' +
+            '<h1>' +
+            Object.entries(this.vocabs).map((vocab) => {
+                return vocab[0] + ':' + vocab[1]
+            }) +
+            '</h1>';
+    }
+
+    generateVocabContentSection() {
+        let html = '<h2>Content</h2>' +
+            '<ul>';
+
+        if (this.classes.length !== 0) {
+            html += '<li>' + this.classes.length + ' Class' + (this.classes.length === 1 ? '' : 'es') + '</li>';
+        }
+
+        if (this.properties.length !== 0) {
+            html += '<li>' + this.properties.length + ' Propert' + (this.properties.length === 1 ? 'y' : 'ies') + '</li>';
+        }
+
+        if (this.enumerations.length !== 0) {
+            html += '<li>' + this.enumerations.length + ' Enumeration' + (this.enumerations.length === 1 ? '' : 's') + '</li>';
+        }
+
+        if (this.enumerationMembers.length !== 0) {
+            html += '<li>' + this.enumerationMembers.length + ' Enumeration Member' + (this.enumerationMembers.length === 1 ? '' : 's') + '</li>';
+        }
+
+        if (this.dataTypes.length !== 0) {
+            html += '<li>' + dataTypes.length + ' Data Type' + (this.dataTypes.length === 1 ? '' : 's') + '</li>';
+        }
+
+        html += '</ul>';
+        return html;
+    }
+
+    generateVocabSection(objects, typeSingular, typePlural) {
+        let html = '';
+        if (objects.length !== 0) {
+            html += '' +
+                '<h2>' + typePlural + '</h2>' +
+                '<table class="definition-table">' +
+                '<thead>' +
+                '<tr>' +
+                '<th>' + typeSingular + '</th>' +
+                '<th>Description</th>' +
+                '</tr>' +
+                '</thead>' +
+                '<tbody class="supertype">' +
+                this.generateVocabSectionTbody(objects) +
+                '</tbody>' +
+                '</table>'
+        }
+
+        return html;
+    }
+
+    generateVocabSectionTbody(objects) {
+        return objects.map((name) => {
+            const term = this.sdoAdapter.getTerm(name);
+            return '' +
+                '<tr typeof="' + term.getTermType() + '" resource="' + util.createIRIwithQueryParam('term', name) + '">' +
+                '<th scope="row">' +
+                '<code property="@id">' +
+                util.createJSLink('a-term-name', 'term', name) +
+                '</code>' +
+                '</th>' +
+                '<td property="rdfs:comment">' + term.getDescription() + '</td>' +
+                '</tr>'
+        }).join('');
     }
 
     generateTerm() {
@@ -171,157 +320,12 @@ class SDOVocabBrowser {
         return html;
     }
 
-    generateVocab() {
-        this.elem.innerHTML =
-            '<div id="mainContent"' + /*vocab="http://schema.org/" + ' typeof="rdfs:Class"*/ +' resource="' + window.location + '">' +
-            this.generateVocabHeading() +
-            this.generateVocabContentSection() +
-            this.generateVocabSection(this.classes, 'Class', 'Classes') +
-            this.generateVocabSection(this.properties, 'Property', 'Properties') +
-            this.generateVocabSection(this.enumerations, 'Enumeration', 'Enumerations') +
-            this.generateVocabSection(this.enumerationMembers, 'Enumeration Member', 'Enumeration Members') +
-            this.generateVocabSection(this.dataTypes, 'Data Type', 'Data Types') +
-            '</div>';
-        this.addTermEventListener();
-    }
-
-    generateVocabHeading() {
-        return '' +
-            '<h1>' +
-            Object.entries(this.vocabs).map((vocab) => {
-                return vocab[0] + ':' + vocab[1]
-            }) +
-            '</h1>';
-    }
-
-    generateVocabContentSection() {
-        let html = '<h2>Content</h2>' +
-            '<ul>';
-
-        if (this.classes.length !== 0) {
-            html += '<li>' + this.classes.length + ' Class' + (this.classes.length === 1 ? '' : 'es') + '</li>';
-        }
-
-        if (this.properties.length !== 0) {
-            html += '<li>' + this.properties.length + ' Propert' + (this.properties.length === 1 ? 'y' : 'ies') + '</li>';
-        }
-
-        if (this.enumerations.length !== 0) {
-            html += '<li>' + this.enumerations.length + ' Enumeration' + (this.enumerations.length === 1 ? '' : 's') + '</li>';
-        }
-
-        if (this.enumerationMembers.length !== 0) {
-            html += '<li>' + this.enumerationMembers.length + ' Enumeration Member' + (this.enumerationMembers.length === 1 ? '' : 's') + '</li>';
-        }
-
-        if (this.dataTypes.length !== 0) {
-            html += '<li>' + dataTypes.length + ' Data Type' + (this.dataTypes.length === 1 ? '' : 's') + '</li>';
-        }
-
-        html += '</ul>';
-        return html;
-    }
-
-    generateVocabSection(objects, typeSingular, typePlural) {
-        let html = '';
-        if (objects.length !== 0) {
-            html += '' +
-                '<h2>' + typePlural + '</h2>' +
-                '<table class="definition-table">' +
-                '<thead>' +
-                '<tr>' +
-                '<th>' + typeSingular + '</th>' +
-                '<th>Description</th>' +
-                '</tr>' +
-                '</thead>' +
-                '<tbody class="supertype">' +
-                this.generateVocabTbody(objects) +
-                '</tbody>' +
-                '</table>'
-        }
-
-        return html;
-    }
-
-    generateVocabTbody(objects) {
-        return objects.map((name) => {
-            const term = this.sdoAdapter.getTerm(name);
-            return '' +
-                '<tr typeof="' + term.getTermType() + '" resource="' + util.createIRIwithQueryParam('term', name) + '">' +
-                '<th scope="row">' +
-                '<code property="@id">' +
-                util.createJSLink('a-term-name', 'term', name) +
-                '</code>' +
-                '</th>' +
-                '<td property="rdfs:comment">' + term.getDescription() + '</td>' +
-                '</tr>'
-        }).join('');
-    }
-
-    generateListTable() {
-        return '' +
-            '<table class="definition-table">' +
-            '<thead>' +
-            '<tr>' +
-            '<th>Name</th>' +
-            '<th>IRI</th>' +
-            '<th>Author</th>' +
-            '<th>Description</th>' +
-            '</tr>' +
-            '</thead>' +
-            '<tbody class="supertype">' +
-            this.generateListTbody() +
-            '</tbody>' +
-            '</table>'
-    }
-
-    generateListTbody() {
-        return this.list['schema:hasPart'].map((vocab, i) => {
-            return '' +
-                '<tr typeof="http://vocab.sti2.at/ds/Vocabulary" resource="' + util.createIRIwithQueryParam('voc', i + 1) + '">' +
-                '<th scope="row">' +
-                '<code property="schema:name">' +
-                util.createJSLink('a-vocab-name', 'voc', i + 1, 'TODO') +
-                '</code>' +
-                '</th>' +
-                '<td property="@id"><a target="_blank" href="' + vocab['@id'] + '">' + vocab['@id'] + '</a></td>' +
-                '<td property="schema:author">' + /*TODO: vocab.author + */ '</td>' +
-                '<td property="schema:description">' + /*TODO: vocab.description + */ '</td>' +
-                '</tr>';
-        }).join('');
-    }
-
     addTermEventListener() {
         const aTermNames = document.getElementsByClassName('a-term-name');
 
         for (const aTermName of aTermNames) { // forEach() not possible ootb for HTMLCollections
             aTermName.addEventListener('click', async () => {
                 history.pushState(null, null, util.createIRIwithQueryParam('term', aTermName.innerText));
-                await this.generateHTML();
-            });
-        }
-    }
-
-    generateList() {
-        this.elem.innerHTML = '' +
-            '<div id="mainContent"' + /*vocab="http://schema.org/" + ' typeof="rdfs:Class"*/ +' resource="' + window.location + '">' +
-            this.generateListHeader() +
-            this.generateListTable() +
-            '</div';
-        this.addListEventListener();
-    }
-
-    generateListHeader() {
-        return '<h1>' + this.list['schema:name'] + '</h1>';
-    }
-
-    addListEventListener() {
-        const aVocabNames = document.getElementsByClassName('a-vocab-name');
-
-        for (let i = 0; i < aVocabNames.length; i++) { // forEach() not possible ootb for HTMLCollections
-            const aVocabName = aVocabNames[i];
-            aVocabName.addEventListener('click', async () => {
-                history.pushState(null, null, util.createIRIwithQueryParam('voc', i + 1));
                 await this.generateHTML();
             });
         }
