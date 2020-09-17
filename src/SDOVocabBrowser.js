@@ -90,7 +90,10 @@ class SDOVocabBrowser {
 
         let html;
         if (this.term.getTermType() === 'rdfs:Class') {
-            html = this.generateClassHeader();
+            html = '<div id="mainContent"' + /*vocab="http://schema.org/"*/ + ' typeof="rdfs:Class" resource="' + window.location +'">' +
+                this.generateClassHeader() +
+                this.generateClassProperties() +
+                '</div>';
         }
 
         this.elem.innerHTML = html;
@@ -99,25 +102,56 @@ class SDOVocabBrowser {
 
     generateClassHeader() {
         const termIRI = this.term.getIRI(true);
-        let html = '<h1>' + termIRI + '</h1>';
+        let html = '<h1 property="rdfs:label" class="page-title">' + termIRI + '</h1>'+
+            '<h4>' +
+            '<span class="breadcrumbs">';
 
         const superClasses = this.term.getSuperClasses();
         if (superClasses) {
-            html += '<h4>';
-            superClasses.reverse().forEach((superClass) => {
-                let attr;
+            superClasses.reverse().forEach((superClass, i) => {
                 if (this.classes.includes(superClass)) {
-                    attr = util.createAttrForJSLink('a-term-name', 'term', superClass);
+                    if ((i + 1) === superClasses.length) {
+                        html += '<link property="rdfs:subClassOf" href="' + util.createIRIwithQueryParam('term', superClass) + '">';
+                    }
+                    html += util.createJSLink('a-term-name', 'term', superClass);
                 }  else {
-                    attr = 'href="' + this.sdoAdapter.getClass(superClass).getIRI() + '"';
+                    const href = this.sdoAdapter.getClass(superClass).getIRI();
+                    if ((i + 1) === superClasses.length) {
+                        html += '<link property="rdfs:subClassOf" href="' + href + '">';
+                    }
+                    html += '<a href="' + href + '" target="_blank">' + superClass + '</a>';
                 }
-                html += '<a ' + attr + '>' + superClass + '</a> > ';
+                html +=  ' > ';
             });
-            html += util.createJSLink('a-term-name', 'term', termIRI) +
-                '</h4>';
         }
 
-        html += '<div>' + this.term.getDescription() +  '<br><br></div>';
+        html += util.createJSLink('a-term-name', 'term', termIRI) +
+            '</span>' +
+            '</h4>' +
+            '<div property="rdfs:comment">' + this.term.getDescription() +  '<br><br></div>';
+        return html;
+    }
+
+    generateClassProperties() {
+        let html = '' +
+            '<table class="definition-table">' +
+                '<thead>' +
+                    '<tr>' +
+                        '<th>Property</th>' +
+                        '<th>Expected Type</th>' +
+                        '<th>Description</th>' +
+                    '</tr>' +
+                '</thead>';
+
+        const classes = [this.term, ...this.term.getSuperClasses().map((c) => this.sdoAdapter.getClass(c))];
+        classes.forEach((c) => {
+            const properties = c.getProperties(false);
+            if (properties.length !== 0) {
+                html += '<tbody><tr class="supertype"><th colspan="3">Properties from ' + c.getIRI(true) + '</th></tr></tbody>';
+                // TODO
+            }
+        });
+        html += '</table>';
         return html;
     }
 
