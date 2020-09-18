@@ -148,11 +148,11 @@ class SDOVocabBrowser {
         }).join('');
     }
 
-    generateTableRow(typeOf, resource, mainColProp, link, tds) {
+    generateTableRow(typeOf, resource, mainColProp, link, sideCols) {
         return '' +
             '<tr typeof="' + typeOf  + '" resource="' + resource + '">' +
             this.generateMainColEntry(mainColProp, link) +
-            tds +
+            sideCols +
             '</tr>';
     }
 
@@ -285,18 +285,10 @@ class SDOVocabBrowser {
         const superClasses = this.term.getSuperClasses();
         if (superClasses) {
             superClasses.reverse().forEach((superClass, i) => {
-                if (this.classes.includes(superClass)) {
-                    if ((i + 1) === superClasses.length) {
-                        html += '<link property="rdfs:subClassOf" href="' + util.createIRIwithQueryParam('term', superClass) + '">';
-                    }
-                    html += util.createJSLink('a-term-name', 'term', superClass);
-                } else {
-                    const href = this.sdoAdapter.getClass(superClass).getIRI();
-                    if ((i + 1) === superClasses.length) {
-                        html += '<link property="rdfs:subClassOf" href="' + href + '">';
-                    }
-                    html += util.createExternalLink(href, superClass);
+                if ((i + 1) === superClasses.length) {
+                    html += this.generateSemanticLink('rdfs:subClassOf', superClass);
                 }
+                html += this.generateLink(superClass);
                 html += ' > ';
             });
         }
@@ -306,6 +298,34 @@ class SDOVocabBrowser {
             '</h4>' +
             '<div property="rdfs:comment">' + this.term.getDescription() + '<br><br></div>';
         return html;
+    }
+
+    generateSemanticLink(property, term) {
+        return '<link property="' + property + ' href="' + this.generateHref(term) + '">';
+    }
+
+    generateHref(term) {
+        if (this.isTermOfVocab(term)) {
+            return util.createIRIwithQueryParam('term', term);
+        } else {
+            return this.sdoAdapter.getTerm(term).getIRI();
+        }
+    }
+
+    isTermOfVocab(term) {
+        return this.classes.includes(term) ||
+            this.properties.includes(term) ||
+            this.enumerations.includes(term) ||
+            this.enumerationMembers.includes(term) ||
+            this.dataTypes.includes(term);
+    }
+
+    generateLink(term) {
+        if (this.isTermOfVocab(term)) {
+            return util.createJSLink('a-term-name', 'term', term);
+        } else {
+            return util.createExternalLink(this.generateHref(term), term);
+        }
     }
 
     generateClassProperties() {
@@ -331,22 +351,21 @@ class SDOVocabBrowser {
                     '</tbody>' +
                     '<tbody>';
                 properties.forEach((p) => {
-                    let href, link;
-                    if (this.properties.includes(p)) {
-                        href = util.createIRIwithQueryParam('term', p);
-                        link = util.createJSLink('a-term-name', 'term', p);
-                    } else {
-                        href = this.sdoAdapter.getProperty(p).getIRI();
-                        link = util.createExternalLink(href, p);
-                    }
-
-                    html += this.generateTableRow('rdfs:Property', href, 'rdfs:label', link,
-                        '<td>TODO</td><td>TODO</td>');
+                    html += this.generateTableRow('rdfs:Property', this.generateHref(p), 'rdfs:label', this.generateLink(p),
+                        '<td>' + this.generateRange(p) + '</td><td>TODO</td>');
                 });
                 html += '</tbody>';
             }
         });
         html += '</table>';
+        return html;
+    }
+
+    generateRange(property) {
+        let html = this.sdoAdapter.getProperty(property).getRanges(false).map((p) => {
+            return this.generateSemanticLink('rangeIncludes', p) + this.generateLink(p);
+        }).join('&nbsp; or <br>');
+        // TODO Domain
         return html;
     }
 
