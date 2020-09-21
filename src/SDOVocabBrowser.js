@@ -137,18 +137,16 @@ class SDOVocabBrowser {
     generateListTbody() {
         return this.list['schema:hasPart'].map((vocab, i) => {
             return '' +
-                this.generateTableRow("http://vocab.sti2.at/ds/Vocabulary",
-                    util.createIRIwithQueryParam('voc', i + 1) +
+                this.generateTableRow('http://vocab.sti2.at/ds/Vocabulary',
+                    util.createIRIwithQueryParam('voc', i + 1),
                     'schema:name',
                     util.createJSLink('a-vocab-name', 'voc', i + 1, 'TODO'),
-                    '<td property="@id"><a target="_blank" href="' + vocab['@id'] + '">' + vocab['@id'] + '</a></td>' +
-                    '<td property="schema:author">' + /*TODO: vocab.author + */ '</td>' +
-                    '<td property="schema:description">' + /*TODO: vocab.description + */ '</td>'
+                    this.generateListSideCols(vocab)
                 );
         }).join('');
     }
 
-    generateTableRow(typeOf, resource, mainColProp, link, sideCols, mainColClass=false) {
+    generateTableRow(typeOf, resource, mainColProp, link, sideCols, mainColClass=null) {
         return '' +
             '<tr typeof="' + typeOf  + '" resource="' + resource + '">' +
             this.generateMainColEntry(mainColProp, link, mainColClass) +
@@ -163,6 +161,13 @@ class SDOVocabBrowser {
             link +
             '</code>' +
             '</th>';
+    }
+
+    generateListSideCols(vocab) {
+        return '' +
+            '<td property="@id">' + util.createExternalLink(vocab['@id']) + '</td>' +
+            '<td property="schema:author">' + /*TODO: vocab.author + */ '</td>' +
+            '<td property="schema:description">' + /*TODO: vocab.description + */ '</td>';
     }
 
     addListEventListener() {

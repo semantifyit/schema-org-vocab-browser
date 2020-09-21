@@ -18,8 +18,8 @@ function createAttrForJSLink(className, queryKey, queryVal, attr=null) {
     return 'class="' + className + '" href="' + iri + '" onclick="return false;"' +  createHTMLAttr(attr);
 }
 
-function createExternalLink(href, text, attr=null) {
-    return '<a href="' + href + '" target="_blank"' + createHTMLAttr(attr) + '>' + text + '</a>';
+function createExternalLink(href, text=null, attr=null) {
+    return '<a href="' + href + '" target="_blank"' + createHTMLAttr(attr) + '>' + (text ? text : href) + '</a>';
 }
 
 function createIRIwithQueryParam(key, val) {
