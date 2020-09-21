@@ -301,7 +301,7 @@ class SDOVocabBrowser {
     }
 
     generateSemanticLink(property, term) {
-        return '<link property="' + property + ' href="' + this.generateHref(term) + '">';
+        return '<link property="' + property + '" href="' + this.generateHref(term) + '">';
     }
 
     generateHref(term) {
@@ -362,11 +362,14 @@ class SDOVocabBrowser {
     }
 
     generateRange(property) {
-        let html = this.sdoAdapter.getProperty(property).getRanges(false).map((p) => {
+        const sdoProperty = this.sdoAdapter.getProperty(property);
+        const expectedType = sdoProperty.getRanges(false).map((p) => {
             return this.generateSemanticLink('rangeIncludes', p) + this.generateLink(p);
         }).join('&nbsp; or <br>');
-        // TODO Domain
-        return html;
+        const domainIncludes = sdoProperty.getDomains(false).map((d) => {
+            return this.generateSemanticLink('domainIncludes', d);
+        });
+        return expectedType + domainIncludes;
     }
 
     addTermEventListener() {
