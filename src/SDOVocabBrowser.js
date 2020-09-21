@@ -148,17 +148,17 @@ class SDOVocabBrowser {
         }).join('');
     }
 
-    generateTableRow(typeOf, resource, mainColProp, link, sideCols) {
+    generateTableRow(typeOf, resource, mainColProp, link, sideCols, mainColClass=false) {
         return '' +
             '<tr typeof="' + typeOf  + '" resource="' + resource + '">' +
-            this.generateMainColEntry(mainColProp, link) +
+            this.generateMainColEntry(mainColProp, link, mainColClass) +
             sideCols +
             '</tr>';
     }
 
-    generateMainColEntry(property, link) {
+    generateMainColEntry(property, link, className=null) {
         return '' +
-            '<th scope="row">' +
+            '<th' + (className ? ' class="' + className + '"' : '') + ' scope="row">' +
             '<code property="' + property + '">' +
             link +
             '</code>' +
@@ -343,8 +343,8 @@ class SDOVocabBrowser {
                         this.generateHref(p),
                         'rdfs:label',
                         this.generateLink(p),
-                        '<td>' + this.generateRange(p) + '</td>' +
-                        '<td>TODO</td>');
+                        this.generatePropertySideCols(p),
+                        'prop-name');
                 });
                 html += '</tbody>';
             }
@@ -375,8 +375,14 @@ class SDOVocabBrowser {
             '</tbody>';
     }
 
-    generateRange(property) {
+    generatePropertySideCols(property) {
         const sdoProperty = this.sdoAdapter.getProperty(property);
+        return '' +
+            '<td class="prop-etc">' + this.generateRange(sdoProperty) + '</td>' +
+            '<td class="prop-desc" property="rdfs:comment">' + sdoProperty.getDescription() + '</td>';
+    }
+
+    generateRange(sdoProperty) {
         const expectedType = sdoProperty.getRanges(false).map((p) => {
             return this.generateSemanticLink('rangeIncludes', p) + this.generateLink(p);
         }).join('&nbsp; or <br>');
