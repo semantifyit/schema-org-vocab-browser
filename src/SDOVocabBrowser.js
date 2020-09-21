@@ -285,6 +285,7 @@ class SDOVocabBrowser {
                         this.generatePropertyStartBreadcrumbs()) +
                     this.generatePropertyRanges() +
                     this.generatePropertyDomainIncludes() +
+                    this.generatePropertySuperTypes() +
                     '</div>'
 
         }
@@ -482,6 +483,22 @@ class SDOVocabBrowser {
                                 'is used on the \'' + d + '\' type'}) +
                     '</code>';
             }).join('<br>'));
+    }
+
+    generatePropertySuperTypes() {
+        const superProperties = this.term.getSuperProperties(false);
+        if (superProperties.length !== 0) {
+            return this.getPropertyDefinitionTable('Super-properties',
+                superProperties.map((s) => {
+                    return '' +
+                        '<code>' +
+                        this.generateLink(s,
+                            {'title': s + ': \'\'' + this.sdoAdapter.getProperty(s).getDescription() + '\'\''}) +
+                        '</code>';
+                }).join('<br>'));
+        } else {
+            return '';
+        }
     }
 
     addTermEventListener() {
