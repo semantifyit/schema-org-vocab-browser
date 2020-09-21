@@ -349,7 +349,10 @@ class SDOVocabBrowser {
                 html += '</tbody>';
             }
         });
-        html += '</table>';
+        html += '</table>' +
+        '<br>'+
+        this.generateClassSpecificTypes();
+
         return html;
     }
 
@@ -390,6 +393,26 @@ class SDOVocabBrowser {
             return this.generateSemanticLink('domainIncludes', d);
         });
         return expectedType + domainIncludes;
+    }
+
+    generateClassSpecificTypes() {
+        const subClasses = this.term.getSubClasses(false);
+        if (subClasses.length !== 0) {
+            return '' +
+                '<b>' +
+                '<a id="subtypes" title="Link: #subtypes" href="#subtypes" class="clickableAnchor">' +
+                'More specific Types' +
+                '</a>' +
+                '</b>' +
+                '<ul>' +
+                subClasses.map((s) => {
+                    return '<li>' + this.generateLink(s) + '</li>';
+                }) +
+                '</ul>' +
+                '<br>';
+        } else {
+            return '';
+        }
     }
 
     addTermEventListener() {
