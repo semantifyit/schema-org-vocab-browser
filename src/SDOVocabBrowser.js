@@ -265,39 +265,37 @@ class SDOVocabBrowser {
         this.term = this.sdoAdapter.getTerm(searchParams.get('term'));
 
         let html;
-        if (this.term.getTermType() === 'rdfs:Class') {
-            html = '<div id="mainContent" ' + /*vocab="http://schema.org/"*/ +'typeof="rdfs:Class" resource="' + window.location + '">' +
-                this.generateClassHeader() +
-                this.generateClassProperties() +
-                '</div>';
-        }
+        switch(this.term.getTermType()) {
+            case 'rdfs:Class':
+                html = '' +
+                    '<div id="mainContent" vocab="http://schema.org/" typeof="rdfs:Class" resource="' + window.location + '">' +
+                    this.generateHeader(this.term.getSuperClasses(), 'rdfs:subClassOf') +
+                    this.generateClassProperties() +
+                    '</div>';
+                break;
+            case 'rdf:Property':
+                html = '' +
+                    '<div id="mainContent" vocab="http://schema.org/" typeof="rdf:Property" resource="' + window.location + '">' +
+                    this.generateHeader(this.term.getSuperProperties(), 'rdfs:subPropertyOf',
+                        this.generatePropertyStartBreadcrumbs()) +
+                    '</div>'
 
+        }
         this.elem.innerHTML = html;
         this.addTermEventListener();
     }
 
-    generateClassHeader() {
-        const termIRI = this.term.getIRI(true);
-        let html = '<h1 property="rdfs:label" class="page-title">' + termIRI + '</h1>' +
+    generateHeader(superTypes, superTypeRelationship, breadCrumbStart='') {
+        return '' +
+            '<h1 property="rdfs:label" class="page-title">' + this.term.getIRI(true) + '</h1>' +
             '<h4>' +
-            '<span class="breadcrumbs">';
-
-        const superClasses = this.term.getSuperClasses();
-        if (superClasses) {
-            superClasses.reverse().forEach((superClass, i) => {
-                if ((i + 1) === superClasses.length) {
-                    html += this.generateSemanticLink('rdfs:subClassOf', superClass);
-                }
-                html += this.generateLink(superClass);
-                html += ' > ';
-            });
-        }
-
-        html += util.createJSLink('a-term-name', 'term', termIRI) +
+            '<span class="breadcrumbs">' +
+            breadCrumbStart +
+            this.generateSuperTypeBreadcrumbs(superTypes, superTypeRelationship) +
+            util.createJSLink('a-term-name', 'term', this.term.getIRI(true)) +
             '</span>' +
             '</h4>' +
             '<div property="rdfs:comment">' + this.term.getDescription() + '<br><br></div>';
-        return html;
     }
 
     generateSemanticLink(property, term) {
@@ -320,12 +318,26 @@ class SDOVocabBrowser {
             this.dataTypes.includes(term);
     }
 
-    generateLink(term) {
+    generateLink(term, attr=null) {
         if (this.isTermOfVocab(term)) {
-            return util.createJSLink('a-term-name', 'term', term);
+            return util.createJSLink('a-term-name', 'term', term, null, attr);
         } else {
-            return util.createExternalLink(this.generateHref(term), term);
+            return util.createExternalLink(this.generateHref(term), term, attr);
         }
+    }
+
+    generateSuperTypeBreadcrumbs(superTypes, superTypeRelationship) {
+        let html = '';
+        if (superTypes) {
+            superTypes.reverse().forEach((superType, i) => {
+                if ((i + 1) === superTypes.length) {
+                    html += this.generateSemanticLink(superTypeRelationship, superType);
+                }
+                html += this.generateLink(superType);
+                html += ' > ';
+            });
+        }
+        return html;
     }
 
     generateClassProperties() {
@@ -413,6 +425,14 @@ class SDOVocabBrowser {
         } else {
             return '';
         }
+    }
+
+    generatePropertyStartBreadcrumbs() {
+        return '' +
+            this.generateLink('schema:Thing') +
+            " > " +
+            this.generateLink('schema:Property', {'title': 'Defined in section: meta.schema.org'}) +
+            " > ";
     }
 
     addTermEventListener() {

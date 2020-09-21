@@ -1,10 +1,25 @@
-function createAttrForJSLink(className, queryKey, queryVal) {
-    const iri = createIRIwithQueryParam(queryKey, queryVal);
-    return 'class="' + className + '" href="' + iri + '" onclick="return false;"';
+/**
+ *
+ * @param {object|null} attr
+ * @returns {string}
+ */
+function createHTMLAttr(attr) {
+    if (attr) {
+        return Object.entries(attr).map((a) => {
+            return ' ' + a[0] + '="' + a[1] + '" ';
+        }).join('');
+    } else {
+        return '';
+    }
 }
 
-function createExternalLink(href, text) {
-    return '<a href="' + href + '" target="_blank">' + text + '</a>';
+function createAttrForJSLink(className, queryKey, queryVal, attr=null) {
+    const iri = createIRIwithQueryParam(queryKey, queryVal);
+    return 'class="' + className + '" href="' + iri + '" onclick="return false;"' +  createHTMLAttr(attr);
+}
+
+function createExternalLink(href, text, attr=null) {
+    return '<a href="' + href + '" target="_blank"' + createHTMLAttr(attr) + '>' + text + '</a>';
 }
 
 function createIRIwithQueryParam(key, val) {
@@ -13,8 +28,8 @@ function createIRIwithQueryParam(key, val) {
     return window.location.origin + window.location.pathname + '?' + searchParams.toString();
 }
 
-function createJSLink(className, queryKey, queryVal, text=null) {
-    return '<a ' + createAttrForJSLink(className, queryKey, queryVal) + '>' + (text ? text : queryVal) + '</a>';
+function createJSLink(className, queryKey, queryVal, text=null, attr=null) {
+    return '<a ' + createAttrForJSLink(className, queryKey, queryVal, attr) + '>' + (text ? text : queryVal) + '</a>';
 }
 
 function get(url) {
