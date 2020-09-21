@@ -283,7 +283,8 @@ class SDOVocabBrowser {
                     '<div id="mainContent" vocab="http://schema.org/" typeof="rdf:Property" resource="' + window.location + '">' +
                     this.generateHeader(this.term.getSuperProperties(), 'rdfs:subPropertyOf',
                         this.generatePropertyStartBreadcrumbs()) +
-                    this.generatePropertyExpectedTypes() +
+                    this.generatePropertyRanges() +
+                    this.generatePropertyDomainIncludes() +
                     '</div>'
 
         }
@@ -441,17 +442,8 @@ class SDOVocabBrowser {
             " > ";
     }
 
-    generatePropertyExpectedTypes() {
-        return '' +
-            '<table class="definition-table">' +
-            '<thead>' +
-            '<tr>' +
-            '<th>Values expected to be one of these types</th>' +
-            '</tr>' +
-            '</thead>' +
-            '<tbody>' +
-            '<tr>' +
-            '<td>' +
+    generatePropertyRanges() {
+        return this.getPropertyDefinitionTable('Values expected to be one of these types',
             this.term.getRanges(false).map((r) => {
                 return '' +
                     '<code>' +
@@ -460,10 +452,36 @@ class SDOVocabBrowser {
                         {'title': 'The \'' + this.term.getIRI(true) + '\' property has values that include ' +
                                 'instances of the \'' + r + '\' type.'}) +
                     '</code>';
-            }).join('<br>') +
-            '</td>' +
+            }).join('<br>'));
+    }
+
+    getPropertyDefinitionTable(th, td) {
+        return '' +
+            '<table class="definition-table">' +
+            '<thead>' +
+            '<tr>' +
+            '<th>' + th + '</th>' +
             '</tr>' +
-            '</tbody>';
+            '</thead>' +
+            '<tbody>' +
+            '<tr>' +
+            '<td>' + td + '</td>' +
+            '</tr>' +
+            '</tbody>' +
+            '</table>';
+    }
+
+    generatePropertyDomainIncludes() {
+        return this.getPropertyDefinitionTable('Used on these types',
+            this.term.getDomains(false).map((d) => {
+                return '' +
+                    '<code>' +
+                    this.generateSemanticLink('domainIncludes', d) +
+                    this.generateLink(d,
+                        {'title': 'The \'' + this.term.getIRI(true) + '\' property ' +
+                                'is used on the \'' + d + '\' type'}) +
+                    '</code>';
+            }).join('<br>'));
     }
 
     addTermEventListener() {
