@@ -283,6 +283,7 @@ class SDOVocabBrowser {
                     '<div id="mainContent" vocab="http://schema.org/" typeof="rdf:Property" resource="' + window.location + '">' +
                     this.generateHeader(this.term.getSuperProperties(), 'rdfs:subPropertyOf',
                         this.generatePropertyStartBreadcrumbs()) +
+                    this.generatePropertyExpectedTypes() +
                     '</div>'
 
         }
@@ -438,6 +439,31 @@ class SDOVocabBrowser {
             " > " +
             this.generateLink('schema:Property', {'title': 'Defined in section: meta.schema.org'}) +
             " > ";
+    }
+
+    generatePropertyExpectedTypes() {
+        return '' +
+            '<table class="definition-table">' +
+            '<thead>' +
+            '<tr>' +
+            '<th>Values expected to be one of these types</th>' +
+            '</tr>' +
+            '</thead>' +
+            '<tbody>' +
+            '<tr>' +
+            '<td>' +
+            this.term.getRanges(false).map((r) => {
+                return '' +
+                    '<code>' +
+                    this.generateSemanticLink('rangeIncludes', r) +
+                    this.generateLink(r,
+                        {'title': 'The \'' + this.term.getIRI(true) + '\' property has values that include ' +
+                                'instances of the \'' + r + '\' type.'}) +
+                    '</code>';
+            }).join('<br>') +
+            '</td>' +
+            '</tr>' +
+            '</tbody>';
     }
 
     addTermEventListener() {
