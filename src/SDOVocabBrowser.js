@@ -329,29 +329,15 @@ class SDOVocabBrowser {
     }
 
     generateClassProperties() {
-        let html = '' +
-            '<table class="definition-table">' +
-            '<thead>' +
-            '<tr>' +
-            '<th>Property</th>' +
-            '<th>Expected Type</th>' +
-            '<th>Description</th>' +
-            '</tr>' +
-            '</thead>';
+        let html = '<table class="definition-table">' +
+            this.generateClassPropertiesHeader();
 
         const classes = [this.term, ...this.term.getSuperClasses().map((c) => this.sdoAdapter.getClass(c))];
         classes.forEach((c) => {
             const properties = c.getProperties(false);
             if (properties.length !== 0) {
-                html +=
-                    '<tbody>' +
-                    '<tr class="supertype">' +
-                    '<th class="supertype-name" colspan="3">' +
-                    'Properties from ' + this.generateLink(c.getIRI(true)) +
-                    '</th>' +
-                    '</tr>' +
-                    '</tbody>' +
-                    '<tbody>';
+                html += '<tbody>' +
+                    this.generateClassPropertyHeader(c);
                 properties.forEach((p) => {
                     html += this.generateTableRow('rdfs:Property',
                         this.generateHref(p),
@@ -365,6 +351,28 @@ class SDOVocabBrowser {
         });
         html += '</table>';
         return html;
+    }
+
+    generateClassPropertiesHeader() {
+        return  '' +
+            '<thead>' +
+            '<tr>' +
+            '<th>Property</th>' +
+            '<th>Expected Type</th>' +
+            '<th>Description</th>' +
+            '</tr>' +
+            '</thead>';
+    }
+
+    generateClassPropertyHeader(className) {
+        return '' +
+            '<tbody>' +
+            '<tr class="supertype">' +
+            '<th class="supertype-name" colspan="3">' +
+            'Properties from ' + this.generateLink(className.getIRI(true)) +
+            '</th>' +
+            '</tr>' +
+            '</tbody>';
     }
 
     generateRange(property) {
