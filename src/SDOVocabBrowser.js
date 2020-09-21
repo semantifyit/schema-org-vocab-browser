@@ -346,13 +346,19 @@ class SDOVocabBrowser {
                 html +=
                     '<tbody>' +
                     '<tr class="supertype">' +
-                    '<th colspan="3">Properties from ' + c.getIRI(true) + '</th>' +
+                    '<th class="supertype-name" colspan="3">' +
+                    'Properties from ' + this.generateLink(c.getIRI(true)) +
+                    '</th>' +
                     '</tr>' +
                     '</tbody>' +
                     '<tbody>';
                 properties.forEach((p) => {
-                    html += this.generateTableRow('rdfs:Property', this.generateHref(p), 'rdfs:label', this.generateLink(p),
-                        '<td>' + this.generateRange(p) + '</td><td>TODO</td>');
+                    html += this.generateTableRow('rdfs:Property',
+                        this.generateHref(p),
+                        'rdfs:label',
+                        this.generateLink(p),
+                        '<td>' + this.generateRange(p) + '</td>' +
+                        '<td>TODO</td>');
                 });
                 html += '</tbody>';
             }
