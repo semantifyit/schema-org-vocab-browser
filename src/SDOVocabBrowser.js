@@ -285,7 +285,8 @@ class SDOVocabBrowser {
                         this.generatePropertyStartBreadcrumbs()) +
                     this.generatePropertyRanges() +
                     this.generatePropertyDomainIncludes() +
-                    this.generatePropertySuperTypes() +
+                    this.generatePropertySuperProperties() +
+                    this.generatePropertySubProperties() +
                     '</div>'
 
         }
@@ -485,11 +486,27 @@ class SDOVocabBrowser {
             }).join('<br>'));
     }
 
-    generatePropertySuperTypes() {
+    generatePropertySuperProperties() {
         const superProperties = this.term.getSuperProperties(false);
         if (superProperties.length !== 0) {
             return this.getPropertyDefinitionTable('Super-properties',
                 superProperties.map((s) => {
+                    return '' +
+                        '<code>' +
+                        this.generateLink(s,
+                            {'title': s + ': \'\'' + this.sdoAdapter.getProperty(s).getDescription() + '\'\''}) +
+                        '</code>';
+                }).join('<br>'));
+        } else {
+            return '';
+        }
+    }
+
+    generatePropertySubProperties() {
+        const subProperties = this.term.getSubProperties(false);
+        if (subProperties.length !== 0) {
+            return this.getPropertyDefinitionTable('Sub-properties',
+                subProperties.map((s) => {
                     return '' +
                         '<code>' +
                         this.generateLink(s,
