@@ -272,26 +272,20 @@ class SDOVocabBrowser {
         let html;
         switch(this.term.getTermType()) {
             case 'rdfs:Class':
-                html = '' +
-                    '<div id="mainContent" vocab="http://schema.org/" typeof="rdfs:Class" resource="' + window.location + '">' +
-                    this.generateHeader(this.term.getSuperClasses(), 'rdfs:subClassOf') +
-                    this.generateClassProperties() +
-                    '</div>';
+                html = this.generateClass();
                 break;
             case 'rdf:Property':
-                html = '' +
-                    '<div id="mainContent" vocab="http://schema.org/" typeof="rdf:Property" resource="' + window.location + '">' +
-                    this.generateHeader(this.term.getSuperProperties(), 'rdfs:subPropertyOf',
-                        this.generatePropertyStartBreadcrumbs()) +
-                    this.generatePropertyRanges() +
-                    this.generatePropertyDomainIncludes() +
-                    this.generatePropertySuperProperties() +
-                    this.generatePropertySubProperties() +
-                    '</div>'
-
+                html = this.generateProperty();
+                break;
         }
         this.elem.innerHTML = html;
         this.addTermEventListener();
+    }
+
+    generateClass() {
+        const mainContent= this.generateHeader(this.term.getSuperClasses(), 'rdfs:subClassOf') +
+            this.generateClassProperties();
+        return this.generateMainContent('rdfs:Class', mainContent);
     }
 
     generateHeader(superTypes, superTypeRelationship, breadCrumbStart='') {
@@ -364,7 +358,7 @@ class SDOVocabBrowser {
                         this.generateHref(p),
                         'rdfs:label',
                         this.generateLink(p),
-                        this.generatePropertySideCols(p),
+                        this.generateClassPropertySideCols(p),
                         'prop-name');
                 });
                 html += '</tbody>';
@@ -399,14 +393,21 @@ class SDOVocabBrowser {
             '</tbody>';
     }
 
-    generatePropertySideCols(property) {
+    generateMainContent(typeOf, mainContent) {
+        return '' +
+            '<div id="mainContent" vocab="http://schema.org/" typeof="' + typeOf + '" resource="' + window.location + '">' +
+            mainContent +
+            '</div>';
+    }
+
+    generateClassPropertySideCols(property) {
         const sdoProperty = this.sdoAdapter.getProperty(property);
         return '' +
-            '<td class="prop-etc">' + this.generateRange(sdoProperty) + '</td>' +
+            '<td class="prop-etc">' + this.generateClassPropertyRange(sdoProperty) + '</td>' +
             '<td class="prop-desc" property="rdfs:comment">' + sdoProperty.getDescription() + '</td>';
     }
 
-    generateRange(sdoProperty) {
+    generateClassPropertyRange(sdoProperty) {
         const expectedType = sdoProperty.getRanges(false).map((p) => {
             return this.generateSemanticLink('rangeIncludes', p) + this.generateLink(p);
         }).join('&nbsp; or <br>');
@@ -434,6 +435,17 @@ class SDOVocabBrowser {
         } else {
             return '';
         }
+    }
+
+    generateProperty() {
+        const startBreadcrumbs = this.generatePropertyStartBreadcrumbs();
+        const mainContent = this.generateHeader(this.term.getSuperProperties(), 'rdfs:subPropertyOf',
+            startBreadcrumbs) +
+            this.generatePropertyRanges() +
+            this.generatePropertyDomainIncludes() +
+            this.generatePropertySuperProperties() +
+            this.generatePropertySubProperties();
+        return this.generateMainContent('rdf:Property', mainContent);
     }
 
     generatePropertyStartBreadcrumbs() {
