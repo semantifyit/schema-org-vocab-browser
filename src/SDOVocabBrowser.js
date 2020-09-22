@@ -277,13 +277,16 @@ class SDOVocabBrowser {
             case 'rdf:Property':
                 html = this.generateProperty();
                 break;
+            case 'schema:Enumeration':
+                html = this.generateEnumeration();
+                break;
         }
         this.elem.innerHTML = html;
         this.addTermEventListener();
     }
 
     generateClass() {
-        const mainContent= this.generateHeader(this.term.getSuperClasses(), 'rdfs:subClassOf') +
+        const mainContent = this.generateHeader(this.term.getSuperClasses(), 'rdfs:subClassOf') +
             this.generateClassProperties();
         return this.generateMainContent('rdfs:Class', mainContent);
     }
@@ -528,6 +531,12 @@ class SDOVocabBrowser {
         } else {
             return '';
         }
+    }
+
+    generateEnumeration() {
+        const mainContent = this.generateHeader(this.term.getSuperClasses(), 'rdfs:subClassOf');
+        // TODO
+        return this.generateMainContent('rdfs:Class', mainContent);
     }
 
     addTermEventListener() {
