@@ -534,9 +534,30 @@ class SDOVocabBrowser {
     }
 
     generateEnumeration() {
-        const mainContent = this.generateHeader(this.term.getSuperClasses(), 'rdfs:subClassOf');
+        const mainContent = this.generateHeader(this.term.getSuperClasses(), 'rdfs:subClassOf') +
+            this.generateEnumerationEnumerationMembers();
         // TODO
         return this.generateMainContent('rdfs:Class', mainContent);
+    }
+
+    generateEnumerationEnumerationMembers() {
+        const enumMembers = this.term.getEnumerationMembers();
+        if (enumMembers.length !== 0) {
+            return '' +
+                'An Enumeration with:<br>' +
+                '<b>' +
+                '<a id="enumbers" title="Link: #enumbers" href="#enumbers" class="clickableAnchor">' +
+                'Enumeration members' +
+                '</a>' +
+                '</b>' +
+                '<ul>' +
+                enumMembers.map((e) => {
+                   return '<li>' + this.generateLink(e) + '</li>';
+                }).join('') +
+                '</ul>'
+        } else {
+            return '';
+        }
     }
 
     addTermEventListener() {
