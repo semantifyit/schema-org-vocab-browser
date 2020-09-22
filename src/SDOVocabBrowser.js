@@ -461,16 +461,20 @@ class SDOVocabBrowser {
 
     generatePropertyRanges() {
         const ranges = this.term.getRanges(false).map((r) => {
-            return '' +
-                '<code>' +
-                this.generateSemanticLink('rangeIncludes', r) +
-                this.generateLink(r,
-                    {'title': 'The \'' + this.term.getIRI(true) + '\' property has values that include ' +
-                            'instances of the \'' + r + '\' type.'}) +
-                '</code>';
+            const title = 'The \'' + this.term.getIRI(true) + '\' property has values that include instances of the' +
+                ' \'' + r + '\' type.';
+            return this.generateCodeSection(r, title, 'rangeIncludes');
         }).join('<br>');
 
         return this.generateDefinitionTable('Values expected to be one of these types', '<td>'+  ranges +'</td>');
+    }
+
+    generateCodeSection(term, title, rdfa=null) {
+        return '' +
+            '<code>' +
+            (rdfa ? this.generateSemanticLink(rdfa, term) : '') +
+            this.generateLink(term, {'title': title}) +
+            '</code>';
     }
 
     generateDefinitionTable(ths, trs) {
@@ -500,31 +504,26 @@ class SDOVocabBrowser {
 
     generatePropertyDomainIncludes() {
         const domains = this.term.getDomains(false).map((d) => {
-            return '' +
-                '<code>' +
-                this.generateSemanticLink('domainIncludes', d) +
-                this.generateLink(d,
-                    {'title': 'The \'' + this.term.getIRI(true) + '\' property ' + 'is used on the \'' + d + '\' ' +
-                            'type'}) +
-                '</code>';
+            const title = 'The \'' + this.term.getIRI(true) + '\' property ' + 'is used on the \'' + d + '\' ' + 'type';
+            return this.generateCodeSection(d, title, 'domainIncludes');
         }).join('<br>');
 
-        return this.generateDefinitionTable('Used on these types',
-            '<td>' + domains + '</td>');
+        return this.generateDefinitionTable('Used on these types', '<td>' + domains + '</td>');
     }
 
     generatePropertySuperProperties() {
         const superProperties = this.term.getSuperProperties(false);
-        if (superProperties.length !== 0) {
-            const superPropertiesHTML = superProperties.map((s) => {
-                return '' +
-                    '<code>' +
-                    this.generateLink(s,
-                        {'title': s + ': \'\'' + this.sdoAdapter.getProperty(s).getDescription() + '\'\''}) +
-                    '</code>';
+        return this.generatePropertyRelationship(superProperties, 'Super-properties');
+    }
+
+    generatePropertyRelationship(relatedTerms, tableHeader) {
+        if (relatedTerms.length !== 0) {
+            const relatedTermsHTML = relatedTerms.map((s) => {
+                const title = s + ': \'\'' + this.sdoAdapter.getProperty(s).getDescription() + '\'\'';
+                return this.generateCodeSection(s, title);
             }).join('<br>');
 
-            return this.generateDefinitionTable('Super-properties', '<td>' + superPropertiesHTML + '</td>');
+            return this.generateDefinitionTable(tableHeader, '<td>' + relatedTermsHTML + '</td>');
         } else {
             return '';
         }
@@ -532,19 +531,7 @@ class SDOVocabBrowser {
 
     generatePropertySubProperties() {
         const subProperties = this.term.getSubProperties(false);
-        if (subProperties.length !== 0) {
-            const subPropertiesHTML = subProperties.map((s) => {
-                return '' +
-                    '<code>' +
-                    this.generateLink(s,
-                        {'title': s + ': \'\'' + this.sdoAdapter.getProperty(s).getDescription() + '\'\''}) +
-                    '</code>';
-            }).join('<br>');
-
-            return this.generateDefinitionTable('Super-properties', '<td>' + subPropertiesHTML + '</td>');
-        } else {
-            return '';
-        }
+        return this.generatePropertyRelationship(subProperties, 'Sub-properties');
     }
 
     generateEnumeration() {
