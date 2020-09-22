@@ -460,58 +460,71 @@ class SDOVocabBrowser {
     }
 
     generatePropertyRanges() {
-        return this.getPropertyDefinitionTable('Values expected to be one of these types',
-            this.term.getRanges(false).map((r) => {
-                return '' +
-                    '<code>' +
-                    this.generateSemanticLink('rangeIncludes', r) +
-                    this.generateLink(r,
-                        {'title': 'The \'' + this.term.getIRI(true) + '\' property has values that include ' +
-                                'instances of the \'' + r + '\' type.'}) +
-                    '</code>';
-            }).join('<br>'));
+        const ranges = this.term.getRanges(false).map((r) => {
+            return '' +
+                '<code>' +
+                this.generateSemanticLink('rangeIncludes', r) +
+                this.generateLink(r,
+                    {'title': 'The \'' + this.term.getIRI(true) + '\' property has values that include ' +
+                            'instances of the \'' + r + '\' type.'}) +
+                '</code>';
+        }).join('<br>');
+
+        return this.generateDefinitionTable('Values expected to be one of these types', '<td>'+  ranges +'</td>');
     }
 
-    getPropertyDefinitionTable(th, td) {
+    generateDefinitionTable(ths, trs) {
+        if (!Array.isArray(ths)) {
+            ths = [ths];
+        }
+        if (!Array.isArray(trs)) {
+            trs = [trs];
+        }
         return '' +
             '<table class="definition-table">' +
             '<thead>' +
             '<tr>' +
-            '<th>' + th + '</th>' +
+            ths.map((th) => {
+                return '<th>' + th + '</th>';
+            }).join('') +
             '</tr>' +
             '</thead>' +
             '<tbody>' +
-            '<tr>' +
-            '<td>' + td + '</td>' +
+            trs.map((tr) => {
+                return '<tr>' + tr + '</tr>';
+            }).join('') +
             '</tr>' +
             '</tbody>' +
             '</table>';
     }
 
     generatePropertyDomainIncludes() {
-        return this.getPropertyDefinitionTable('Used on these types',
-            this.term.getDomains(false).map((d) => {
-                return '' +
-                    '<code>' +
-                    this.generateSemanticLink('domainIncludes', d) +
-                    this.generateLink(d,
-                        {'title': 'The \'' + this.term.getIRI(true) + '\' property ' +
-                                'is used on the \'' + d + '\' type'}) +
-                    '</code>';
-            }).join('<br>'));
+        const domains = this.term.getDomains(false).map((d) => {
+            return '' +
+                '<code>' +
+                this.generateSemanticLink('domainIncludes', d) +
+                this.generateLink(d,
+                    {'title': 'The \'' + this.term.getIRI(true) + '\' property ' + 'is used on the \'' + d + '\' ' +
+                            'type'}) +
+                '</code>';
+        }).join('<br>');
+
+        return this.generateDefinitionTable('Used on these types',
+            '<td>' + domains + '</td>');
     }
 
     generatePropertySuperProperties() {
         const superProperties = this.term.getSuperProperties(false);
         if (superProperties.length !== 0) {
-            return this.getPropertyDefinitionTable('Super-properties',
-                superProperties.map((s) => {
-                    return '' +
-                        '<code>' +
-                        this.generateLink(s,
-                            {'title': s + ': \'\'' + this.sdoAdapter.getProperty(s).getDescription() + '\'\''}) +
-                        '</code>';
-                }).join('<br>'));
+            const superPropertiesHTML = superProperties.map((s) => {
+                return '' +
+                    '<code>' +
+                    this.generateLink(s,
+                        {'title': s + ': \'\'' + this.sdoAdapter.getProperty(s).getDescription() + '\'\''}) +
+                    '</code>';
+            }).join('<br>');
+
+            return this.generateDefinitionTable('Super-properties', '<td>' + superPropertiesHTML + '</td>');
         } else {
             return '';
         }
@@ -520,14 +533,15 @@ class SDOVocabBrowser {
     generatePropertySubProperties() {
         const subProperties = this.term.getSubProperties(false);
         if (subProperties.length !== 0) {
-            return this.getPropertyDefinitionTable('Sub-properties',
-                subProperties.map((s) => {
-                    return '' +
-                        '<code>' +
-                        this.generateLink(s,
-                            {'title': s + ': \'\'' + this.sdoAdapter.getProperty(s).getDescription() + '\'\''}) +
-                        '</code>';
-                }).join('<br>'));
+            const subPropertiesHTML = subProperties.map((s) => {
+                return '' +
+                    '<code>' +
+                    this.generateLink(s,
+                        {'title': s + ': \'\'' + this.sdoAdapter.getProperty(s).getDescription() + '\'\''}) +
+                    '</code>';
+            }).join('<br>');
+
+            return this.generateDefinitionTable('Super-properties', '<td>' + subPropertiesHTML + '</td>');
         } else {
             return '';
         }
