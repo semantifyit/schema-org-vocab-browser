@@ -1,3 +1,12 @@
+function createAttrForJSLink(className, queryKey, queryVal, attr=null) {
+    const iri = createIRIwithQueryParam(queryKey, queryVal);
+    return 'class="' + className + '" href="' + iri + '" onclick="return false;"' +  createHTMLAttr(attr);
+}
+
+function createExternalLink(href, text=null, attr=null) {
+    return '<a href="' + href + '" target="_blank"' + createHTMLAttr(attr) + '>' + (text ? text : href) + '</a>';
+}
+
 /**
  *
  * @param {object|null} attr
@@ -6,20 +15,11 @@
 function createHTMLAttr(attr) {
     if (attr) {
         return Object.entries(attr).map((a) => {
-            return ' ' + a[0] + '="' + a[1] + '" ';
+            return ' ' + a[0] + '="' + a[1] + '"';
         }).join('');
     } else {
         return '';
     }
-}
-
-function createAttrForJSLink(className, queryKey, queryVal, attr=null) {
-    const iri = createIRIwithQueryParam(queryKey, queryVal);
-    return 'class="' + className + '" href="' + iri + '" onclick="return false;"' +  createHTMLAttr(attr);
-}
-
-function createExternalLink(href, text=null, attr=null) {
-    return '<a href="' + href + '" target="_blank"' + createHTMLAttr(attr) + '>' + (text ? text : href) + '</a>';
 }
 
 function createIRIwithQueryParam(key, val) {
@@ -71,6 +71,7 @@ function isValidUrl(string) {
 module.exports = {
     createAttrForJSLink: createAttrForJSLink,
     createExternalLink: createExternalLink,
+    createHTMLAttr: createHTMLAttr,
     createIRIwithQueryParam: createIRIwithQueryParam,
     createJSLink: createJSLink,
     get: get,

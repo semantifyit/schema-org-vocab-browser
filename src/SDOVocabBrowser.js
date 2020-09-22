@@ -146,10 +146,10 @@ class SDOVocabBrowser {
         }).join('');
     }
 
-    generateTableRow(typeOf, resource, mainColProp, link, sideCols, mainColClass=null) {
+    generateTableRow(typeOf, resource, mainColProp, mainColTermOrLink, sideCols, mainColClass=null) {
         return '' +
             '<tr typeof="' + typeOf  + '" resource="' + resource + '">' +
-            this.generateMainColEntry(mainColProp, link, mainColClass) +
+            this.generateMainColEntry(mainColProp, mainColTermOrLink, mainColClass) +
             sideCols +
             '</tr>';
     }
@@ -157,9 +157,7 @@ class SDOVocabBrowser {
     generateMainColEntry(property, link, className=null) {
         return '' +
             '<th' + (className ? ' class="' + className + '"' : '') + ' scope="row">' +
-            '<code property="' + property + '">' +
-            link +
-            '</code>' +
+            this.generateCodeLink(link, {'property': property}) +
             '</th>';
     }
 
@@ -317,11 +315,13 @@ class SDOVocabBrowser {
     }
 
     isTermOfVocab(term) {
-        return this.classes.includes(term) ||
+        return (this.vocabs && (
+            this.classes.includes(term) ||
             this.properties.includes(term) ||
             this.enumerations.includes(term) ||
             this.enumerationMembers.includes(term) ||
-            this.dataTypes.includes(term);
+            this.dataTypes.includes(term)
+        ));
     }
 
     generateLink(term, attr=null) {
@@ -461,19 +461,19 @@ class SDOVocabBrowser {
 
     generatePropertyRanges() {
         const ranges = this.term.getRanges(false).map((r) => {
-            const title = 'The \'' + this.term.getIRI(true) + '\' property has values that include instances of the' +
-                ' \'' + r + '\' type.';
-            return this.generateCodeSection(r, title, 'rangeIncludes');
+            const title = {'title': 'The \'' + this.term.getIRI(true) + '\' property has values that include instances of the' +
+                ' \'' + r + '\' type.'};
+            return this.generateCodeLink(r, null, title, 'rangeIncludes');
         }).join('<br>');
 
         return this.generateDefinitionTable('Values expected to be one of these types', '<td>'+  ranges +'</td>');
     }
 
-    generateCodeSection(term, title, rdfa=null) {
+    generateCodeLink(termOrLink, codeAttr=null, linkAttr=null, rdfa=null) {
         return '' +
-            '<code>' +
-            (rdfa ? this.generateSemanticLink(rdfa, term) : '') +
-            this.generateLink(term, {'title': title}) +
+            '<code' + util.createHTMLAttr(codeAttr) + '>' +
+            (rdfa ? this.generateSemanticLink(rdfa, termOrLink) : '') +
+            (this.isTermOfVocab(termOrLink) ? this.generateLink(termOrLink, linkAttr) : termOrLink) +
             '</code>';
     }
 
@@ -504,8 +504,9 @@ class SDOVocabBrowser {
 
     generatePropertyDomainIncludes() {
         const domains = this.term.getDomains(false).map((d) => {
-            const title = 'The \'' + this.term.getIRI(true) + '\' property ' + 'is used on the \'' + d + '\' ' + 'type';
-            return this.generateCodeSection(d, title, 'domainIncludes');
+            const title = {'title': 'The \'' + this.term.getIRI(true) + '\' property ' + 'is used on the \'' + d +
+                    '\' ' + 'type'};
+            return this.generateCodeLink(d, null, title, 'domainIncludes');
         }).join('<br>');
 
         return this.generateDefinitionTable('Used on these types', '<td>' + domains + '</td>');
@@ -519,8 +520,8 @@ class SDOVocabBrowser {
     generatePropertyRelationship(relatedTerms, tableHeader) {
         if (relatedTerms.length !== 0) {
             const relatedTermsHTML = relatedTerms.map((s) => {
-                const title = s + ': \'\'' + this.sdoAdapter.getProperty(s).getDescription() + '\'\'';
-                return this.generateCodeSection(s, title);
+                const title = {'title' : s + ': \'\'' + this.sdoAdapter.getProperty(s).getDescription() + '\'\''};
+                return this.generateCodeLink(s, null, title);
             }).join('<br>');
 
             return this.generateDefinitionTable(tableHeader, '<td>' + relatedTermsHTML + '</td>');
