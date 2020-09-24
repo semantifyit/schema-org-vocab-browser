@@ -357,12 +357,7 @@ class SDOVocabBrowser {
                 html += '<tbody>' +
                     this.generateClassPropertyHeader(c);
                 properties.forEach((p) => {
-                    html += this.generateTableRow('rdfs:Property',
-                        this.generateHref(p),
-                        'rdfs:label',
-                        this.generateLink(p),
-                        this.generateClassPropertySideCols(p),
-                        'prop-name');
+                    html += this.generatePropertyTableRow(p);
                 });
                 html += '</tbody>';
             }
@@ -396,6 +391,15 @@ class SDOVocabBrowser {
             '</tbody>';
     }
 
+    generatePropertyTableRow(p, onlyDomainIncludes=false) {
+        return this.generateTableRow('rdfs:Property',
+            this.generateHref(p),
+            'rdfs:label',
+            this.generateLink(p),
+            this.generateClassPropertySideCols(p, onlyDomainIncludes),
+            'prop-name');
+    }
+
     generateMainContent(typeOf, mainContent) {
         return '' +
             '<div id="mainContent" vocab="http://schema.org/" typeof="' + typeOf + '" resource="' + window.location + '">' +
@@ -403,20 +407,25 @@ class SDOVocabBrowser {
             '</div>';
     }
 
-    generateClassPropertySideCols(property) {
+    generateClassPropertySideCols(property, onlyDomainIncludes) {
         const sdoProperty = this.sdoAdapter.getProperty(property);
         return '' +
-            '<td class="prop-etc">' + this.generateClassPropertyRange(sdoProperty) + '</td>' +
+            '<td class="prop-etc">' + this.generateClassPropertyRange(sdoProperty, onlyDomainIncludes) + '</td>' +
             '<td class="prop-desc" property="rdfs:comment">' + sdoProperty.getDescription() + '</td>';
     }
 
-    generateClassPropertyRange(sdoProperty) {
-        const expectedType = sdoProperty.getRanges(false).map((p) => {
-            return this.generateSemanticLink('rangeIncludes', p) + this.generateLink(p);
-        }).join('&nbsp; or <br>');
+    generateClassPropertyRange(sdoProperty, onlyDomainIncludes) {
+        let expectedType = '';
+        const separator = '&nbsp; or <br>';
+        if (!onlyDomainIncludes) {
+            const expectedType = sdoProperty.getRanges(false).map((p) => {
+                return this.generateSemanticLink('rangeIncludes', p) + this.generateLink(p);
+            }).join(separator);
+        }
         const domainIncludes = sdoProperty.getDomains(false).map((d) => {
-            return this.generateSemanticLink('domainIncludes', d);
-        });
+            return this.generateSemanticLink('domainIncludes', d) +
+                (onlyDomainIncludes ? this.generateLink(d) : '');
+        }).join(onlyDomainIncludes ? separator : '');
         return expectedType + domainIncludes;
     }
 
@@ -494,10 +503,9 @@ class SDOVocabBrowser {
             '</tr>' +
             '</thead>' +
             '<tbody>' +
-            trs.map((tr) => {
+            (trs[0].startsWith('<tr') ? trs.join('') : trs.map((tr) => {
                 return '<tr>' + tr + '</tr>';
-            }).join('') +
-            '</tr>' +
+            }).join('')) +
             '</tbody>' +
             '</table>';
     }
@@ -537,7 +545,8 @@ class SDOVocabBrowser {
 
     generateEnumeration() {
         const mainContent = this.generateHeader(this.term.getSuperClasses(), 'rdfs:subClassOf') +
-            this.generateEnumerationEnumerationMembers();
+            this.generateEnumerationEnumerationMembers() +
+            this.generateEnumerationRangesOf();
         // TODO
         return this.generateMainContent('rdfs:Class', mainContent);
     }
@@ -556,7 +565,27 @@ class SDOVocabBrowser {
                 enumMembers.map((e) => {
                    return '<li>' + this.generateLink(e) + '</li>';
                 }).join('') +
-                '</ul>'
+                '</ul>' +
+                '<br>';
+        } else {
+            return '';
+        }
+    }
+
+    generateEnumerationRangesOf() {
+        const rangeOf = this.term.isRangeOf();
+        if (rangeOf.length !== 0) {
+            const trs = rangeOf.map((r) => {
+                return this.generatePropertyTableRow(r, true);
+            });
+
+            return '' +
+                '<div id="incoming">' +
+                'Instances of ' + this.generateLink(this.term.getIRI(true)) + ' and its enumeration members or subtypes may appear as' +
+                ' a value for the following properties' +
+                '</div>' +
+                '<br>' +
+                this.generateDefinitionTable(['Property', 'On Types', 'Description'], trs);
         } else {
             return '';
         }
