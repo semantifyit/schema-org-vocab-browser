@@ -13,6 +13,8 @@ npm install
 browserify src/SDOVocabBrowser.js -s SDOVocabBrowser > bundle.js
 ```
 
+TODO: Add as official npm package, provide distribution file
+
 ## Usage
 
 Require the bundled file in your website, import your vocabulary and generate the corresponding HTML:
@@ -30,7 +32,6 @@ Require the bundled file in your website, import your vocabulary and generate th
 ```
 
 If you want to use the same style as [schema.org](https://schema.org/) just import their CSS file:
-
 
 ``` javasript
 <link rel="stylesheet" type="text/css" href="https://schema.org/docs/schemaorg.css">
