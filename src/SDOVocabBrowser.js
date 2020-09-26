@@ -284,7 +284,8 @@ class SDOVocabBrowser {
     }
 
     generateClass() {
-        const mainContent = this.generateHeader(this.term.getSuperClasses(), 'rdfs:subClassOf') +
+        const superTypes = this.getSuperClasses(this.term, []);
+        const mainContent = this.generateHeader(superTypes, 'rdfs:subClassOf') +
             this.generateClassProperties();
         return this.generateMainContent('rdfs:Class', mainContent);
     }
@@ -292,14 +293,63 @@ class SDOVocabBrowser {
     generateHeader(superTypes, superTypeRelationship, breadCrumbStart='') {
         return '' +
             '<h1 property="rdfs:label" class="page-title">' + this.term.getIRI(true) + '</h1>' +
-            '<h4>' +
-            '<span class="breadcrumbs">' +
-            breadCrumbStart +
-            this.generateSuperTypeBreadcrumbs(superTypes, superTypeRelationship) +
-            util.createJSLink('a-term-name', 'term', this.term.getIRI(true)) +
-            '</span>' +
+            this.generateSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart) +
             '</h4>' +
             '<div property="rdfs:comment">' + this.term.getDescription() + '<br><br></div>';
+    }
+
+    generateSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart) {
+        if (superTypes) {
+            return  '' +
+                '<h4>' +
+                superTypes.map((s) => {
+                    return '' +
+                        '<span class="breadcrumbs">' +
+                        breadCrumbStart +
+                        s.reverse().map((superType, i) => {
+                            let html = '';
+                            if ((i + 1) === s.length) {
+                                html += this.generateSemanticLink(superTypeRelationship, superType);
+                            }
+                            html += this.generateLink(superType);
+                            html += ' > ';
+                            return html;
+                        }).join('') +
+                        util.createJSLink('a-term-name', 'term', this.term.getIRI(true)) +
+                        '</span>';
+                }).join('<br>') +
+                '</h4>';
+        }
+        return '';
+    }
+
+    /**
+     *
+     * @param term
+     * @param  {[]} prevClasses
+     * @returns {[][]|null}
+     */
+    getSuperClasses(term, prevClasses=[]) {
+        const superClasses = term.getSuperClasses(false);
+        if (superClasses.length === 0) {
+            if (prevClasses.length === 0) {
+                return null;
+            } else {
+                return [prevClasses]
+            }
+        } else {
+            let ret = [];
+            superClasses.forEach((s) => {
+                const newTerm = this.sdoAdapter.getClass(s);
+                let newPrevClasses = prevClasses.slice();
+                newPrevClasses.push(s);
+                const newSuperClasses = this.getSuperClasses(newTerm, newPrevClasses);
+                newSuperClasses.forEach((n) => {
+                    ret.push(n);
+                });
+            });
+            return ret;
+        }
     }
 
     generateSemanticLink(property, term) {
@@ -330,20 +380,6 @@ class SDOVocabBrowser {
         } else {
             return util.createExternalLink(this.generateHref(term), term, attr);
         }
-    }
-
-    generateSuperTypeBreadcrumbs(superTypes, superTypeRelationship) {
-        let html = '';
-        if (superTypes) {
-            superTypes.reverse().forEach((superType, i) => {
-                if ((i + 1) === superTypes.length) {
-                    html += this.generateSemanticLink(superTypeRelationship, superType);
-                }
-                html += this.generateLink(superType);
-                html += ' > ';
-            });
-        }
-        return html;
     }
 
     generateClassProperties() {
