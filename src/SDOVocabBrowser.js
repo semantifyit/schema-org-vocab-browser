@@ -580,7 +580,7 @@ class SDOVocabBrowser {
     }
 
     generateEnumeration() {
-        const mainContent = this.generateHeader(this.term.getSuperClasses(), 'rdfs:subClassOf') +
+        const mainContent = this.generateHeader(this.getSuperClasses(this.term), 'rdfs:subClassOf') +
             this.generateEnumerationEnumerationMembers() +
             this.generateEnumerationRangesOf();
         // TODO
