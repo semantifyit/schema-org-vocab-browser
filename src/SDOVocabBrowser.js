@@ -224,7 +224,7 @@ class SDOVocabBrowser {
         }
 
         if (this.dataTypes.length !== 0) {
-            html += '<li>' + dataTypes.length + ' Data Type' + (this.dataTypes.length === 1 ? '' : 's') + '</li>';
+            html += '<li>' + this.dataTypes.length + ' Data Type' + (this.dataTypes.length === 1 ? '' : 's') + '</li>';
         }
 
         html += '</ul>';
@@ -280,6 +280,9 @@ class SDOVocabBrowser {
                 break;
             case 'soa:EnumerationMember':
                 html = this.generateEnumerationMember();
+                break;
+            case 'schema:DataType':
+                html = this.generateDataType();
                 break;
         }
         this.elem.innerHTML = html;
@@ -513,13 +516,18 @@ class SDOVocabBrowser {
     }
 
     generateCodeLink(termOrLink, codeAttr=null, linkAttr=null, rdfa=null) {
+        return '' +
+            '<code' + util.createHTMLAttr(codeAttr) + '>' +
+            this.generateFullLink(termOrLink, linkAttr, rdfa) +
+            '</code>';
+    }
+
+    generateFullLink(termOrLink, linkAttr, rdfa) {
         let term = null;
         try { term = this.sdoAdapter.getTerm(termOrLink); } catch (e) { }
         return '' +
-            '<code' + util.createHTMLAttr(codeAttr) + '>' +
             (rdfa ? this.generateSemanticLink(rdfa, termOrLink) : '') +
-            (term ? this.generateLink(termOrLink, linkAttr) : termOrLink) +
-            '</code>';
+            (term ? this.generateLink(termOrLink, linkAttr) : termOrLink);
     }
 
     generateDefinitionTable(ths, trs) {
@@ -644,6 +652,13 @@ class SDOVocabBrowser {
         return 'A member value for enumeration' + (domains.length > 1 ? 's' : '') + ': ' +
             domains.map((d) => this.generateLink(d)).join(', ') +
             '<br>';
+    }
+
+    generateDataType() {
+        const breadCrumbStart = this.generateFullLink('schema:DataType', null, 'rdfs:subClassOf') + ' > ';
+        const mainContent = this.generateHeader(this.getTypeStructures(this.term, 'getSuperDataTypes'), '', breadCrumbStart);
+        return this.generateMainContent('rdfs:Class', mainContent);
+        // TODO
     }
 
     addTermEventListener() {
