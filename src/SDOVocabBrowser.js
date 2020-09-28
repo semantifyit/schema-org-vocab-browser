@@ -638,9 +638,9 @@ class SDOVocabBrowser {
     }
 
     generateEnumerationMember () {
-        const typeStructures = this.term.getDomainEnumerations().map((d) => {
+        const typeStructures = this.term.getDomainEnumerations().flatMap((d) => {
             return this.getTypeStructures(this.sdoAdapter.getClass(d));
-        }).reduce((a,c) => a.concat(c));
+        });
         const breadCrumbEnd = ' :: ' + this.generateLink(this.term.getIRI(true));
         // TODO: Can we use @type here?
         const mainContent = this.generateHeader(typeStructures, '@type', '', breadCrumbEnd) +
