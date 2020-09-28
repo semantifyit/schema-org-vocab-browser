@@ -284,7 +284,7 @@ class SDOVocabBrowser {
     }
 
     generateClass() {
-        const superTypes = this.getSuperClasses(this.term, []);
+        const superTypes = this.getTypeStructure(this.term);
         const mainContent = this.generateHeader(superTypes, 'rdfs:subClassOf') +
             this.generateClassProperties();
         return this.generateMainContent('rdfs:Class', mainContent);
@@ -306,16 +306,14 @@ class SDOVocabBrowser {
                     return '' +
                         '<span class="breadcrumbs">' +
                         breadCrumbStart +
-                        s.reverse().map((superType, i) => {
+                        s.map((superType, i) => {
                             let html = '';
                             if ((i + 1) === s.length) {
                                 html += this.generateSemanticLink(superTypeRelationship, superType);
                             }
                             html += this.generateLink(superType);
-                            html += ' > ';
                             return html;
-                        }).join('') +
-                        util.createJSLink('a-term-name', 'term', this.term.getIRI(true)) +
+                        }).join(' > ') +
                         '</span>';
                 }).join('<br>') +
                 '</h4>';
@@ -326,25 +324,20 @@ class SDOVocabBrowser {
     /**
      *
      * @param term
-     * @param  {[]} prevClasses
+     * @param {boolean} isProperty
      * @returns {[][]|null}
      */
-    getSuperClasses(term, prevClasses=[]) {
-        const superClasses = term.getSuperClasses(false);
-        if (superClasses.length === 0) {
-            if (prevClasses.length === 0) {
-                return null;
-            } else {
-                return [prevClasses]
-            }
+    getTypeStructure(term, isProperty=false) {
+        const superTypes = (isProperty ? term.getSuperProperties(false) : term.getSuperClasses(false));
+        if (superTypes.length === 0) {
+            return [[term.getIRI(true)]];
         } else {
             let ret = [];
-            superClasses.forEach((s) => {
-                const newTerm = this.sdoAdapter.getClass(s);
-                let newPrevClasses = prevClasses.slice();
-                newPrevClasses.push(s);
-                const newSuperClasses = this.getSuperClasses(newTerm, newPrevClasses);
-                newSuperClasses.forEach((n) => {
+            superTypes.forEach((s) => {
+                const newTerm = this.sdoAdapter.getTerm(s);
+                const newSuperTypes = this.getTypeStructure(newTerm, isProperty);
+                newSuperTypes.forEach((n) => {
+                    const newList = n.push(term.getIRI(true));
                     ret.push(n);
                 });
             });
@@ -487,8 +480,8 @@ class SDOVocabBrowser {
 
     generateProperty() {
         const startBreadcrumbs = this.generatePropertyStartBreadcrumbs();
-        const mainContent = this.generateHeader(this.term.getSuperProperties(), 'rdfs:subPropertyOf',
-            startBreadcrumbs) +
+        const superProperties = this.getTypeStructure(this.term, true);
+        const mainContent = this.generateHeader(superProperties, 'rdfs:subPropertyOf', startBreadcrumbs) +
             this.generatePropertyRanges() +
             this.generatePropertyDomainIncludes() +
             this.generatePropertySuperProperties() +
@@ -580,7 +573,7 @@ class SDOVocabBrowser {
     }
 
     generateEnumeration() {
-        const mainContent = this.generateHeader(this.getSuperClasses(this.term), 'rdfs:subClassOf') +
+        const mainContent = this.generateHeader(this.getTypeStructure(this.term), 'rdfs:subClassOf') +
             this.generateEnumerationEnumerationMembers() +
             this.generateEnumerationRangesOf();
         // TODO
