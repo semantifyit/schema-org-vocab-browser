@@ -1,10 +1,10 @@
-function createAttrForJSLink(className, queryKey, queryVal, attr=null) {
+function createAttrForJSLink(className, queryKey, queryVal, attr = null) {
     const iri = createIRIwithQueryParam(queryKey, queryVal);
-    return 'class="' + className + '" href="' + iri + '" onclick="return false;"' +  createHTMLAttr(attr);
+    return 'class="' + escHTML(className) + '" href="' + escHTML(iri) + '" onclick="return false;"' + createHTMLAttr(attr);
 }
 
-function createExternalLink(href, text=null, attr=null) {
-    return '<a href="' + href + '" target="_blank"' + createHTMLAttr(attr) + '>' + (text ? text : href) + '</a>';
+function createExternalLink(href, text = null, attr = null) {
+    return '<a href="' + escHTML(href) + '" target="_blank"' + createHTMLAttr(attr) + '>' + (text ? escHTML(text) : escHTML(href)) + '</a>';
 }
 
 /**
@@ -15,7 +15,7 @@ function createExternalLink(href, text=null, attr=null) {
 function createHTMLAttr(attr) {
     if (attr) {
         return Object.entries(attr).map((a) => {
-            return ' ' + a[0] + '="' + a[1] + '"';
+            return ' ' + escHTML(a[0]) + '="' + escHTML(a[1]) + '"';
         }).join('');
     } else {
         return '';
@@ -28,11 +28,12 @@ function createIRIwithQueryParam(key, val) {
     return window.location.origin + window.location.pathname + '?' + searchParams.toString();
 }
 
-function createJSLink(className, queryKey, queryVal, text=null, attr=null) {
-    return '<a ' + createAttrForJSLink(className, queryKey, queryVal, attr) + '>' + (text ? text : queryVal) + '</a>';
+function createJSLink(className, queryKey, queryVal, text = null, attr = null) {
+    return '<a ' + createAttrForJSLink(className, queryKey, queryVal, attr) + '>' + (text ? escHTML(text) :
+        escHTML(queryVal)) + '</a>';
 }
 
-function escapeHtml(unsafe) {
+function escHTML(unsafe) {
     return unsafe
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
@@ -76,14 +77,13 @@ function isValidUrl(string) {
 }
 
 
-
 module.exports = {
     createAttrForJSLink: createAttrForJSLink,
     createExternalLink: createExternalLink,
     createHTMLAttr: createHTMLAttr,
     createIRIwithQueryParam: createIRIwithQueryParam,
     createJSLink: createJSLink,
-    escapeHtml: escapeHtml,
+    escHTML: escHTML,
     get: get,
     isValidUrl: isValidUrl
 };

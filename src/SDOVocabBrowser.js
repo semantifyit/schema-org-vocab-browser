@@ -346,7 +346,7 @@ class SDOVocabBrowser {
     }
 
     generateSemanticLink(property, term) {
-        return '<link property="' + property + '" href="' + this.generateHref(term) + '">';
+        return '<link property="' + util.escHTML(property) + '" href="' + util.escHTML(this.generateHref(term)) + '">';
     }
 
     generateHref(term) {
@@ -559,7 +559,9 @@ class SDOVocabBrowser {
     generatePropertyRelationship(relatedTerms, tableHeader) {
         if (relatedTerms.length !== 0) {
             const relatedTermsHTML = relatedTerms.map((s) => {
-                const title = {'title' : s + ': \'\'' + util.escapeHtml(this.sdoAdapter.getProperty(s).getDescription()) + '\'\''};
+                const title = {
+                    'title' : s + ': \'\'' + this.sdoAdapter.getProperty(s).getDescription() + '\'\''
+                };
                 return this.generateCodeLink(s, null, title);
             }).join('<br>');
 
