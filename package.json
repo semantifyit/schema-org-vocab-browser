@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/semantifyit/schema-org-vocab-browser#readme",
   "dependencies": {
-    "schema-org-adapter": "^3.0.5"
+    "schema-org-adapter": "^3.1.0"
   },
   "main": "src/SDOVocabBrowser.js",
   "devDependencies": {

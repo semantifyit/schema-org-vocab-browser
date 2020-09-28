@@ -592,7 +592,7 @@ class SDOVocabBrowser {
     generateEnumeration() {
         const mainContent = this.generateHeader(this.getTypeStructures(this.term), 'rdfs:subClassOf') +
             this.generateEnumerationEnumerationMembers() +
-            this.generateEnumerationRangesOf();
+            this.generateRangesOf(true);
         return this.generateMainContent('rdfs:Class', mainContent);
     }
 
@@ -617,7 +617,7 @@ class SDOVocabBrowser {
         }
     }
 
-    generateEnumerationRangesOf() {
+    generateRangesOf(isForEnumMember=false) {
         const rangeOf = this.term.isRangeOf();
         if (rangeOf.length !== 0) {
             const trs = rangeOf.map((r) => {
@@ -626,8 +626,9 @@ class SDOVocabBrowser {
 
             return '' +
                 '<div id="incoming">' +
-                'Instances of ' + this.generateLink(this.term.getIRI(true)) + ' and its enumeration members or subtypes may appear as' +
-                ' a value for the following properties' +
+                'Instances of ' + this.generateLink(this.term.getIRI(true)) +
+                (isForEnumMember ? ' and its enumeration members or subtypes' : '') +
+                ' may appear as a value for the following properties' +
                 '</div>' +
                 '<br>' +
                 this.generateDefinitionTable(['Property', 'On Types', 'Description'], trs);
@@ -656,7 +657,9 @@ class SDOVocabBrowser {
 
     generateDataType() {
         const breadCrumbStart = this.generateFullLink('schema:DataType', null, 'rdfs:subClassOf') + ' > ';
-        const mainContent = this.generateHeader(this.getTypeStructures(this.term, 'getSuperDataTypes'), '', breadCrumbStart);
+        const mainContent = '' +
+            this.generateHeader(this.getTypeStructures(this.term, 'getSuperDataTypes'), '', breadCrumbStart) +
+            this.generateRangesOf();
         return this.generateMainContent('rdfs:Class', mainContent);
         // TODO
     }
