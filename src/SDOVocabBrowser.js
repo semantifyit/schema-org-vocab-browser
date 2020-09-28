@@ -633,10 +633,17 @@ class SDOVocabBrowser {
             return this.getTypeStructures(this.sdoAdapter.getClass(d));
         }).reduce((a,c) => a.concat(c));
         const breadCrumbEnd = ' :: ' + this.generateLink(this.term.getIRI(true));
-        // TODO: Is this a type?
-        const mainContent = this.generateHeader(typeStructures, '@type', '', breadCrumbEnd);
-        return this.generateMainContent('rdfs:Class', mainContent)
-            //TODO;
+        // TODO: Can we use @type here?
+        const mainContent = this.generateHeader(typeStructures, '@type', '', breadCrumbEnd) +
+            this.generateEnumerationMemberDomains();
+        return this.generateMainContent('rdfs:Class', mainContent);
+    }
+
+    generateEnumerationMemberDomains() {
+        const domains = this.term.getDomainEnumerations();
+        return 'A member value for enumeration' + (domains.length > 1 ? 's' : '') + ': ' +
+            domains.map((d) => this.generateLink(d)).join(', ') +
+            '<br>';
     }
 
     addTermEventListener() {
