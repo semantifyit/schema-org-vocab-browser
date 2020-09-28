@@ -278,6 +278,9 @@ class SDOVocabBrowser {
             case 'schema:Enumeration':
                 html = this.generateEnumeration();
                 break;
+            case 'soa:EnumerationMember':
+                html = this.generateEnumerationMember();
+                break;
         }
         this.elem.innerHTML = html;
         this.addTermEventListener();
@@ -290,15 +293,15 @@ class SDOVocabBrowser {
         return this.generateMainContent('rdfs:Class', mainContent);
     }
 
-    generateHeader(superTypes, superTypeRelationship, breadCrumbStart='') {
+    generateHeader(superTypes, superTypeRelationship, breadCrumbStart='', breadCrumbEnd='') {
         return '' +
             '<h1 property="rdfs:label" class="page-title">' + this.term.getIRI(true) + '</h1>' +
-            this.generateSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart) +
+            this.generateSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) +
             '</h4>' +
             '<div property="rdfs:comment">' + this.term.getDescription() + '<br><br></div>';
     }
 
-    generateSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart) {
+    generateSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) {
         if (superTypes) {
             return  '' +
                 '<h4>' +
@@ -308,12 +311,14 @@ class SDOVocabBrowser {
                         breadCrumbStart +
                         s.map((superType, i) => {
                             let html = '';
-                            if ((i + 1) === s.length) {
+                            if ((breadCrumbEnd === '' && (i + 2) === s.length) ||
+                                (breadCrumbEnd !== '' && (i + 1) === s.length)) {
                                 html += this.generateSemanticLink(superTypeRelationship, superType);
                             }
                             html += this.generateLink(superType);
                             return html;
                         }).join(' > ') +
+                        breadCrumbEnd +
                         '</span>';
                 }).join('<br>') +
                 '</h4>';
@@ -580,7 +585,6 @@ class SDOVocabBrowser {
         const mainContent = this.generateHeader(this.getTypeStructures(this.term), 'rdfs:subClassOf') +
             this.generateEnumerationEnumerationMembers() +
             this.generateEnumerationRangesOf();
-        // TODO
         return this.generateMainContent('rdfs:Class', mainContent);
     }
 
@@ -622,6 +626,17 @@ class SDOVocabBrowser {
         } else {
             return '';
         }
+    }
+
+    generateEnumerationMember () {
+        const typeStructures = this.term.getDomainEnumerations().map((d) => {
+            return this.getTypeStructures(this.sdoAdapter.getClass(d));
+        }).reduce((a,c) => a.concat(c));
+        const breadCrumbEnd = ' :: ' + this.generateLink(this.term.getIRI(true));
+        // TODO: Is this a type?
+        const mainContent = this.generateHeader(typeStructures, '@type', '', breadCrumbEnd);
+        return this.generateMainContent('rdfs:Class', mainContent)
+            //TODO;
     }
 
     addTermEventListener() {
