@@ -329,18 +329,18 @@ class SDOVocabBrowser {
     /**
      *
      * @param term
-     * @param {boolean} isProperty
+     * @param {string} superTypeFunc
      * @returns {[][]|null}
      */
-    getTypeStructures(term, isProperty=false) {
-        const superTypes = (isProperty ? term.getSuperProperties(false) : term.getSuperClasses(false));
+    getTypeStructures(term, superTypeFunc='getSuperClasses') {
+        const superTypes = term[superTypeFunc](false);
         if (superTypes.length === 0) {
             return [[term.getIRI(true)]];
         } else {
             let ret = [];
             superTypes.forEach((s) => {
                 const newTerm = this.sdoAdapter.getTerm(s);
-                const newSuperTypes = this.getTypeStructures(newTerm, isProperty);
+                const newSuperTypes = this.getTypeStructures(newTerm, superTypeFunc);
                 newSuperTypes.forEach((n) => {
                     const newList = n.push(term.getIRI(true));
                     ret.push(n);
@@ -485,7 +485,7 @@ class SDOVocabBrowser {
 
     generateProperty() {
         const startBreadcrumbs = this.generatePropertyStartBreadcrumbs();
-        const superProperties = this.getTypeStructures(this.term, true);
+        const superProperties = this.getTypeStructures(this.term, 'getSuperProperties');
         const mainContent = this.generateHeader(superProperties, 'rdfs:subPropertyOf', startBreadcrumbs) +
             this.generatePropertyRanges() +
             this.generatePropertyDomainIncludes() +
