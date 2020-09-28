@@ -284,7 +284,7 @@ class SDOVocabBrowser {
     }
 
     generateClass() {
-        const superTypes = this.getTypeStructure(this.term);
+        const superTypes = this.getTypeStructures(this.term);
         const mainContent = this.generateHeader(superTypes, 'rdfs:subClassOf') +
             this.generateClassProperties();
         return this.generateMainContent('rdfs:Class', mainContent);
@@ -327,7 +327,7 @@ class SDOVocabBrowser {
      * @param {boolean} isProperty
      * @returns {[][]|null}
      */
-    getTypeStructure(term, isProperty=false) {
+    getTypeStructures(term, isProperty=false) {
         const superTypes = (isProperty ? term.getSuperProperties(false) : term.getSuperClasses(false));
         if (superTypes.length === 0) {
             return [[term.getIRI(true)]];
@@ -335,7 +335,7 @@ class SDOVocabBrowser {
             let ret = [];
             superTypes.forEach((s) => {
                 const newTerm = this.sdoAdapter.getTerm(s);
-                const newSuperTypes = this.getTypeStructure(newTerm, isProperty);
+                const newSuperTypes = this.getTypeStructures(newTerm, isProperty);
                 newSuperTypes.forEach((n) => {
                     const newList = n.push(term.getIRI(true));
                     ret.push(n);
@@ -480,7 +480,7 @@ class SDOVocabBrowser {
 
     generateProperty() {
         const startBreadcrumbs = this.generatePropertyStartBreadcrumbs();
-        const superProperties = this.getTypeStructure(this.term, true);
+        const superProperties = this.getTypeStructures(this.term, true);
         const mainContent = this.generateHeader(superProperties, 'rdfs:subPropertyOf', startBreadcrumbs) +
             this.generatePropertyRanges() +
             this.generatePropertyDomainIncludes() +
@@ -508,10 +508,12 @@ class SDOVocabBrowser {
     }
 
     generateCodeLink(termOrLink, codeAttr=null, linkAttr=null, rdfa=null) {
+        let term = null;
+        try { term = this.sdoAdapter.getTerm(termOrLink); } catch (e) { }
         return '' +
             '<code' + util.createHTMLAttr(codeAttr) + '>' +
             (rdfa ? this.generateSemanticLink(rdfa, termOrLink) : '') +
-            (this.isTermOfVocab(termOrLink) ? this.generateLink(termOrLink, linkAttr) : termOrLink) +
+            (term ? this.generateLink(termOrLink, linkAttr) : termOrLink) +
             '</code>';
     }
 
@@ -557,7 +559,7 @@ class SDOVocabBrowser {
     generatePropertyRelationship(relatedTerms, tableHeader) {
         if (relatedTerms.length !== 0) {
             const relatedTermsHTML = relatedTerms.map((s) => {
-                const title = {'title' : s + ': \'\'' + this.sdoAdapter.getProperty(s).getDescription() + '\'\''};
+                const title = {'title' : s + ': \'\'' + util.escapeHtml(this.sdoAdapter.getProperty(s).getDescription()) + '\'\''};
                 return this.generateCodeLink(s, null, title);
             }).join('<br>');
 
@@ -573,7 +575,7 @@ class SDOVocabBrowser {
     }
 
     generateEnumeration() {
-        const mainContent = this.generateHeader(this.getTypeStructure(this.term), 'rdfs:subClassOf') +
+        const mainContent = this.generateHeader(this.getTypeStructures(this.term), 'rdfs:subClassOf') +
             this.generateEnumerationEnumerationMembers() +
             this.generateEnumerationRangesOf();
         // TODO

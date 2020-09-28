@@ -32,6 +32,15 @@ function createJSLink(className, queryKey, queryVal, text=null, attr=null) {
     return '<a ' + createAttrForJSLink(className, queryKey, queryVal, attr) + '>' + (text ? text : queryVal) + '</a>';
 }
 
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 function get(url) {
     return new Promise(function (resolve, reject) {
         let xhr = new XMLHttpRequest();
@@ -74,6 +83,7 @@ module.exports = {
     createHTMLAttr: createHTMLAttr,
     createIRIwithQueryParam: createIRIwithQueryParam,
     createJSLink: createJSLink,
+    escapeHtml: escapeHtml,
     get: get,
     isValidUrl: isValidUrl
 };
