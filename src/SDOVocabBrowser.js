@@ -620,7 +620,7 @@ class SDOVocabBrowser {
     }
 
     generateRangesOf(isForEnumMember=false) {
-        const rangeOf = this.term.isRangeOf();
+        const rangeOf = this.term.isRangeOf(false);
         if (rangeOf.length !== 0) {
             const trs = rangeOf.map((r) => {
                 return this.generatePropertyTableRow(r, true);
