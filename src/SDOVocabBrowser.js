@@ -35,6 +35,8 @@ class SDOVocabBrowser {
         } else if (this.isTermRendering()) {
             this.generateTerm();
         }
+
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
     }
 
     async init() {
