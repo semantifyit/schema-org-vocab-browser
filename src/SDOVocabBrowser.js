@@ -457,7 +457,7 @@ class SDOVocabBrowser {
         let expectedType = '';
         const separator = '&nbsp; or <br>';
         if (!onlyDomainIncludes) {
-            const expectedType = sdoProperty.getRanges(false).map((p) => {
+            expectedType = sdoProperty.getRanges(false).map((p) => {
                 return this.generateSemanticLink('rangeIncludes', p) + this.generateLink(p);
             }).join(separator);
         }
