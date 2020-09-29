@@ -4,7 +4,8 @@ function createAttrForJSLink(className, queryKey, queryVal, attr = null) {
 }
 
 function createExternalLink(href, text = null, attr = null) {
-    return '<a href="' + escHTML(href) + '" target="_blank"' + createHTMLAttr(attr) + '>' + (text ? escHTML(text) : escHTML(href)) + '</a>';
+    return '<a href="' + escHTML(href) + '" target="_blank"' + createHTMLAttr(attr) + '>' +
+        (text ? prettyPrintURI(text) : prettyPrintURI(href)) + '</a>';
 }
 
 /**
@@ -74,6 +75,14 @@ function isValidUrl(string) {
     }
 
     return true;
+}
+
+function prettyPrintURI(uri) {
+    const schema = 'schema:';
+    if (uri.startsWith(schema)) {
+        return uri.substring(schema.length)
+    }
+    return escHTML(uri);
 }
 
 function underscore(text) {
