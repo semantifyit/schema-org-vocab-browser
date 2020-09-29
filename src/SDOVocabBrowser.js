@@ -6,6 +6,14 @@ const TYPES = {
     LIST: 'LIST'
 };
 
+const PLURAL = {
+    'Class': 'Classes',
+    'Property': 'Properties',
+    'Enumeration': 'Enumerations',
+    'Enumeration Member': 'Enumeration Members',
+    'Data Type': 'Data Types'
+};
+
 class SDOVocabBrowser {
     constructor(elem, vocabOrVocabList, type = TYPES.VOCAB) {
         this.elem = elem;
@@ -185,11 +193,11 @@ class SDOVocabBrowser {
             '<div id="mainContent"' + /*vocab="http://schema.org/" + ' typeof="rdfs:Class"*/ +' resource="' + window.location + '">' +
             this.generateVocabHeading() +
             this.generateVocabContentSection() +
-            this.generateVocabSection(this.classes, 'Class', 'Classes') +
-            this.generateVocabSection(this.properties, 'Property', 'Properties') +
-            this.generateVocabSection(this.enumerations, 'Enumeration', 'Enumerations') +
-            this.generateVocabSection(this.enumerationMembers, 'Enumeration Member', 'Enumeration Members') +
-            this.generateVocabSection(this.dataTypes, 'Data Type', 'Data Types') +
+            this.generateVocabSection(this.classes, 'Class') +
+            this.generateVocabSection(this.properties, 'Property') +
+            this.generateVocabSection(this.enumerations, 'Enumeration') +
+            this.generateVocabSection(this.enumerationMembers, 'Enumeration Member') +
+            this.generateVocabSection(this.dataTypes, 'Data Type') +
             '</div>';
         this.addTermEventListener();
     }
@@ -204,38 +212,31 @@ class SDOVocabBrowser {
     }
 
     generateVocabContentSection() {
-        let html = '<h2>Content</h2>' +
-            '<ul>';
-
-        if (this.classes.length !== 0) {
-            html += '<li>' + this.classes.length + ' Class' + (this.classes.length === 1 ? '' : 'es') + '</li>';
-        }
-
-        if (this.properties.length !== 0) {
-            html += '<li>' + this.properties.length + ' Propert' + (this.properties.length === 1 ? 'y' : 'ies') + '</li>';
-        }
-
-        if (this.enumerations.length !== 0) {
-            html += '<li>' + this.enumerations.length + ' Enumeration' + (this.enumerations.length === 1 ? '' : 's') + '</li>';
-        }
-
-        if (this.enumerationMembers.length !== 0) {
-            html += '<li>' + this.enumerationMembers.length + ' Enumeration Member' + (this.enumerationMembers.length === 1 ? '' : 's') + '</li>';
-        }
-
-        if (this.dataTypes.length !== 0) {
-            html += '<li>' + this.dataTypes.length + ' Data Type' + (this.dataTypes.length === 1 ? '' : 's') + '</li>';
-        }
-
-        html += '</ul>';
-        return html;
+        return '' +
+            '<h2>Content</h2>' +
+            '<ul>' +
+            this.generateVocabContentListElement(this.classes, 'Class') +
+            this.generateVocabContentListElement(this.properties, 'Property') +
+            this.generateVocabContentListElement(this.enumerations, 'Enumeration') +
+            this.generateVocabContentListElement(this.enumerationMembers, 'Enumeration Member') +
+            this.generateVocabContentListElement(this.dataTypes, 'Data Type') +
+            '</ul>';
     }
 
-    generateVocabSection(objects, typeSingular, typePlural) {
-        let html = '';
+    generateVocabContentListElement(objects, typeSingular) {
         if (objects.length !== 0) {
-            html += '' +
-                '<h2>' + typePlural + '</h2>' +
+            const typePlural = PLURAL[typeSingular];
+            return '<li><a href="#' + util.underscore(typePlural) + '">' + objects.length + ' ' +
+                (objects.length === 1 ? typeSingular : typePlural) + '</a></li>';
+        }
+        return '';
+    }
+
+    generateVocabSection(objects, typeSingular) {
+        if (objects.length !== 0) {
+            const typePlural = PLURAL[typeSingular];
+            return '' +
+                '<h2 id="' + util.underscore(typePlural) + '">' + typePlural + '</h2>' +
                 '<table class="definition-table">' +
                 '<thead>' +
                 '<tr>' +
@@ -248,8 +249,7 @@ class SDOVocabBrowser {
                 '</tbody>' +
                 '</table>'
         }
-
-        return html;
+        return '';
     }
 
     generateVocabSectionTbody(objects) {
@@ -661,7 +661,6 @@ class SDOVocabBrowser {
             this.generateHeader(this.getTypeStructures(this.term, 'getSuperDataTypes'), '', breadCrumbStart) +
             this.generateRangesOf();
         return this.generateMainContent('rdfs:Class', mainContent);
-        // TODO
     }
 
     addTermEventListener() {

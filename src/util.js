@@ -76,6 +76,9 @@ function isValidUrl(string) {
     return true;
 }
 
+function underscore(text) {
+    return text.replace(/ /g, '_');
+}
 
 module.exports = {
     createAttrForJSLink: createAttrForJSLink,
@@ -85,5 +88,6 @@ module.exports = {
     createJSLink: createJSLink,
     escHTML: escHTML,
     get: get,
-    isValidUrl: isValidUrl
+    isValidUrl: isValidUrl,
+    underscore: underscore
 };
