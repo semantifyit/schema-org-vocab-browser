@@ -65,47 +65,17 @@ class SDOVocabBrowser {
     }
 
     async initList() {
-        let jsonString;
-        if (this.isValidUrl(this.vocabOrVocabList)) {
-            jsonString = await this.get(this.vocabOrVocabList);
+        if (this.util.isString(this.vocabOrVocabList)) {
+            let jsonString;
+            if (this.util.isValidUrl(this.vocabOrVocabList)) {
+                jsonString = await this.util.get(this.vocabOrVocabList);
+            } else {
+                jsonString = this.vocabOrVocabList;
+            }
+            this.list = JSON.parse(jsonString);
         } else {
-            jsonString = this.vocabOrVocabList;
+            this.list = this.vocabOrVocabList;
         }
-        this.list = JSON.parse(jsonString);
-    }
-
-    isValidUrl(string) {
-        try {
-            new URL(string);
-        } catch (_) {
-            return false;
-        }
-
-        return true;
-    }
-
-    get(url) {
-        return new Promise(function (resolve, reject) {
-            let xhr = new XMLHttpRequest();
-            xhr.open('GET', url);
-            xhr.onload = function () {
-                if (this.status >= 200 && this.status < 300) {
-                    resolve(xhr.response);
-                } else {
-                    reject({
-                        status: this.status,
-                        statusText: xhr.statusText
-                    });
-                }
-            };
-            xhr.onerror = function () {
-                reject({
-                    status: this.status,
-                    statusText: xhr.statusText
-                });
-            };
-            xhr.send();
-        });
     }
 
     vocabNeedsInit() {

@@ -3,6 +3,44 @@ class Util {
         this.browser = browser;
     }
 
+    isString(myVar) {
+        return (typeof myVar === 'string' || myVar instanceof String);
+    }
+
+    isValidUrl(string) {
+        try {
+            new URL(string);
+        } catch (_) {
+            return false;
+        }
+
+        return true;
+    }
+
+    get(url) {
+        return new Promise(function (resolve, reject) {
+            let xhr = new XMLHttpRequest();
+            xhr.open('GET', url);
+            xhr.onload = function () {
+                if (this.status >= 200 && this.status < 300) {
+                    resolve(xhr.response);
+                } else {
+                    reject({
+                        status: this.status,
+                        statusText: xhr.statusText
+                    });
+                }
+            };
+            xhr.onerror = function () {
+                reject({
+                    status: this.status,
+                    statusText: xhr.statusText
+                });
+            };
+            xhr.send();
+        });
+    }
+
     addTermEventListener() {
         const aTermNames = document.getElementsByClassName('a-term-name');
 
@@ -17,7 +55,7 @@ class Util {
     createIRIwithQueryParam(key, val) {
         const searchParams = new URLSearchParams(window.location.search);
         searchParams.set(key, val);
-        return window.location.origin + window.location.pathname + '?' + searchParams.toString();
+        return window.location.protocol + '//' + window.location.pathname + '?' + searchParams.toString();
     }
 
     createTableRow(typeOf, resource, mainColProp, mainColTermOrLink, sideCols, mainColClass = null) {

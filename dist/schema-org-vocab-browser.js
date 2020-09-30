@@ -21416,53 +21416,20 @@ class SDOVocabBrowser {
     var _this4 = this;
 
     return _asyncToGenerator(function* () {
-      var jsonString;
+      if (_this4.util.isString(_this4.vocabOrVocabList)) {
+        var jsonString;
 
-      if (_this4.isValidUrl(_this4.vocabOrVocabList)) {
-        jsonString = yield _this4.get(_this4.vocabOrVocabList);
-      } else {
-        jsonString = _this4.vocabOrVocabList;
-      }
-
-      _this4.list = JSON.parse(jsonString);
-    })();
-  }
-
-  isValidUrl(string) {
-    try {
-      new URL(string);
-    } catch (_) {
-      return false;
-    }
-
-    return true;
-  }
-
-  get(url) {
-    return new Promise(function (resolve, reject) {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', url);
-
-      xhr.onload = function () {
-        if (this.status >= 200 && this.status < 300) {
-          resolve(xhr.response);
+        if (_this4.util.isValidUrl(_this4.vocabOrVocabList)) {
+          jsonString = yield _this4.util.get(_this4.vocabOrVocabList);
         } else {
-          reject({
-            status: this.status,
-            statusText: xhr.statusText
-          });
+          jsonString = _this4.vocabOrVocabList;
         }
-      };
 
-      xhr.onerror = function () {
-        reject({
-          status: this.status,
-          statusText: xhr.statusText
-        });
-      };
-
-      xhr.send();
-    });
+        _this4.list = JSON.parse(jsonString);
+      } else {
+        _this4.list = _this4.vocabOrVocabList;
+      }
+    })();
   }
 
   vocabNeedsInit() {
@@ -21571,6 +21538,47 @@ class Util {
     this.browser = browser;
   }
 
+  isString(myVar) {
+    return typeof myVar === 'string' || myVar instanceof String;
+  }
+
+  isValidUrl(string) {
+    try {
+      new URL(string);
+    } catch (_) {
+      return false;
+    }
+
+    return true;
+  }
+
+  get(url) {
+    return new Promise(function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', url);
+
+      xhr.onload = function () {
+        if (this.status >= 200 && this.status < 300) {
+          resolve(xhr.response);
+        } else {
+          reject({
+            status: this.status,
+            statusText: xhr.statusText
+          });
+        }
+      };
+
+      xhr.onerror = function () {
+        reject({
+          status: this.status,
+          statusText: xhr.statusText
+        });
+      };
+
+      xhr.send();
+    });
+  }
+
   addTermEventListener() {
     var _this = this;
 
@@ -21592,7 +21600,7 @@ class Util {
   createIRIwithQueryParam(key, val) {
     var searchParams = new URLSearchParams(window.location.search);
     searchParams.set(key, val);
-    return window.location.origin + window.location.pathname + '?' + searchParams.toString();
+    return window.location.protocol + '//' + window.location.pathname + '?' + searchParams.toString();
   }
 
   createTableRow(typeOf, resource, mainColProp, mainColTermOrLink, sideCols) {
