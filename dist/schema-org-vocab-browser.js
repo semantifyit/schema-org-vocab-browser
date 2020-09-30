@@ -21600,7 +21600,7 @@ class Util {
   createIRIwithQueryParam(key, val) {
     var searchParams = new URLSearchParams(window.location.search);
     searchParams.set(key, val);
-    return window.location.protocol + '//' + window.location.pathname + '?' + searchParams.toString();
+    return window.location.origin + window.location.pathname + '?' + searchParams.toString();
   }
 
   createTableRow(typeOf, resource, mainColProp, mainColTermOrLink, sideCols) {
