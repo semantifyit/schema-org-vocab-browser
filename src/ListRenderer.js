@@ -33,21 +33,22 @@ class ListRenderer {
 
     createVocabsTbody() {
         return this.browser.list['schema:hasPart'].map((vocab, i) => {
-            return '' +
-                this.util.createTableRow('http://vocab.sti2.at/ds/Vocabulary',
-                    this.util.createIRIwithQueryParam('voc', i + 1),
-                    'schema:name',
-                    this.util.createJSLink('a-vocab-name', 'voc', i + 1, 'TODO'),
-                    this.createVocabsSideCols(vocab)
-                );
+            return this.util.createTableRow('http://vocab.sti2.at/ds/Vocabulary',
+                this.util.createIRIwithQueryParam('voc', i + 1),
+                'schema:name',
+                this.util.createJSLink('a-vocab-name', 'voc', i + 1, vocab['schema:name'] || ''),
+                this.createVocabsSideCols(vocab)
+            );
         }).join('');
     }
 
     createVocabsSideCols(vocab) {
         return '' +
             '<td property="@id">' + this.util.createExternalLink(vocab['@id']) + '</td>' +
-            '<td property="schema:author">' + /*TODO: vocab.author + */ '</td>' +
-            '<td property="schema:description">' + /*TODO: vocab.description + */ '</td>';
+            '<td property="schema:author">' +
+            (vocab['schema:author'] && vocab['schema:author']['schema:name']) || '' +
+            '</td>' +
+            '<td property="schema:description">' + vocab['schema:description'] || '' + '</td>';
     }
 
     addEventListener() {
