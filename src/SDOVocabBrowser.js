@@ -1,4 +1,5 @@
 const SDOAdapter = require('schema-org-adapter');
+
 const Util = require('./Util');
 const ListRenderer = require('./ListRenderer');
 const VocabRenderer = require('./VocabRenderer');

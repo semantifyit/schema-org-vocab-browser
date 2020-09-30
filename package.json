@@ -22,9 +22,40 @@
     "schema-org-adapter": "^3.1.0"
   },
   "main": "src/SDOVocabBrowser.js",
+  "scripts": {
+    "buildAll": "npm run-script build && npm run-script buildMinified",
+    "build": "browserify src/SDOVocabBrowser.js -s SDOVocabBrowser | derequire -cm --toplevel > dist/schema-org-vocab-browser.js",
+    "buildMinified": "browserify src/SDOVocabBrowser.js -s SDOVocabBrowser -g [uglifyify] | derequire -cm --toplevel > dist/schema-org-vocab-browser.min.js"
+  },
   "devDependencies": {
     "@babel/core": "^7.11.6",
     "@babel/preset-env": "^7.11.5",
-    "babelify": "^10.0.0"
-  }
+    "babelify": "^10.0.0",
+    "browserify": "^16.5.2",
+    "derequire": "^2.1.1",
+    "uglifyify": "^5.0.2"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            [
+              "@babel/preset-env",
+              {
+                "targets": {
+                  "esmodules": true
+                }
+              }
+            ]
+          ]
+        }
+      ]
+    ]
+  },
+  "files": [
+    "src/*",
+    "dist/*"
+  ]
 }
