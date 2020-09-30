@@ -7,7 +7,7 @@ Vocabulary Browser for schema.org based vocabularies.
 Require the bundled file in your website:
 
 ``` xml
-<script src="https://raw.githubusercontent.com/semantifyit/schema-org-vocab-browser/main/dist/schema-org-vocab-browser.min.js">
+<script src="https://cdn.jsdelivr.net/gh/semantifyit/schema-org-vocab-browser@main/dist/schema-org-vocab-browser.min.js">
 ```
 
 Import your vocabulary and render the corresponding HTML:
