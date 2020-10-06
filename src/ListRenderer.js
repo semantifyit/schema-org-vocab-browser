@@ -32,11 +32,11 @@ class ListRenderer {
     }
 
     createVocabsTbody() {
-        return this.browser.list['schema:hasPart'].map((vocab, i) => {
+        return this.browser.list['schema:hasPart'].map((vocab) => {
             return this.util.createTableRow('http://vocab.sti2.at/ds/Vocabulary',
-                this.util.createIRIwithQueryParam('voc', i + 1),
+                vocab['@id'],
                 'schema:name',
-                this.util.createJSLink('a-vocab-name', 'voc', i + 1, vocab['schema:name'] || ''),
+                this.util.createJSLink('a-vocab-name', 'voc', vocab['@id'].split('/').pop(), vocab['schema:name'] || ''),
                 this.createVocabsSideCols(vocab)
             );
         }).join('');
@@ -54,10 +54,9 @@ class ListRenderer {
     addEventListener() {
         const aVocabNames = document.getElementsByClassName('a-vocab-name');
 
-        for (let i = 0; i < aVocabNames.length; i++) { // forEach() not possible ootb for HTMLCollections
-            const aVocabName = aVocabNames[i];
+        for (const aVocabName of aVocabNames) { // forEach() not possible ootb for HTMLCollections
             aVocabName.addEventListener('click', async () => {
-                history.pushState(null, null, this.util.createIRIwithQueryParam('voc', i + 1));
+                history.pushState(null, null, aVocabName.href);
                 await this.browser.render();
             });
         }

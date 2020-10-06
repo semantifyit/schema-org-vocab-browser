@@ -80,8 +80,8 @@ class SDOVocabBrowser {
 
     vocabNeedsInit() {
         const searchParams = new URLSearchParams(window.location.search);
-        const listNumber = searchParams.get('voc');
-        return ((this.type === TYPES.LIST && listNumber && listNumber !== this.listNumber) ||
+        const vocUID = searchParams.get('voc');
+        return ((this.type === TYPES.LIST && vocUID && vocUID !== this.vocUID) ||
             (this.type === TYPES.VOCAB && !this.vocabs));
     }
 
@@ -91,8 +91,14 @@ class SDOVocabBrowser {
             vocab = this.vocabOrVocabList;
         } else if (this.type === TYPES.LIST) {
             const searchParams = new URLSearchParams(window.location.search);
-            this.listNumber = searchParams.get('voc');
-            vocab = this.list['schema:hasPart'][this.listNumber - 1]['@id'];
+            this.vocUID = searchParams.get('voc');
+            for (const part of this.list['schema:hasPart']) {
+               const id = part['@id'];
+               if (id.split('/').pop() === this.vocUID) {
+                   vocab = id;
+                   break;
+               }
+            }
         }
 
         this.sdoAdapter = new SDOAdapter();
