@@ -21217,8 +21217,8 @@ class ListRenderer {
   }
 
   createVocabsTbody() {
-    return this.browser.list['schema:hasPart'].map((vocab, i) => {
-      return this.util.createTableRow('http://vocab.sti2.at/ds/Vocabulary', this.util.createIRIwithQueryParam('voc', i + 1), 'schema:name', this.util.createJSLink('a-vocab-name', 'voc', i + 1, vocab['schema:name'] || ''), this.createVocabsSideCols(vocab));
+    return this.browser.list['schema:hasPart'].map(vocab => {
+      return this.util.createTableRow('http://vocab.sti2.at/ds/Vocabulary', vocab['@id'], 'schema:name', this.util.createJSLink('a-vocab-name', 'voc', vocab['@id'].split('/').pop(), vocab['schema:name'] || ''), this.createVocabsSideCols(vocab));
     }).join('');
   }
 
@@ -21231,17 +21231,16 @@ class ListRenderer {
 
     var aVocabNames = document.getElementsByClassName('a-vocab-name');
 
-    var _loop = function _loop(i) {
+    var _loop = function _loop(aVocabName) {
       // forEach() not possible ootb for HTMLCollections
-      var aVocabName = aVocabNames[i];
       aVocabName.addEventListener('click', /*#__PURE__*/_asyncToGenerator(function* () {
-        history.pushState(null, null, _this.util.createIRIwithQueryParam('voc', i + 1));
+        history.pushState(null, null, aVocabName.href);
         yield _this.browser.render();
       }));
     };
 
-    for (var i = 0; i < aVocabNames.length; i++) {
-      _loop(i);
+    for (var aVocabName of aVocabNames) {
+      _loop(aVocabName);
     }
   }
 
@@ -21430,8 +21429,8 @@ class SDOVocabBrowser {
 
   vocabNeedsInit() {
     var searchParams = new URLSearchParams(window.location.search);
-    var listNumber = searchParams.get('voc');
-    return this.type === TYPES.LIST && listNumber && listNumber !== this.listNumber || this.type === TYPES.VOCAB && !this.vocabs;
+    var vocUID = searchParams.get('voc');
+    return this.type === TYPES.LIST && vocUID && vocUID !== this.vocUID || this.type === TYPES.VOCAB && !this.vocabs;
   }
 
   initVocab() {
@@ -21444,8 +21443,16 @@ class SDOVocabBrowser {
         vocab = _this5.vocabOrVocabList;
       } else if (_this5.type === TYPES.LIST) {
         var searchParams = new URLSearchParams(window.location.search);
-        _this5.listNumber = searchParams.get('voc');
-        vocab = _this5.list['schema:hasPart'][_this5.listNumber - 1]['@id'];
+        _this5.vocUID = searchParams.get('voc');
+
+        for (var part of _this5.list['schema:hasPart']) {
+          var id = part['@id'];
+
+          if (id.split('/').pop() === _this5.vocUID) {
+            vocab = id;
+            break;
+          }
+        }
       }
 
       _this5.sdoAdapter = new SDOAdapter();
@@ -21552,6 +21559,7 @@ class Util {
     return new Promise(function (resolve, reject) {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', url);
+      xhr.setRequestHeader('Accept', 'application/ld+json');
 
       xhr.onload = function () {
         if (this.status >= 200 && this.status < 300) {
