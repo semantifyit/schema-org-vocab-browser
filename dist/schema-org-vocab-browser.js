@@ -21450,6 +21450,7 @@ class SDOVocabBrowser {
 
           if (id.split('/').pop() === _this5.vocUID) {
             vocab = id;
+            _this5.vocName = part['schema:name'];
             break;
           }
         }
@@ -21855,9 +21856,9 @@ class VocabRenderer {
   }
 
   createHeading() {
-    return '' + '<h1>' + Object.entries(this.browser.vocabs).map(vocab => {
-      return vocab[0] + ':' + vocab[1];
-    }) + '</h1>';
+    return '' + (this.browser.vocName ? '<h1>' + this.browser.vocName + '</h1>' : '') + '<h2>Namespaces</h2>' + '<ul>' + Object.entries(this.browser.vocabs).map(vocab => {
+      return '<li>' + vocab[0] + ': ' + vocab[1] + '</li>';
+    }).join('') + '</ul>';
   }
 
   createContentSection() {
