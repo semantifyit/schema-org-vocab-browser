@@ -96,6 +96,7 @@ class SDOVocabBrowser {
                const id = part['@id'];
                if (id.split('/').pop() === this.vocUID) {
                    vocab = id;
+                   this.vocName = part['schema:name'];
                    break;
                }
             }
