@@ -81,7 +81,7 @@ class VocabRenderer {
                 this.util.createIRIwithQueryParam('term', name),
                 '@id',
                 this.util.createJSLink('a-term-name', 'term', name),
-                '<td property="rdfs:comment">' + term.getDescription() + '</td>');
+                '<td property="rdfs:comment">' + (term.getDescription() || '')  + '</td>');
         }).join('');
     }
 }

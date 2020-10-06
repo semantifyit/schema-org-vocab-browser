@@ -21218,12 +21218,12 @@ class ListRenderer {
 
   createVocabsTbody() {
     return this.browser.list['schema:hasPart'].map(vocab => {
-      return this.util.createTableRow('http://vocab.sti2.at/ds/Vocabulary', vocab['@id'], 'schema:name', this.util.createJSLink('a-vocab-name', 'voc', vocab['@id'].split('/').pop(), vocab['schema:name'] || ''), this.createVocabsSideCols(vocab));
+      return this.util.createTableRow('http://vocab.sti2.at/ds/Vocabulary', vocab['@id'], 'schema:name', this.util.createJSLink('a-vocab-name', 'voc', vocab['@id'].split('/').pop(), vocab['schema:name'] || 'No Name'), this.createVocabsSideCols(vocab));
     }).join('');
   }
 
   createVocabsSideCols(vocab) {
-    return '' + '<td property="@id">' + this.util.createExternalLink(vocab['@id']) + '</td>' + '<td property="schema:author">' + (vocab['schema:author'] && vocab['schema:author']['schema:name']) || '' + '</td>' + '<td property="schema:description">' + vocab['schema:description'] || '' + '</td>';
+    return '' + '<td property="@id">' + this.util.createExternalLink(vocab['@id']) + '</td>' + '<td property="schema:author">' + (vocab['schema:author'] && vocab['schema:author']['schema:name'] || '') + '</td>' + '<td property="schema:description">' + (vocab['schema:description'] || '') + '</td>';
   }
 
   addEventListener() {

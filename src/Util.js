@@ -182,7 +182,7 @@ class Util {
             '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' +
             this.createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) +
             '</h4>' +
-            '<div property="rdfs:comment">' + term.getDescription() + '<br><br></div>';
+            '<div property="rdfs:comment">' + (term.getDescription() || '') + '<br><br></div>';
     }
 
     createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) {
@@ -253,7 +253,7 @@ class Util {
         const sdoProperty = this.browser.sdoAdapter.getProperty(property);
         return '' +
             '<td class="prop-etc">' + this.createPropertyRange(sdoProperty, onlyDomainIncludes) + '</td>' +
-            '<td class="prop-desc" property="rdfs:comment">' + sdoProperty.getDescription() + '</td>';
+            '<td class="prop-desc" property="rdfs:comment">' + (sdoProperty.getDescription() || '') + '</td>';
     }
 
     createPropertyRange(sdoProperty, onlyDomainIncludes) {

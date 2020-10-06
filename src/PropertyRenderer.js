@@ -56,7 +56,7 @@ class PropertyRenderer {
         if (relatedTerms.length !== 0) {
             const relatedTermsHTML = relatedTerms.map((s) => {
                 const title = {
-                    'title': s + ': \'\'' + this.browser.sdoAdapter.getProperty(s).getDescription() + '\'\''
+                    'title': s + ': \'\'' + (this.browser.sdoAdapter.getProperty(s).getDescription() || '') + '\'\''
                 };
                 return this.util.createCodeLink(s, null, title);
             }).join('<br>');
