@@ -21299,7 +21299,7 @@ class PropertyRenderer {
     if (relatedTerms.length !== 0) {
       var relatedTermsHTML = relatedTerms.map(s => {
         var title = {
-          'title': s + ': \'\'' + this.browser.sdoAdapter.getProperty(s).getDescription() + '\'\''
+          'title': s + ': \'\'' + (this.browser.sdoAdapter.getProperty(s).getDescription() || '') + '\'\''
         };
         return this.util.createCodeLink(s, null, title);
       }).join('<br>');
@@ -21723,7 +21723,7 @@ class Util {
     var breadCrumbStart = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
     var breadCrumbEnd = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
     var term = this.browser.term;
-    return '' + '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' + this.createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) + '</h4>' + '<div property="rdfs:comment">' + term.getDescription() + '<br><br></div>';
+    return '' + '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' + this.createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) + '</h4>' + '<div property="rdfs:comment">' + (term.getDescription() || '') + '<br><br></div>';
   }
 
   createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) {
@@ -21778,7 +21778,7 @@ class Util {
 
   createPropertySideCols(property, onlyDomainIncludes) {
     var sdoProperty = this.browser.sdoAdapter.getProperty(property);
-    return '' + '<td class="prop-etc">' + this.createPropertyRange(sdoProperty, onlyDomainIncludes) + '</td>' + '<td class="prop-desc" property="rdfs:comment">' + sdoProperty.getDescription() + '</td>';
+    return '' + '<td class="prop-etc">' + this.createPropertyRange(sdoProperty, onlyDomainIncludes) + '</td>' + '<td class="prop-desc" property="rdfs:comment">' + (sdoProperty.getDescription() || '') + '</td>';
   }
 
   createPropertyRange(sdoProperty, onlyDomainIncludes) {
@@ -21885,7 +21885,7 @@ class VocabRenderer {
   createSectionTbody(objects) {
     return objects.map(name => {
       var term = this.browser.sdoAdapter.getTerm(name);
-      return this.util.createTableRow(term.getTermType(), this.util.createIRIwithQueryParam('term', name), '@id', this.util.createJSLink('a-term-name', 'term', name), '<td property="rdfs:comment">' + term.getDescription() + '</td>');
+      return this.util.createTableRow(term.getTermType(), this.util.createIRIwithQueryParam('term', name), '@id', this.util.createJSLink('a-term-name', 'term', name), '<td property="rdfs:comment">' + (term.getDescription() || '') + '</td>');
     }).join('');
   }
 
