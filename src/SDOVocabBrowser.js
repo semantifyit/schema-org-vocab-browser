@@ -35,7 +35,10 @@ class SDOVocabBrowser {
     }
 
     async render() {
-        this.elem.innerHTML = '<img src="images/loading.gif" alt="Loading Animation" style="margin-top: 6px">';
+        this.elem.innerHTML =
+            '<img src="https://raw.githubusercontent.com/semantifyit/schema-org-vocab-browser/main/images/loading.gif" ' +
+            'alt="Loading Animation" style="margin-top: 6px">';
+
         await this.init();
         if (this.isListRendering()) {
             this.listRenderer.render();

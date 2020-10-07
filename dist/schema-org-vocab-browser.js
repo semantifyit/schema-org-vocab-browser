@@ -21350,7 +21350,7 @@ class SDOVocabBrowser {
     var _this2 = this;
 
     return _asyncToGenerator(function* () {
-      _this2.elem.innerHTML = '<img src="images/loading.gif" alt="Loading Animation" style="margin-top: 6px">';
+      _this2.elem.innerHTML = '<img src="https://raw.githubusercontent.com/semantifyit/schema-org-vocab-browser/main/images/loading.gif" ' + 'alt="Loading Animation" style="margin-top: 6px">';
       yield _this2.init();
 
       if (_this2.isListRendering()) {
