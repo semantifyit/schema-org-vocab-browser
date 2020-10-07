@@ -35,7 +35,7 @@ class ListRenderer {
             return this.util.createTableRow('http://vocab.sti2.at/ds/Vocabulary',
                 vocab['@id'],
                 'schema:name',
-                this.util.createJSLink('a-js-link', 'voc', vocab['@id'].split('/').pop(), vocab['schema:name'] || 'No Name'),
+                this.util.createJSLink('voc', vocab['@id'].split('/').pop(), vocab['schema:name'] || 'No Name'),
                 this.createVocabsSideCols(vocab)
             );
         }).join('');

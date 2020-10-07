@@ -82,14 +82,14 @@ class Util {
             (term ? this.createLink(termOrLink, linkAttr) : termOrLink);
     }
 
-    createJSLink(className, queryKey, queryVal, text = null, attr = null) {
-        return '<a ' + this.createAttrForJSLink(className, queryKey, queryVal, attr) + '>' +
+    createJSLink(queryKey, queryVal, text = null, attr = null) {
+        return '<a ' + this.createAttrForJSLink(queryKey, queryVal, attr) + '>' +
             (text ? this.escHTML(text) : this.escHTML(queryVal)) + '</a>';
     }
 
-    createAttrForJSLink(className, queryKey, queryVal, attr = null) {
+    createAttrForJSLink(queryKey, queryVal, attr = null) {
         const iri = this.createIRIwithQueryParam(queryKey, queryVal);
-        return 'class="' + this.escHTML(className) + '" href="' + this.escHTML(iri) + '" onclick="return false;"' +
+        return 'class="a-js-link" href="' + this.escHTML(iri) + '" onclick="return false;"' +
             this.createHTMLAttr(attr);
     }
 
@@ -170,7 +170,7 @@ class Util {
         const term = this.browser.term;
         return '' +
             (this.browser.vocName ? '<span style="float: right;">' +
-            '(Vocabulary: ' + this.createJSLink('a-js-link', 'term', null, this.browser.vocName) + ')' +
+            '(Vocabulary: ' + this.createJSLink('term', null, this.browser.vocName) + ')' +
             '</span>' : '') +
             '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' +
             this.createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) +
@@ -227,7 +227,7 @@ class Util {
 
     createLink(term, attr = null) {
         if (this.isTermOfVocab(term)) {
-            return this.createJSLink('a-js-link', 'term', term, null, attr);
+            return this.createJSLink('term', term, null, attr);
         } else {
             return this.createExternalLink(this.createHref(term), term, attr);
         }

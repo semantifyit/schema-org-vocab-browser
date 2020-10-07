@@ -21213,7 +21213,7 @@ class ListRenderer {
 
   createVocabsTbody() {
     return this.browser.list['schema:hasPart'].map(vocab => {
-      return this.util.createTableRow('http://vocab.sti2.at/ds/Vocabulary', vocab['@id'], 'schema:name', this.util.createJSLink('a-js-link', 'voc', vocab['@id'].split('/').pop(), vocab['schema:name'] || 'No Name'), this.createVocabsSideCols(vocab));
+      return this.util.createTableRow('http://vocab.sti2.at/ds/Vocabulary', vocab['@id'], 'schema:name', this.util.createJSLink('voc', vocab['@id'].split('/').pop(), vocab['schema:name'] || 'No Name'), this.createVocabsSideCols(vocab));
     }).join('');
   }
 
@@ -21611,16 +21611,16 @@ class Util {
     return '' + (rdfa ? this.createSemanticLink(rdfa, termOrLink) : '') + (term ? this.createLink(termOrLink, linkAttr) : termOrLink);
   }
 
-  createJSLink(className, queryKey, queryVal) {
-    var text = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-    var attr = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
-    return '<a ' + this.createAttrForJSLink(className, queryKey, queryVal, attr) + '>' + (text ? this.escHTML(text) : this.escHTML(queryVal)) + '</a>';
+  createJSLink(queryKey, queryVal) {
+    var text = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    var attr = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+    return '<a ' + this.createAttrForJSLink(queryKey, queryVal, attr) + '>' + (text ? this.escHTML(text) : this.escHTML(queryVal)) + '</a>';
   }
 
-  createAttrForJSLink(className, queryKey, queryVal) {
-    var attr = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+  createAttrForJSLink(queryKey, queryVal) {
+    var attr = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
     var iri = this.createIRIwithQueryParam(queryKey, queryVal);
-    return 'class="' + this.escHTML(className) + '" href="' + this.escHTML(iri) + '" onclick="return false;"' + this.createHTMLAttr(attr);
+    return 'class="a-js-link" href="' + this.escHTML(iri) + '" onclick="return false;"' + this.createHTMLAttr(attr);
   }
 
   escHTML(unsafe) {
@@ -21698,7 +21698,7 @@ class Util {
     var breadCrumbStart = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
     var breadCrumbEnd = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
     var term = this.browser.term;
-    return '' + (this.browser.vocName ? '<span style="float: right;">' + '(Vocabulary: ' + this.createJSLink('a-js-link', 'term', null, this.browser.vocName) + ')' + '</span>' : '') + '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' + this.createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) + '</h4>' + '<div property="rdfs:comment">' + (term.getDescription() || '') + '<br><br></div>';
+    return '' + (this.browser.vocName ? '<span style="float: right;">' + '(Vocabulary: ' + this.createJSLink('term', null, this.browser.vocName) + ')' + '</span>' : '') + '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' + this.createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) + '</h4>' + '<div property="rdfs:comment">' + (term.getDescription() || '') + '<br><br></div>';
   }
 
   createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) {
@@ -21740,7 +21740,7 @@ class Util {
     var attr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
     if (this.isTermOfVocab(term)) {
-      return this.createJSLink('a-js-link', 'term', term, null, attr);
+      return this.createJSLink('term', term, null, attr);
     } else {
       return this.createExternalLink(this.createHref(term), term, attr);
     }
@@ -21829,7 +21829,7 @@ class VocabRenderer {
   }
 
   createHeading() {
-    return '' + (this.browser.list ? '<span style="float: right;">' + '(List: ' + this.util.createJSLink('a-js-link', 'voc', null, this.browser.list['schema:name']) + ')' + '</span>' : '') + (this.browser.vocName ? '<h1>' + this.browser.vocName + '</h1>' : '') + '<h2>Namespaces</h2>' + '<ul>' + Object.entries(this.browser.vocabs).map(vocab => {
+    return '' + (this.browser.list ? '<span style="float: right;">' + '(List: ' + this.util.createJSLink('voc', null, this.browser.list['schema:name']) + ')' + '</span>' : '') + (this.browser.vocName ? '<h1>' + this.browser.vocName + '</h1>' : '') + '<h2>Namespaces</h2>' + '<ul>' + Object.entries(this.browser.vocabs).map(vocab => {
       return '<li>' + vocab[0] + ': ' + vocab[1] + '</li>';
     }).join('') + '</ul>';
   }
@@ -21859,7 +21859,7 @@ class VocabRenderer {
   createSectionTbody(objects) {
     return objects.map(name => {
       var term = this.browser.sdoAdapter.getTerm(name);
-      return this.util.createTableRow(term.getTermType(), this.util.createIRIwithQueryParam('term', name), '@id', this.util.createJSLink('a-js-link', 'term', name), '<td property="rdfs:comment">' + (term.getDescription() || '') + '</td>');
+      return this.util.createTableRow(term.getTermType(), this.util.createIRIwithQueryParam('term', name), '@id', this.util.createJSLink('term', name), '<td property="rdfs:comment">' + (term.getDescription() || '') + '</td>');
     }).join('');
   }
 

@@ -26,7 +26,7 @@ class VocabRenderer {
     createHeading() {
         return '' +
             (this.browser.list ? '<span style="float: right;">' +
-                '(List: ' + this.util.createJSLink('a-js-link', 'voc', null, this.browser.list['schema:name']) + ')' +
+                '(List: ' + this.util.createJSLink('voc', null, this.browser.list['schema:name']) + ')' +
                 '</span>' : '') +
             (this.browser.vocName ? '<h1>' + this.browser.vocName + '</h1>' : '') +
             '<h2>Namespaces</h2>' +
@@ -84,7 +84,7 @@ class VocabRenderer {
             return this.util.createTableRow(term.getTermType(),
                 this.util.createIRIwithQueryParam('term', name),
                 '@id',
-                this.util.createJSLink('a-js-link', 'term', name),
+                this.util.createJSLink('term', name),
                 '<td property="rdfs:comment">' + (term.getDescription() || '')  + '</td>');
         }).join('');
     }
