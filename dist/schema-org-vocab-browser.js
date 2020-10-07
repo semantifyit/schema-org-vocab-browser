@@ -21724,12 +21724,12 @@ class Util {
     var breadCrumbStart = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
     var breadCrumbEnd = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
     var term = this.browser.term;
-    return '' + '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' + this.createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) + '</h4>' + '<div property="rdfs:comment">' + (term.getDescription() || '') + '<br><br></div>';
+    return '' + '<h1 property="rdfs:label" class="page-title" style="float: left">' + term.getIRI(true) + '</h1>' + (this.browser.vocName ? '<span style="float: right; margin-top: 6px">(Vocabulary: ' + this.createJSLink('a-term-name', 'term', '', this.browser.vocName) + ')</span>' : '') + this.createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) + '</h4>' + '<div property="rdfs:comment">' + (term.getDescription() || '') + '<br><br></div>';
   }
 
   createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) {
     if (superTypes) {
-      return '' + '<h4>' + superTypes.map(s => {
+      return '' + '<h4 style="clear: both">' + superTypes.map(s => {
         return '' + '<span class="breadcrumbs">' + breadCrumbStart + s.map((superType, i) => {
           var html = '';
 
