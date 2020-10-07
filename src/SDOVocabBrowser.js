@@ -163,9 +163,13 @@ class SDOVocabBrowser {
         const aJSLinks = document.getElementsByClassName('a-js-link');
 
         for (const aJSLink of aJSLinks) { // forEach() not possible ootb for HTMLCollections
-            aJSLink.addEventListener('click', async () => {
-                history.pushState(null, null, aJSLink.href);
-                await this.render();
+            aJSLink.addEventListener('click', async (e) => {
+                if (e.ctrlKey) {
+                    window.open(aJSLink.href);
+                } else {
+                    history.pushState(null, null, aJSLink.href);
+                    await this.render();
+                }
             });
         }
     }

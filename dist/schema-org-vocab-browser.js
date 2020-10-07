@@ -21350,6 +21350,7 @@ class SDOVocabBrowser {
     var _this2 = this;
 
     return _asyncToGenerator(function* () {
+      _this2.elem.innerHTML = '<img src="images/loading.gif" alt="Loading Animation" style="margin-top: 6px">';
       yield _this2.init();
 
       if (_this2.isListRendering()) {
@@ -21510,10 +21511,20 @@ class SDOVocabBrowser {
 
     var _loop = function _loop(aJSLink) {
       // forEach() not possible ootb for HTMLCollections
-      aJSLink.addEventListener('click', /*#__PURE__*/_asyncToGenerator(function* () {
-        history.pushState(null, null, aJSLink.href);
-        yield _this6.render();
-      }));
+      aJSLink.addEventListener('click', /*#__PURE__*/function () {
+        var _ref2 = _asyncToGenerator(function* (e) {
+          if (e.ctrlKey) {
+            window.open(aJSLink.href);
+          } else {
+            history.pushState(null, null, aJSLink.href);
+            yield _this6.render();
+          }
+        });
+
+        return function (_x) {
+          return _ref2.apply(this, arguments);
+        };
+      }());
     };
 
     for (var aJSLink of aJSLinks) {
