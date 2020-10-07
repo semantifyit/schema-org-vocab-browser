@@ -21192,10 +21192,6 @@ module.exports = EnumerationRenderer;
 },{}],87:[function(_dereq_,module,exports){
 "use strict";
 
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
-
-function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
-
 class ListRenderer {
   constructor(browser) {
     this.browser = browser;
@@ -21205,7 +21201,6 @@ class ListRenderer {
   render() {
     var mainContent = this.createHeader() + this.createVocabsTable();
     this.browser.elem.innerHTML = this.util.createMainContent('schema:DataSet', mainContent);
-    this.addEventListener();
   }
 
   createHeader() {
@@ -21218,30 +21213,12 @@ class ListRenderer {
 
   createVocabsTbody() {
     return this.browser.list['schema:hasPart'].map(vocab => {
-      return this.util.createTableRow('http://vocab.sti2.at/ds/Vocabulary', vocab['@id'], 'schema:name', this.util.createJSLink('a-vocab-name', 'voc', vocab['@id'].split('/').pop(), vocab['schema:name'] || 'No Name'), this.createVocabsSideCols(vocab));
+      return this.util.createTableRow('http://vocab.sti2.at/ds/Vocabulary', vocab['@id'], 'schema:name', this.util.createJSLink('a-js-link', 'voc', vocab['@id'].split('/').pop(), vocab['schema:name'] || 'No Name'), this.createVocabsSideCols(vocab));
     }).join('');
   }
 
   createVocabsSideCols(vocab) {
     return '' + '<td property="@id">' + this.util.createExternalLink(vocab['@id']) + '</td>' + '<td property="schema:author">' + (vocab['schema:author'] && vocab['schema:author']['schema:name'] || '') + '</td>' + '<td property="schema:description">' + (vocab['schema:description'] || '') + '</td>';
-  }
-
-  addEventListener() {
-    var _this = this;
-
-    var aVocabNames = document.getElementsByClassName('a-vocab-name');
-
-    var _loop = function _loop(aVocabName) {
-      // forEach() not possible ootb for HTMLCollections
-      aVocabName.addEventListener('click', /*#__PURE__*/_asyncToGenerator(function* () {
-        history.pushState(null, null, aVocabName.href);
-        yield _this.browser.render();
-      }));
-    };
-
-    for (var aVocabName of aVocabNames) {
-      _loop(aVocabName);
-    }
   }
 
 }
@@ -21383,6 +21360,8 @@ class SDOVocabBrowser {
         _this2.renderTerm();
       }
 
+      _this2.addJSLinkEventListener();
+
       document.body.scrollTop = document.documentElement.scrollTop = 0;
     })();
   }
@@ -21522,8 +21501,24 @@ class SDOVocabBrowser {
         html = this.dataTypeRenderer.render();
         break;
     }
+  }
 
-    this.util.addTermEventListener();
+  addJSLinkEventListener() {
+    var _this6 = this;
+
+    var aJSLinks = document.getElementsByClassName('a-js-link');
+
+    var _loop = function _loop(aJSLink) {
+      // forEach() not possible ootb for HTMLCollections
+      aJSLink.addEventListener('click', /*#__PURE__*/_asyncToGenerator(function* () {
+        history.pushState(null, null, aJSLink.href);
+        yield _this6.render();
+      }));
+    };
+
+    for (var aJSLink of aJSLinks) {
+      _loop(aJSLink);
+    }
   }
 
 }
@@ -21532,10 +21527,6 @@ module.exports = SDOVocabBrowser;
 
 },{"./ClassRenderer":83,"./DataTypeRenderer":84,"./EnumerationMemberRenderer":85,"./EnumerationRenderer":86,"./ListRenderer":87,"./PropertyRenderer":88,"./Util":90,"./VocabRenderer":91,"schema-org-adapter":78}],90:[function(_dereq_,module,exports){
 "use strict";
-
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
-
-function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 class Util {
   constructor(browser) {
@@ -21584,28 +21575,11 @@ class Util {
     });
   }
 
-  addTermEventListener() {
-    var _this = this;
-
-    var aTermNames = document.getElementsByClassName('a-term-name');
-
-    var _loop = function _loop(aTermName) {
-      // forEach() not possible ootb for HTMLCollections
-      aTermName.addEventListener('click', /*#__PURE__*/_asyncToGenerator(function* () {
-        history.pushState(null, null, _this.createIRIwithQueryParam('term', aTermName.innerText));
-        yield _this.browser.render();
-      }));
-    };
-
-    for (var aTermName of aTermNames) {
-      _loop(aTermName);
-    }
-  }
-
   createIRIwithQueryParam(key, val) {
     var searchParams = new URLSearchParams(window.location.search);
-    searchParams.set(key, val);
-    return window.location.origin + window.location.pathname + '?' + searchParams.toString();
+    val && val !== '' ? searchParams.set(key, val) : searchParams.delete(key);
+    var queryString = searchParams.toString();
+    return window.location.origin + window.location.pathname + (queryString !== '' ? '?' + queryString : '');
   }
 
   createTableRow(typeOf, resource, mainColProp, mainColTermOrLink, sideCols) {
@@ -21724,12 +21698,12 @@ class Util {
     var breadCrumbStart = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
     var breadCrumbEnd = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
     var term = this.browser.term;
-    return '' + '<h1 property="rdfs:label" class="page-title" style="float: left">' + term.getIRI(true) + '</h1>' + (this.browser.vocName ? '<span style="float: right; margin-top: 6px">(Vocabulary: ' + this.createJSLink('a-term-name', 'term', '', this.browser.vocName) + ')</span>' : '') + this.createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) + '</h4>' + '<div property="rdfs:comment">' + (term.getDescription() || '') + '<br><br></div>';
+    return '' + (this.browser.vocName ? '<span style="float: right;">' + '(Vocabulary: ' + this.createJSLink('a-js-link', 'term', null, this.browser.vocName) + ')' + '</span>' : '') + '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' + this.createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) + '</h4>' + '<div property="rdfs:comment">' + (term.getDescription() || '') + '<br><br></div>';
   }
 
   createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) {
     if (superTypes) {
-      return '' + '<h4 style="clear: both">' + superTypes.map(s => {
+      return '' + '<h4>' + superTypes.map(s => {
         return '' + '<span class="breadcrumbs">' + breadCrumbStart + s.map((superType, i) => {
           var html = '';
 
@@ -21766,7 +21740,7 @@ class Util {
     var attr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
     if (this.isTermOfVocab(term)) {
-      return this.createJSLink('a-term-name', 'term', term, null, attr);
+      return this.createJSLink('a-js-link', 'term', term, null, attr);
     } else {
       return this.createExternalLink(this.createHref(term), term, attr);
     }
@@ -21852,11 +21826,10 @@ class VocabRenderer {
   render() {
     var mainContent = this.createHeading() + this.createContentSection() + this.createSection(this.browser.classes, 'Class') + this.createSection(this.browser.properties, 'Property') + this.createSection(this.browser.enumerations, 'Enumeration') + this.createSection(this.browser.enumerationMembers, 'Enumeration Member') + this.createSection(this.browser.dataTypes, 'Data Type');
     this.browser.elem.innerHTML = this.util.createMainContent('schema:DataSet', mainContent);
-    this.util.addTermEventListener();
   }
 
   createHeading() {
-    return '' + (this.browser.vocName ? '<h1>' + this.browser.vocName + '</h1>' : '') + '<h2>Namespaces</h2>' + '<ul>' + Object.entries(this.browser.vocabs).map(vocab => {
+    return '' + (this.browser.list ? '<span style="float: right;">' + '(List: ' + this.util.createJSLink('a-js-link', 'voc', null, this.browser.list['schema:name']) + ')' + '</span>' : '') + (this.browser.vocName ? '<h1>' + this.browser.vocName + '</h1>' : '') + '<h2>Namespaces</h2>' + '<ul>' + Object.entries(this.browser.vocabs).map(vocab => {
       return '<li>' + vocab[0] + ': ' + vocab[1] + '</li>';
     }).join('') + '</ul>';
   }
@@ -21886,7 +21859,7 @@ class VocabRenderer {
   createSectionTbody(objects) {
     return objects.map(name => {
       var term = this.browser.sdoAdapter.getTerm(name);
-      return this.util.createTableRow(term.getTermType(), this.util.createIRIwithQueryParam('term', name), '@id', this.util.createJSLink('a-term-name', 'term', name), '<td property="rdfs:comment">' + (term.getDescription() || '') + '</td>');
+      return this.util.createTableRow(term.getTermType(), this.util.createIRIwithQueryParam('term', name), '@id', this.util.createJSLink('a-js-link', 'term', name), '<td property="rdfs:comment">' + (term.getDescription() || '') + '</td>');
     }).join('');
   }
 

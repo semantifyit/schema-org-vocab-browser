@@ -45,6 +45,7 @@ class SDOVocabBrowser {
             this.renderTerm();
         }
 
+        this.addJSLinkEventListener();
         document.body.scrollTop = document.documentElement.scrollTop = 0;
     }
 
@@ -156,8 +157,17 @@ class SDOVocabBrowser {
                 html = this.dataTypeRenderer.render();
                 break;
         }
-        this.util.addVocabEventListener();
-        this.util.addTermEventListener();
+    }
+
+    addJSLinkEventListener() {
+        const aJSLinks = document.getElementsByClassName('a-js-link');
+
+        for (const aJSLink of aJSLinks) { // forEach() not possible ootb for HTMLCollections
+            aJSLink.addEventListener('click', async () => {
+                history.pushState(null, null, aJSLink.href);
+                await this.render();
+            });
+        }
     }
 }
 

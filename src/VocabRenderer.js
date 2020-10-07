@@ -21,11 +21,13 @@ class VocabRenderer {
             this.createSection(this.browser.enumerationMembers, 'Enumeration Member') +
             this.createSection(this.browser.dataTypes, 'Data Type');
         this.browser.elem.innerHTML = this.util.createMainContent('schema:DataSet', mainContent);
-        this.util.addTermEventListener();
     }
 
     createHeading() {
         return '' +
+            (this.browser.list ? '<span style="float: right;">' +
+                '(List: ' + this.util.createJSLink('a-js-link', 'voc', null, this.browser.list['schema:name']) + ')' +
+                '</span>' : '') +
             (this.browser.vocName ? '<h1>' + this.browser.vocName + '</h1>' : '') +
             '<h2>Namespaces</h2>' +
             '<ul>' +
@@ -82,7 +84,7 @@ class VocabRenderer {
             return this.util.createTableRow(term.getTermType(),
                 this.util.createIRIwithQueryParam('term', name),
                 '@id',
-                this.util.createJSLink('a-term-name', 'term', name),
+                this.util.createJSLink('a-js-link', 'term', name),
                 '<td property="rdfs:comment">' + (term.getDescription() || '')  + '</td>');
         }).join('');
     }

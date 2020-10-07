@@ -42,32 +42,11 @@ class Util {
         });
     }
 
-    addVocabEventListener() {
-        const aVocabNames = document.getElementsByClassName('a-vocab-name');
-
-        for (const aVocabName of aVocabNames) { // forEach() not possible ootb for HTMLCollections
-            aVocabName.addEventListener('click', async () => {
-                history.pushState(null, null, aVocabName.href);
-                await this.browser.render();
-            });
-        }
-    }
-
-    addTermEventListener() {
-        const aTermNames = document.getElementsByClassName('a-term-name');
-
-        for (const aTermName of aTermNames) { // forEach() not possible ootb for HTMLCollections
-            aTermName.addEventListener('click', async () => {
-                history.pushState(null, null, this.createIRIwithQueryParam('term', aTermName.innerText));
-                await this.browser.render();
-            });
-        }
-    }
-
     createIRIwithQueryParam(key, val) {
         const searchParams = new URLSearchParams(window.location.search);
         (val && val !== '') ? searchParams.set(key, val) : searchParams.delete(key);
-        return window.location.origin + window.location.pathname + '?' + searchParams.toString();
+        const queryString = searchParams.toString();
+        return window.location.origin + window.location.pathname + (queryString !== '' ? '?' + queryString : '');
     }
 
     createTableRow(typeOf, resource, mainColProp, mainColTermOrLink, sideCols, mainColClass = null) {
@@ -191,7 +170,7 @@ class Util {
         const term = this.browser.term;
         return '' +
             (this.browser.vocName ? '<span style="float: right;">' +
-            '(Vocabulary: ' + this.createJSLink('a-vocab-name', 'term', null, this.browser.vocName) + ')' +
+            '(Vocabulary: ' + this.createJSLink('a-js-link', 'term', null, this.browser.vocName) + ')' +
             '</span>' : '') +
             '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' +
             this.createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) +
@@ -248,7 +227,7 @@ class Util {
 
     createLink(term, attr = null) {
         if (this.isTermOfVocab(term)) {
-            return this.createJSLink('a-term-name', 'term', term, null, attr);
+            return this.createJSLink('a-js-link', 'term', term, null, attr);
         } else {
             return this.createExternalLink(this.createHref(term), term, attr);
         }

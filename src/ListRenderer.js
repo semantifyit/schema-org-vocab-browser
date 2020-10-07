@@ -7,7 +7,6 @@ class ListRenderer {
     render() {
         const mainContent = this.createHeader() + this.createVocabsTable();
         this.browser.elem.innerHTML = this.util.createMainContent('schema:DataSet', mainContent);
-        this.util.addVocabEventListener();
     }
 
     createHeader() {
@@ -36,7 +35,7 @@ class ListRenderer {
             return this.util.createTableRow('http://vocab.sti2.at/ds/Vocabulary',
                 vocab['@id'],
                 'schema:name',
-                this.util.createJSLink('a-vocab-name', 'voc', vocab['@id'].split('/').pop(), vocab['schema:name'] || 'No Name'),
+                this.util.createJSLink('a-js-link', 'voc', vocab['@id'].split('/').pop(), vocab['schema:name'] || 'No Name'),
                 this.createVocabsSideCols(vocab)
             );
         }).join('');
