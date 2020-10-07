@@ -42,6 +42,17 @@ class Util {
         });
     }
 
+    addVocabEventListener() {
+        const aVocabNames = document.getElementsByClassName('a-vocab-name');
+
+        for (const aVocabName of aVocabNames) { // forEach() not possible ootb for HTMLCollections
+            aVocabName.addEventListener('click', async () => {
+                history.pushState(null, null, aVocabName.href);
+                await this.browser.render();
+            });
+        }
+    }
+
     addTermEventListener() {
         const aTermNames = document.getElementsByClassName('a-term-name');
 
@@ -55,7 +66,7 @@ class Util {
 
     createIRIwithQueryParam(key, val) {
         const searchParams = new URLSearchParams(window.location.search);
-        searchParams.set(key, val);
+        (val && val !== '') ? searchParams.set(key, val) : searchParams.delete(key);
         return window.location.origin + window.location.pathname + '?' + searchParams.toString();
     }
 
@@ -179,8 +190,10 @@ class Util {
     createHeader(superTypes, superTypeRelationship, breadCrumbStart = '', breadCrumbEnd = '') {
         const term = this.browser.term;
         return '' +
-            '<h1 property="rdfs:label" class="page-title" style="float: left">' + term.getIRI(true) + '</h1>' +
-            (this.browser.vocName ? '<span style="float: right; margin-top: 6px">(Vocabulary: ' + this.createJSLink('a-term-name', 'term', '', this.browser.vocName) + ')</span>' : '') +
+            (this.browser.vocName ? '<span style="float: right;">' +
+            '(Vocabulary: ' + this.createJSLink('a-vocab-name', 'term', null, this.browser.vocName) + ')' +
+            '</span>' : '') +
+            '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' +
             this.createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) +
             '</h4>' +
             '<div property="rdfs:comment">' + (term.getDescription() || '') + '<br><br></div>';
@@ -189,7 +202,7 @@ class Util {
     createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) {
         if (superTypes) {
             return '' +
-                '<h4 style="clear: both">' +
+                '<h4>' +
                 superTypes.map((s) => {
                     return '' +
                         '<span class="breadcrumbs">' +

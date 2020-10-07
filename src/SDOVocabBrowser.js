@@ -156,6 +156,7 @@ class SDOVocabBrowser {
                 html = this.dataTypeRenderer.render();
                 break;
         }
+        this.util.addVocabEventListener();
         this.util.addTermEventListener();
     }
 }

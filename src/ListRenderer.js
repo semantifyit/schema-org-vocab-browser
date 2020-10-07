@@ -7,7 +7,7 @@ class ListRenderer {
     render() {
         const mainContent = this.createHeader() + this.createVocabsTable();
         this.browser.elem.innerHTML = this.util.createMainContent('schema:DataSet', mainContent);
-        this.addEventListener();
+        this.util.addVocabEventListener();
     }
 
     createHeader() {
@@ -49,17 +49,6 @@ class ListRenderer {
             ((vocab['schema:author'] && vocab['schema:author']['schema:name']) || '') +
             '</td>' +
             '<td property="schema:description">' + (vocab['schema:description'] || '') + '</td>';
-    }
-
-    addEventListener() {
-        const aVocabNames = document.getElementsByClassName('a-vocab-name');
-
-        for (const aVocabName of aVocabNames) { // forEach() not possible ootb for HTMLCollections
-            aVocabName.addEventListener('click', async () => {
-                history.pushState(null, null, aVocabName.href);
-                await this.browser.render();
-            });
-        }
     }
 }
 
