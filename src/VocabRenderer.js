@@ -12,6 +12,33 @@ class VocabRenderer {
         this.util = this.browser.util;
     }
 
+    renderJSONLD() {
+        const preStyle = '' +
+            // Overwrite schema.org CSS
+            'font-size: medium; ' +
+            'background: none; ' +
+            'text-align: left; ' +
+            'width: auto; ' +
+            'padding: 0; ' +
+            'overflow: visible; ' +
+            'color: rgb(0, 0, 0); ' +
+            'line-height: normal; ' +
+
+            // Defaults for pre https://www.w3schools.com/cssref/css_default_values.asp
+            'display: block; ' +
+            'font-family: monospace; ' +
+            'margin: 1em 0; ' +
+
+            // From Browser when loading json-ld file
+            'word-wrap: break-word; ' +
+            'white-space: pre-wrap;';
+
+        this.browser.elem.innerHTML = '' +
+            '<pre style="' + preStyle + '">' +
+            JSON.stringify(this.browser.vocab, null, 2) +
+            '</pre>';
+    }
+
     render() {
         const mainContent = this.createHeading() +
             this.createContentSection() +
@@ -25,13 +52,16 @@ class VocabRenderer {
 
     createHeading() {
         return '' +
-            (this.browser.list ? '<span style="float: right;">' +
-                '(List: ' + this.util.createJSLink('voc', null, this.browser.list['schema:name']) + ')' +
-                '</span>' : '') +
+            '<span style="float: right;">' +
+            '(' + this.util.createJSLink('format', 'jsonld', 'JSON-LD serialization') +
+            (this.browser.list ? ' | from List: ' + this.util.createJSLink('voc', null, this.browser.list['schema:name']) : '') +
+            ')' +
+            '</span>' +
             (this.browser.vocName ? '<h1>' + this.browser.vocName + '</h1>' : '') +
-            '<h2>Namespaces</h2>' +
+            // If there is no headline, h2 should have no margin
+            '<h2' + (this.browser.vocName ? '' : ' style="clear: none; margin: 0;"') +'>Namespaces</h2>' +
             '<ul>' +
-            Object.entries(this.browser.vocabs).map((vocab) => {
+            Object.entries(this.browser.namespaces).map((vocab) => {
                 return '<li>' + vocab[0] + ': ' + vocab[1] + '</li>';
             }).join('') +
             '</ul>';

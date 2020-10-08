@@ -21356,7 +21356,14 @@ class SDOVocabBrowser {
       if (_this2.isListRendering()) {
         _this2.listRenderer.render();
       } else if (_this2.isVocabRendering()) {
-        _this2.vocabRenderer.render();
+        var searchParams = new URLSearchParams(window.location.search);
+        var format = searchParams.get('format');
+
+        if (format && format === 'jsonld') {
+          _this2.vocabRenderer.renderJSONLD();
+        } else {
+          _this2.vocabRenderer.render();
+        }
       } else if (_this2.isTermRendering()) {
         _this2.renderTerm();
       }
@@ -21391,36 +21398,22 @@ class SDOVocabBrowser {
     var _this4 = this;
 
     return _asyncToGenerator(function* () {
-      if (_this4.util.isString(_this4.vocabOrVocabList)) {
-        var jsonString;
-
-        if (_this4.util.isValidUrl(_this4.vocabOrVocabList)) {
-          jsonString = yield _this4.util.get(_this4.vocabOrVocabList);
-        } else {
-          jsonString = _this4.vocabOrVocabList;
-        }
-
-        _this4.list = JSON.parse(jsonString);
-      } else {
-        _this4.list = _this4.vocabOrVocabList;
-      }
+      _this4.list = yield _this4.util.parseToObject(_this4.vocabOrVocabList);
     })();
   }
 
   vocabNeedsInit() {
     var searchParams = new URLSearchParams(window.location.search);
     var vocUID = searchParams.get('voc');
-    return this.type === TYPES.LIST && vocUID && vocUID !== this.vocUID || this.type === TYPES.VOCAB && !this.vocabs;
+    return this.type === TYPES.LIST && vocUID && vocUID !== this.vocUID || this.type === TYPES.VOCAB && !this.vocab;
   }
 
   initVocab() {
     var _this5 = this;
 
     return _asyncToGenerator(function* () {
-      var vocab;
-
       if (_this5.type === TYPES.VOCAB) {
-        vocab = _this5.vocabOrVocabList;
+        _this5.vocab = yield _this5.util.parseToObject(_this5.vocabOrVocabList);
       } else if (_this5.type === TYPES.LIST) {
         var searchParams = new URLSearchParams(window.location.search);
         _this5.vocUID = searchParams.get('voc');
@@ -21429,7 +21422,7 @@ class SDOVocabBrowser {
           var id = part['@id'];
 
           if (id.split('/').pop() === _this5.vocUID) {
-            vocab = id;
+            _this5.vocab = yield _this5.util.parseToObject(id);
             _this5.vocName = part['schema:name'];
             break;
           }
@@ -21439,10 +21432,10 @@ class SDOVocabBrowser {
       _this5.sdoAdapter = new SDOAdapter();
       var sdoURL = yield _this5.sdoAdapter.constructSDOVocabularyURL('latest', 'all-layers'); // JSON or URL can both be parsed
 
-      yield _this5.sdoAdapter.addVocabularies([sdoURL, vocab]);
-      _this5.vocabs = _this5.sdoAdapter.getVocabularies(vocab);
-      delete _this5.vocabs['schema'];
-      var vocabNames = Object.keys(_this5.vocabs);
+      yield _this5.sdoAdapter.addVocabularies([sdoURL, _this5.vocab]);
+      _this5.namespaces = _this5.sdoAdapter.getVocabularies();
+      delete _this5.namespaces['schema'];
+      var vocabNames = Object.keys(_this5.namespaces);
       _this5.classes = _this5.sdoAdapter.getListOfClasses({
         fromVocabulary: vocabNames
       });
@@ -21539,9 +21532,33 @@ module.exports = SDOVocabBrowser;
 },{"./ClassRenderer":83,"./DataTypeRenderer":84,"./EnumerationMemberRenderer":85,"./EnumerationRenderer":86,"./ListRenderer":87,"./PropertyRenderer":88,"./Util":90,"./VocabRenderer":91,"schema-org-adapter":78}],90:[function(_dereq_,module,exports){
 "use strict";
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 class Util {
   constructor(browser) {
     this.browser = browser;
+  }
+
+  parseToObject(variable) {
+    var _this = this;
+
+    return _asyncToGenerator(function* () {
+      if (_this.isString(variable)) {
+        var jsonString;
+
+        if (_this.isValidUrl(variable)) {
+          jsonString = yield _this.get(variable);
+        } else {
+          jsonString = variable;
+        }
+
+        return JSON.parse(jsonString);
+      } else {
+        return variable;
+      }
+    })();
   }
 
   isString(myVar) {
@@ -21744,7 +21761,7 @@ class Util {
   }
 
   isTermOfVocab(term) {
-    return this.browser.vocabs && (this.browser.classes.includes(term) || this.browser.properties.includes(term) || this.browser.enumerations.includes(term) || this.browser.enumerationMembers.includes(term) || this.browser.dataTypes.includes(term));
+    return this.browser.vocab && (this.browser.classes.includes(term) || this.browser.properties.includes(term) || this.browser.enumerations.includes(term) || this.browser.enumerationMembers.includes(term) || this.browser.dataTypes.includes(term));
   }
 
   createLink(term) {
@@ -21834,13 +21851,22 @@ class VocabRenderer {
     this.util = this.browser.util;
   }
 
+  renderJSONLD() {
+    var preStyle = '' + // Overwrite schema.org CSS
+    'font-size: medium; ' + 'background: none; ' + 'text-align: left; ' + 'width: auto; ' + 'padding: 0; ' + 'overflow: visible; ' + 'color: rgb(0, 0, 0); ' + 'line-height: normal; ' + // Defaults for pre https://www.w3schools.com/cssref/css_default_values.asp
+    'display: block; ' + 'font-family: monospace; ' + 'margin: 1em 0; ' + // From Browser when loading json-ld file
+    'word-wrap: break-word; ' + 'white-space: pre-wrap;';
+    this.browser.elem.innerHTML = '' + '<pre style="' + preStyle + '">' + JSON.stringify(this.browser.vocab, null, 2) + '</pre>';
+  }
+
   render() {
     var mainContent = this.createHeading() + this.createContentSection() + this.createSection(this.browser.classes, 'Class') + this.createSection(this.browser.properties, 'Property') + this.createSection(this.browser.enumerations, 'Enumeration') + this.createSection(this.browser.enumerationMembers, 'Enumeration Member') + this.createSection(this.browser.dataTypes, 'Data Type');
     this.browser.elem.innerHTML = this.util.createMainContent('schema:DataSet', mainContent);
   }
 
   createHeading() {
-    return '' + (this.browser.list ? '<span style="float: right;">' + '(List: ' + this.util.createJSLink('voc', null, this.browser.list['schema:name']) + ')' + '</span>' : '') + (this.browser.vocName ? '<h1>' + this.browser.vocName + '</h1>' : '') + '<h2>Namespaces</h2>' + '<ul>' + Object.entries(this.browser.vocabs).map(vocab => {
+    return '' + '<span style="float: right;">' + '(' + this.util.createJSLink('format', 'jsonld', 'JSON-LD serialization') + (this.browser.list ? ' | from List: ' + this.util.createJSLink('voc', null, this.browser.list['schema:name']) : '') + ')' + '</span>' + (this.browser.vocName ? '<h1>' + this.browser.vocName + '</h1>' : '') + // If there is no headline, h2 should have no margin
+    '<h2' + (this.browser.vocName ? '' : ' style="clear: none; margin: 0;"') + '>Namespaces</h2>' + '<ul>' + Object.entries(this.browser.namespaces).map(vocab => {
       return '<li>' + vocab[0] + ': ' + vocab[1] + '</li>';
     }).join('') + '</ul>';
   }

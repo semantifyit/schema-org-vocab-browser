@@ -3,6 +3,20 @@ class Util {
         this.browser = browser;
     }
 
+    async parseToObject(variable) {
+        if (this.isString(variable)) {
+            let jsonString;
+            if (this.isValidUrl(variable)) {
+                jsonString = await this.get(variable);
+            } else {
+                jsonString = variable;
+            }
+            return JSON.parse(jsonString);
+        } else {
+            return variable;
+        }
+    }
+
     isString(myVar) {
         return (typeof myVar === 'string' || myVar instanceof String);
     }
@@ -216,7 +230,7 @@ class Util {
     }
 
     isTermOfVocab(term) {
-        return (this.browser.vocabs && (
+        return (this.browser.vocab && (
             this.browser.classes.includes(term) ||
             this.browser.properties.includes(term) ||
             this.browser.enumerations.includes(term) ||

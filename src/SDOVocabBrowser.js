@@ -43,7 +43,13 @@ class SDOVocabBrowser {
         if (this.isListRendering()) {
             this.listRenderer.render();
         } else if (this.isVocabRendering()) {
-            this.vocabRenderer.render();
+            const searchParams = new URLSearchParams(window.location.search);
+            const format = searchParams.get('format');
+            if (format && format === 'jsonld') {
+                this.vocabRenderer.renderJSONLD();
+            } else {
+                this.vocabRenderer.render();
+            }
         } else if (this.isTermRendering()) {
             this.renderTerm();
         }
@@ -69,37 +75,26 @@ class SDOVocabBrowser {
     }
 
     async initList() {
-        if (this.util.isString(this.vocabOrVocabList)) {
-            let jsonString;
-            if (this.util.isValidUrl(this.vocabOrVocabList)) {
-                jsonString = await this.util.get(this.vocabOrVocabList);
-            } else {
-                jsonString = this.vocabOrVocabList;
-            }
-            this.list = JSON.parse(jsonString);
-        } else {
-            this.list = this.vocabOrVocabList;
-        }
+        this.list = await this.util.parseToObject(this.vocabOrVocabList);
     }
 
     vocabNeedsInit() {
         const searchParams = new URLSearchParams(window.location.search);
         const vocUID = searchParams.get('voc');
         return ((this.type === TYPES.LIST && vocUID && vocUID !== this.vocUID) ||
-            (this.type === TYPES.VOCAB && !this.vocabs));
+            (this.type === TYPES.VOCAB && !this.vocab));
     }
 
     async initVocab() {
-        let vocab;
         if (this.type === TYPES.VOCAB) {
-            vocab = this.vocabOrVocabList;
+            this.vocab = await this.util.parseToObject(this.vocabOrVocabList);
         } else if (this.type === TYPES.LIST) {
             const searchParams = new URLSearchParams(window.location.search);
             this.vocUID = searchParams.get('voc');
             for (const part of this.list['schema:hasPart']) {
                const id = part['@id'];
                if (id.split('/').pop() === this.vocUID) {
-                   vocab = id;
+                   this.vocab = await this.util.parseToObject(id);
                    this.vocName = part['schema:name'];
                    break;
                }
@@ -109,11 +104,11 @@ class SDOVocabBrowser {
         this.sdoAdapter = new SDOAdapter();
         const sdoURL = await this.sdoAdapter.constructSDOVocabularyURL('latest', 'all-layers');
         // JSON or URL can both be parsed
-        await this.sdoAdapter.addVocabularies([sdoURL, vocab]);
+        await this.sdoAdapter.addVocabularies([sdoURL, this.vocab]);
 
-        this.vocabs = this.sdoAdapter.getVocabularies(vocab);
-        delete this.vocabs['schema'];
-        const vocabNames = Object.keys(this.vocabs);
+        this.namespaces = this.sdoAdapter.getVocabularies();
+        delete this.namespaces['schema'];
+        const vocabNames = Object.keys(this.namespaces);
 
         this.classes = this.sdoAdapter.getListOfClasses({fromVocabulary: vocabNames});
         this.properties = this.sdoAdapter.getListOfProperties({fromVocabulary: vocabNames});
