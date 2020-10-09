@@ -101,7 +101,7 @@ class SDOVocabBrowser {
             }
         }
 
-        this.initSDOAdapter();
+        await this.initSDOAdapter();
     }
 
     async initSDOAdapter() {
