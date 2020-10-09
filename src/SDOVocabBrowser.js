@@ -36,8 +36,8 @@ class SDOVocabBrowser {
 
     async render() {
         this.elem.innerHTML =
-            '<img src="https://raw.githubusercontent.com/semantifyit/schema-org-vocab-browser/main/images/loading.gif" ' +
-            'alt="Loading Animation" style="margin-top: 6px">';
+            '<img src="https://raw.githubusercontent.com/semantifyit/schema-org-vocab-browser/main/images/loading.gif" '
+            + 'alt="Loading Animation" style="margin-top: 6px">';
 
         await this.init();
         if (this.isListRendering()) {
@@ -101,6 +101,10 @@ class SDOVocabBrowser {
             }
         }
 
+        this.initSDOAdapter();
+    }
+
+    async initSDOAdapter() {
         this.sdoAdapter = new SDOAdapter();
         const sdoURL = await this.sdoAdapter.constructSDOVocabularyURL('latest', 'all-layers');
         // JSON or URL can both be parsed

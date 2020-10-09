@@ -54,7 +54,8 @@ class VocabRenderer {
         return '' +
             '<span style="float: right;">' +
             '(' + this.util.createJSLink('format', 'jsonld', 'JSON-LD serialization') +
-            (this.browser.list ? ' | from List: ' + this.util.createJSLink('voc', null, this.browser.list['schema:name']) : '') +
+            (this.browser.list ? ' | from List: ' +
+                this.util.createJSLink('voc', null, this.browser.list['schema:name']) : '') +
             ')' +
             '</span>' +
             (this.browser.vocName ? '<h1>' + this.browser.vocName + '</h1>' : '') +
