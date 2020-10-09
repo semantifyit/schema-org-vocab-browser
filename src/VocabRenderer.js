@@ -59,7 +59,7 @@ class VocabRenderer {
             '</span>' +
             (this.browser.vocName ? '<h1>' + this.browser.vocName + '</h1>' : '') +
             // If there is no headline, h2 should have no margin
-            '<h2' + (this.browser.vocName ? '' : ' style="clear: none; margin: 0;"') +'>Namespaces</h2>' +
+            '<h2' + (this.browser.vocName ? '' : ' style="clear: none; margin: 0;"') + '>Namespaces</h2>' +
             '<ul>' +
             Object.entries(this.browser.namespaces).map((vocab) => {
                 return '<li>' + vocab[0] + ': ' + vocab[1] + '</li>';
@@ -115,7 +115,7 @@ class VocabRenderer {
                 this.util.createIRIwithQueryParam('term', name),
                 '@id',
                 this.util.createJSLink('term', name),
-                '<td property="rdfs:comment">' + (term.getDescription() || '')  + '</td>');
+                '<td property="rdfs:comment">' + (term.getDescription() || '') + '</td>');
         }).join('');
     }
 }

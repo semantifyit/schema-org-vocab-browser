@@ -92,12 +92,12 @@ class SDOVocabBrowser {
             const searchParams = new URLSearchParams(window.location.search);
             this.vocUID = searchParams.get('voc');
             for (const part of this.list['schema:hasPart']) {
-               const id = part['@id'];
-               if (id.split('/').pop() === this.vocUID) {
-                   this.vocab = await this.util.parseToObject(id);
-                   this.vocName = part['schema:name'];
-                   break;
-               }
+                const id = part['@id'];
+                if (id.split('/').pop() === this.vocUID) {
+                    this.vocab = await this.util.parseToObject(id);
+                    this.vocName = part['schema:name'];
+                    break;
+                }
             }
         }
 

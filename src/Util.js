@@ -184,8 +184,8 @@ class Util {
         const term = this.browser.term;
         return '' +
             (this.browser.vocName ? '<span style="float: right;">' +
-            '(Vocabulary: ' + this.createJSLink('term', null, this.browser.vocName) + ')' +
-            '</span>' : '') +
+                '(Vocabulary: ' + this.createJSLink('term', null, this.browser.vocName) + ')' +
+                '</span>' : '') +
             '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' +
             this.createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) +
             '</h4>' +
