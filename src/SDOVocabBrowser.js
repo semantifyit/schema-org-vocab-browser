@@ -1,13 +1,13 @@
-const SDOAdapter = require('schema-org-adapter');
+import SDOAdapter from 'schema-org-adapter';
 
-const Util = require('./Util');
-const ListRenderer = require('./ListRenderer');
-const VocabRenderer = require('./VocabRenderer');
-const ClassRenderer = require('./ClassRenderer');
-const PropertyRenderer = require('./PropertyRenderer');
-const EnumerationRenderer = require('./EnumerationRenderer');
-const EnumerationMemberRenderer = require('./EnumerationMemberRenderer');
-const DataTypeRenderer = require('./DataTypeRenderer');
+import Util from './Util';
+import ListRenderer from './ListRenderer';
+import VocabRenderer from './VocabRenderer';
+import ClassRenderer from './ClassRenderer';
+import PropertyRenderer from './PropertyRenderer';
+import EnumerationRenderer from './EnumerationRenderer';
+import EnumerationMemberRenderer from './EnumerationMemberRenderer';
+import DataTypeRenderer from './DataTypeRenderer';
 
 const TYPES = {
     VOCAB: 'VOCAB',
