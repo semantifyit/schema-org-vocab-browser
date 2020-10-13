@@ -183,9 +183,11 @@ class Util {
     createHeader(superTypes, superTypeRelationship, breadCrumbStart = '', breadCrumbEnd = '') {
         const term = this.browser.term;
         return '' +
-            (this.browser.vocName ? '<span style="float: right;">' +
-                '(Vocabulary: ' + this.createJSLink('term', null, this.browser.vocName) + ')' +
-                '</span>' : '') +
+            '<span style="float: right;">' +
+            (this.browser.vocName ?
+                '(from Vocabulary: ' + this.createJSLink('term', null, this.browser.vocName) + ')' :
+                '(go to ' + this.createJSLink('term', null, 'Vocabulary') + ')') +
+            '</span>' +
             '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' +
             this.createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) +
             '</h4>' +

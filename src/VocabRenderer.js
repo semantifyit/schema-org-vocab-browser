@@ -58,9 +58,9 @@ class VocabRenderer {
                 this.util.createJSLink('voc', null, this.browser.list['schema:name']) : '') +
             ')' +
             '</span>' +
-            (this.browser.vocName ? '<h1>' + this.browser.vocName + '</h1>' : '') +
+            '<h1>' + (this.browser.vocName ? this.browser.vocName : 'Vocabulary') + '</h1>' +
             // If there is no headline, h2 should have no margin
-            '<h2' + (this.browser.vocName ? '' : ' style="clear: none; margin: 0;"') + '>Namespaces</h2>' +
+            '<h2>Namespaces</h2>' +
             '<ul>' +
             Object.entries(this.browser.namespaces).map((vocab) => {
                 return '<li>' + vocab[0] + ': ' + vocab[1] + '</li>';
