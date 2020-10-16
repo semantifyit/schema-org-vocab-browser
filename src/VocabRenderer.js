@@ -1,3 +1,8 @@
+/**
+ * A constant to map singulars to their plural forms for term types.
+ *
+ * @type {{Enumeration: string, "Data Type": string, "Enumeration Member": string, Class: string, Property: string}}
+ */
 const TYPES_PLURAL = {
     'Class': 'Classes',
     'Property': 'Properties',
@@ -6,13 +11,22 @@ const TYPES_PLURAL = {
     'Data Type': 'Data Types'
 };
 
+/** This class is responsible to render a schema.org based Vocabulary in the HTML element of the browser. */
 class VocabRenderer {
+    /**
+     * Create a VocabRenderer object.
+     *
+     * @param {SDOVocabBrowser} browser - the underlying vocab browser to enable access to its data members.
+     */
     constructor(browser) {
         this.browser = browser;
         this.util = this.browser.util;
     }
 
-    renderJSONLD() {
+    /**
+     * Render the JSON-LD serialization of the Vocabulary.
+     */
+    renderJsonld() {
         const preStyle = '' +
             // Overwrite schema.org CSS
             'font-size: medium; ' +
@@ -39,6 +53,9 @@ class VocabRenderer {
             '</pre>';
     }
 
+    /**
+     * Render the Vocabulary.
+     */
     render() {
         const mainContent = this.createHeading() +
             this.createContentSection() +
@@ -50,6 +67,11 @@ class VocabRenderer {
         this.browser.elem.innerHTML = this.util.createMainContent('schema:DataSet', mainContent);
     }
 
+    /**
+     * Create HTML for the heading of the Vocabulary.
+     *
+     * @returns {string} The resulting HTML.
+     */
     createHeading() {
         return '' +
             '<span style="float: right;">' +
@@ -68,6 +90,11 @@ class VocabRenderer {
             '</ul>';
     }
 
+    /**
+     * Create HTML for the content section of the Vocabulary.
+     *
+     * @returns {string} The resulting HTML.
+     */
     createContentSection() {
         return '' +
             '<h2>Content</h2>' +
@@ -80,40 +107,52 @@ class VocabRenderer {
             '</ul>';
     }
 
-    createContentListElement(objects, typeSingular) {
-        if (objects.length !== 0) {
+    /**
+     * Create a HTML list element for a specific term type of the Vocabulary.
+     *
+     * @param {string[]} terms - The vocabulary terms with the same term type.
+     * @param {string} typeSingular - The singular form of the term type.
+     * @returns {string} The resulting HTML.
+     */
+    createContentListElement(terms, typeSingular) {
+        if (terms.length !== 0) {
             const typePlural = TYPES_PLURAL[typeSingular];
-            return '<li><a href="#' + this.util.underscore(typePlural) + '">' + objects.length + ' ' +
-                (objects.length === 1 ? typeSingular : typePlural) + '</a></li>';
+            return '<li><a href="#' + this.util.underscore(typePlural) + '">' + terms.length + ' ' +
+                (terms.length === 1 ? typeSingular : typePlural) + '</a></li>';
         }
         return '';
     }
 
-    createSection(objects, typeSingular) {
-        if (objects.length !== 0) {
+    /**
+     * Create HTML for a section of the Vocabulary.
+     *
+     * @param {string[]} terms - The vocabulary terms with the same term type.
+     * @param {string} typeSingular - The singular form of the term type.
+     * @returns {string} The resulting HTML.
+     */
+    createSection(terms, typeSingular) {
+        if (terms.length !== 0) {
             const typePlural = TYPES_PLURAL[typeSingular];
             return '' +
                 '<h2 id="' + this.util.underscore(typePlural) + '">' + typePlural + '</h2>' +
-                '<table class="definition-table">' +
-                '<thead>' +
-                '<tr>' +
-                '<th>' + typeSingular + '</th>' +
-                '<th>Description</th>' +
-                '</tr>' +
-                '</thead>' +
-                '<tbody class="supertype">' +
-                this.createSectionTbody(objects) +
-                '</tbody>' +
-                '</table>'
+                this.util.createDefinitionTable([typeSingular, 'Description'],
+                    this.createSectionTbody(terms),
+                    {'class': 'supertype'});
         }
         return '';
     }
 
-    createSectionTbody(objects) {
-        return objects.map((name) => {
+    /**
+     * Create HTML table body for a section of the Vocabulary.
+     *
+     * @param {string[]} terms - The vocabulary terms with the same term type.
+     * @returns {string} The resulting HTML.
+     */
+    createSectionTbody(terms) {
+        return terms.map((name) => {
             const term = this.browser.sdoAdapter.getTerm(name);
             return this.util.createTableRow(term.getTermType(),
-                this.util.createIRIwithQueryParam('term', name),
+                this.util.createIriWithQueryParam('term', name),
                 '@id',
                 this.util.createJSLink('term', name),
                 '<td property="rdfs:comment">' + (term.getDescription() || '') + '</td>');

@@ -1,16 +1,16 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.SDOVocabBrowser = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(_dereq_,module,exports){
-module.exports = _dereq_('./lib/axios');
-},{"./lib/axios":3}],2:[function(_dereq_,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.SDOVocabBrowser = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+module.exports = require('./lib/axios');
+},{"./lib/axios":3}],2:[function(require,module,exports){
 'use strict';
 
-var utils = _dereq_('./../utils');
-var settle = _dereq_('./../core/settle');
-var cookies = _dereq_('./../helpers/cookies');
-var buildURL = _dereq_('./../helpers/buildURL');
-var buildFullPath = _dereq_('../core/buildFullPath');
-var parseHeaders = _dereq_('./../helpers/parseHeaders');
-var isURLSameOrigin = _dereq_('./../helpers/isURLSameOrigin');
-var createError = _dereq_('../core/createError');
+var utils = require('./../utils');
+var settle = require('./../core/settle');
+var cookies = require('./../helpers/cookies');
+var buildURL = require('./../helpers/buildURL');
+var buildFullPath = require('../core/buildFullPath');
+var parseHeaders = require('./../helpers/parseHeaders');
+var isURLSameOrigin = require('./../helpers/isURLSameOrigin');
+var createError = require('../core/createError');
 
 module.exports = function xhrAdapter(config) {
   return new Promise(function dispatchXhrRequest(resolve, reject) {
@@ -188,14 +188,14 @@ module.exports = function xhrAdapter(config) {
   });
 };
 
-},{"../core/buildFullPath":9,"../core/createError":10,"./../core/settle":14,"./../helpers/buildURL":18,"./../helpers/cookies":20,"./../helpers/isURLSameOrigin":22,"./../helpers/parseHeaders":24,"./../utils":26}],3:[function(_dereq_,module,exports){
+},{"../core/buildFullPath":9,"../core/createError":10,"./../core/settle":14,"./../helpers/buildURL":18,"./../helpers/cookies":20,"./../helpers/isURLSameOrigin":22,"./../helpers/parseHeaders":24,"./../utils":26}],3:[function(require,module,exports){
 'use strict';
 
-var utils = _dereq_('./utils');
-var bind = _dereq_('./helpers/bind');
-var Axios = _dereq_('./core/Axios');
-var mergeConfig = _dereq_('./core/mergeConfig');
-var defaults = _dereq_('./defaults');
+var utils = require('./utils');
+var bind = require('./helpers/bind');
+var Axios = require('./core/Axios');
+var mergeConfig = require('./core/mergeConfig');
+var defaults = require('./defaults');
 
 /**
  * Create an instance of Axios
@@ -228,22 +228,22 @@ axios.create = function create(instanceConfig) {
 };
 
 // Expose Cancel & CancelToken
-axios.Cancel = _dereq_('./cancel/Cancel');
-axios.CancelToken = _dereq_('./cancel/CancelToken');
-axios.isCancel = _dereq_('./cancel/isCancel');
+axios.Cancel = require('./cancel/Cancel');
+axios.CancelToken = require('./cancel/CancelToken');
+axios.isCancel = require('./cancel/isCancel');
 
 // Expose all/spread
 axios.all = function all(promises) {
   return Promise.all(promises);
 };
-axios.spread = _dereq_('./helpers/spread');
+axios.spread = require('./helpers/spread');
 
 module.exports = axios;
 
 // Allow use of default import syntax in TypeScript
 module.exports.default = axios;
 
-},{"./cancel/Cancel":4,"./cancel/CancelToken":5,"./cancel/isCancel":6,"./core/Axios":7,"./core/mergeConfig":13,"./defaults":16,"./helpers/bind":17,"./helpers/spread":25,"./utils":26}],4:[function(_dereq_,module,exports){
+},{"./cancel/Cancel":4,"./cancel/CancelToken":5,"./cancel/isCancel":6,"./core/Axios":7,"./core/mergeConfig":13,"./defaults":16,"./helpers/bind":17,"./helpers/spread":25,"./utils":26}],4:[function(require,module,exports){
 'use strict';
 
 /**
@@ -264,10 +264,10 @@ Cancel.prototype.__CANCEL__ = true;
 
 module.exports = Cancel;
 
-},{}],5:[function(_dereq_,module,exports){
+},{}],5:[function(require,module,exports){
 'use strict';
 
-var Cancel = _dereq_('./Cancel');
+var Cancel = require('./Cancel');
 
 /**
  * A `CancelToken` is an object that can be used to request cancellation of an operation.
@@ -323,21 +323,21 @@ CancelToken.source = function source() {
 
 module.exports = CancelToken;
 
-},{"./Cancel":4}],6:[function(_dereq_,module,exports){
+},{"./Cancel":4}],6:[function(require,module,exports){
 'use strict';
 
 module.exports = function isCancel(value) {
   return !!(value && value.__CANCEL__);
 };
 
-},{}],7:[function(_dereq_,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
-var utils = _dereq_('./../utils');
-var buildURL = _dereq_('../helpers/buildURL');
-var InterceptorManager = _dereq_('./InterceptorManager');
-var dispatchRequest = _dereq_('./dispatchRequest');
-var mergeConfig = _dereq_('./mergeConfig');
+var utils = require('./../utils');
+var buildURL = require('../helpers/buildURL');
+var InterceptorManager = require('./InterceptorManager');
+var dispatchRequest = require('./dispatchRequest');
+var mergeConfig = require('./mergeConfig');
 
 /**
  * Create a new instance of Axios
@@ -426,10 +426,10 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = Axios;
 
-},{"../helpers/buildURL":18,"./../utils":26,"./InterceptorManager":8,"./dispatchRequest":11,"./mergeConfig":13}],8:[function(_dereq_,module,exports){
+},{"../helpers/buildURL":18,"./../utils":26,"./InterceptorManager":8,"./dispatchRequest":11,"./mergeConfig":13}],8:[function(require,module,exports){
 'use strict';
 
-var utils = _dereq_('./../utils');
+var utils = require('./../utils');
 
 function InterceptorManager() {
   this.handlers = [];
@@ -480,11 +480,11 @@ InterceptorManager.prototype.forEach = function forEach(fn) {
 
 module.exports = InterceptorManager;
 
-},{"./../utils":26}],9:[function(_dereq_,module,exports){
+},{"./../utils":26}],9:[function(require,module,exports){
 'use strict';
 
-var isAbsoluteURL = _dereq_('../helpers/isAbsoluteURL');
-var combineURLs = _dereq_('../helpers/combineURLs');
+var isAbsoluteURL = require('../helpers/isAbsoluteURL');
+var combineURLs = require('../helpers/combineURLs');
 
 /**
  * Creates a new URL by combining the baseURL with the requestedURL,
@@ -502,10 +502,10 @@ module.exports = function buildFullPath(baseURL, requestedURL) {
   return requestedURL;
 };
 
-},{"../helpers/combineURLs":19,"../helpers/isAbsoluteURL":21}],10:[function(_dereq_,module,exports){
+},{"../helpers/combineURLs":19,"../helpers/isAbsoluteURL":21}],10:[function(require,module,exports){
 'use strict';
 
-var enhanceError = _dereq_('./enhanceError');
+var enhanceError = require('./enhanceError');
 
 /**
  * Create an Error with the specified message, config, error code, request and response.
@@ -522,13 +522,13 @@ module.exports = function createError(message, config, code, request, response) 
   return enhanceError(error, config, code, request, response);
 };
 
-},{"./enhanceError":12}],11:[function(_dereq_,module,exports){
+},{"./enhanceError":12}],11:[function(require,module,exports){
 'use strict';
 
-var utils = _dereq_('./../utils');
-var transformData = _dereq_('./transformData');
-var isCancel = _dereq_('../cancel/isCancel');
-var defaults = _dereq_('../defaults');
+var utils = require('./../utils');
+var transformData = require('./transformData');
+var isCancel = require('../cancel/isCancel');
+var defaults = require('../defaults');
 
 /**
  * Throws a `Cancel` if cancellation has been requested.
@@ -603,7 +603,7 @@ module.exports = function dispatchRequest(config) {
   });
 };
 
-},{"../cancel/isCancel":6,"../defaults":16,"./../utils":26,"./transformData":15}],12:[function(_dereq_,module,exports){
+},{"../cancel/isCancel":6,"../defaults":16,"./../utils":26,"./transformData":15}],12:[function(require,module,exports){
 'use strict';
 
 /**
@@ -647,10 +647,10 @@ module.exports = function enhanceError(error, config, code, request, response) {
   return error;
 };
 
-},{}],13:[function(_dereq_,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
-var utils = _dereq_('../utils');
+var utils = require('../utils');
 
 /**
  * Config-specific merge-function which creates a new config-object
@@ -736,10 +736,10 @@ module.exports = function mergeConfig(config1, config2) {
   return config;
 };
 
-},{"../utils":26}],14:[function(_dereq_,module,exports){
+},{"../utils":26}],14:[function(require,module,exports){
 'use strict';
 
-var createError = _dereq_('./createError');
+var createError = require('./createError');
 
 /**
  * Resolve or reject a Promise based on response status.
@@ -763,10 +763,10 @@ module.exports = function settle(resolve, reject, response) {
   }
 };
 
-},{"./createError":10}],15:[function(_dereq_,module,exports){
+},{"./createError":10}],15:[function(require,module,exports){
 'use strict';
 
-var utils = _dereq_('./../utils');
+var utils = require('./../utils');
 
 /**
  * Transform the data for a request or a response
@@ -785,12 +785,12 @@ module.exports = function transformData(data, headers, fns) {
   return data;
 };
 
-},{"./../utils":26}],16:[function(_dereq_,module,exports){
+},{"./../utils":26}],16:[function(require,module,exports){
 (function (process){
 'use strict';
 
-var utils = _dereq_('./utils');
-var normalizeHeaderName = _dereq_('./helpers/normalizeHeaderName');
+var utils = require('./utils');
+var normalizeHeaderName = require('./helpers/normalizeHeaderName');
 
 var DEFAULT_CONTENT_TYPE = {
   'Content-Type': 'application/x-www-form-urlencoded'
@@ -806,10 +806,10 @@ function getDefaultAdapter() {
   var adapter;
   if (typeof XMLHttpRequest !== 'undefined') {
     // For browsers use XHR adapter
-    adapter = _dereq_('./adapters/xhr');
+    adapter = require('./adapters/xhr');
   } else if (typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]') {
     // For node use HTTP adapter
-    adapter = _dereq_('./adapters/http');
+    adapter = require('./adapters/http');
   }
   return adapter;
 }
@@ -886,8 +886,8 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = defaults;
 
-}).call(this,_dereq_('_process'))
-},{"./adapters/http":2,"./adapters/xhr":2,"./helpers/normalizeHeaderName":23,"./utils":26,"_process":59}],17:[function(_dereq_,module,exports){
+}).call(this,require('_process'))
+},{"./adapters/http":2,"./adapters/xhr":2,"./helpers/normalizeHeaderName":23,"./utils":26,"_process":59}],17:[function(require,module,exports){
 'use strict';
 
 module.exports = function bind(fn, thisArg) {
@@ -900,10 +900,10 @@ module.exports = function bind(fn, thisArg) {
   };
 };
 
-},{}],18:[function(_dereq_,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
-var utils = _dereq_('./../utils');
+var utils = require('./../utils');
 
 function encode(val) {
   return encodeURIComponent(val).
@@ -972,7 +972,7 @@ module.exports = function buildURL(url, params, paramsSerializer) {
   return url;
 };
 
-},{"./../utils":26}],19:[function(_dereq_,module,exports){
+},{"./../utils":26}],19:[function(require,module,exports){
 'use strict';
 
 /**
@@ -988,10 +988,10 @@ module.exports = function combineURLs(baseURL, relativeURL) {
     : baseURL;
 };
 
-},{}],20:[function(_dereq_,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
-var utils = _dereq_('./../utils');
+var utils = require('./../utils');
 
 module.exports = (
   utils.isStandardBrowserEnv() ?
@@ -1043,7 +1043,7 @@ module.exports = (
     })()
 );
 
-},{"./../utils":26}],21:[function(_dereq_,module,exports){
+},{"./../utils":26}],21:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1059,10 +1059,10 @@ module.exports = function isAbsoluteURL(url) {
   return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
 };
 
-},{}],22:[function(_dereq_,module,exports){
+},{}],22:[function(require,module,exports){
 'use strict';
 
-var utils = _dereq_('./../utils');
+var utils = require('./../utils');
 
 module.exports = (
   utils.isStandardBrowserEnv() ?
@@ -1129,10 +1129,10 @@ module.exports = (
     })()
 );
 
-},{"./../utils":26}],23:[function(_dereq_,module,exports){
+},{"./../utils":26}],23:[function(require,module,exports){
 'use strict';
 
-var utils = _dereq_('../utils');
+var utils = require('../utils');
 
 module.exports = function normalizeHeaderName(headers, normalizedName) {
   utils.forEach(headers, function processHeader(value, name) {
@@ -1143,10 +1143,10 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
   });
 };
 
-},{"../utils":26}],24:[function(_dereq_,module,exports){
+},{"../utils":26}],24:[function(require,module,exports){
 'use strict';
 
-var utils = _dereq_('./../utils');
+var utils = require('./../utils');
 
 // Headers whose duplicates are ignored by node
 // c.f. https://nodejs.org/api/http.html#http_message_headers
@@ -1198,7 +1198,7 @@ module.exports = function parseHeaders(headers) {
   return parsed;
 };
 
-},{"./../utils":26}],25:[function(_dereq_,module,exports){
+},{"./../utils":26}],25:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1227,10 +1227,10 @@ module.exports = function spread(callback) {
   };
 };
 
-},{}],26:[function(_dereq_,module,exports){
+},{}],26:[function(require,module,exports){
 'use strict';
 
-var bind = _dereq_('./helpers/bind');
+var bind = require('./helpers/bind');
 
 /*global toString:true*/
 
@@ -1580,9 +1580,9 @@ module.exports = {
   stripBOM: stripBOM
 };
 
-},{"./helpers/bind":17}],27:[function(_dereq_,module,exports){
+},{"./helpers/bind":17}],27:[function(require,module,exports){
 
-},{}],28:[function(_dereq_,module,exports){
+},{}],28:[function(require,module,exports){
 /* jshint esversion: 6 */
 /* jslint node: true */
 'use strict';
@@ -1620,7 +1620,7 @@ module.exports = function (object) {
   }
 };
 
-},{}],29:[function(_dereq_,module,exports){
+},{}],29:[function(require,module,exports){
 /*
  * Copyright (c) 2019 Digital Bazaar, Inc. All rights reserved.
  */
@@ -1630,13 +1630,13 @@ const {
   isArray: _isArray,
   isObject: _isObject,
   isString: _isString,
-} = _dereq_('./types');
+} = require('./types');
 const {
   asArray: _asArray
-} = _dereq_('./util');
-const {prependBase} = _dereq_('./url');
-const JsonLdError = _dereq_('./JsonLdError');
-const ResolvedContext = _dereq_('./ResolvedContext');
+} = require('./util');
+const {prependBase} = require('./url');
+const JsonLdError = require('./JsonLdError');
+const ResolvedContext = require('./ResolvedContext');
 
 const MAX_CONTEXT_URLS = 10;
 
@@ -1883,7 +1883,7 @@ function _resolveContextUrls({context, base}) {
   }
 }
 
-},{"./JsonLdError":30,"./ResolvedContext":35,"./types":49,"./url":50,"./util":51}],30:[function(_dereq_,module,exports){
+},{"./JsonLdError":30,"./ResolvedContext":35,"./types":49,"./url":50,"./util":51}],30:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
@@ -1908,7 +1908,7 @@ module.exports = class JsonLdError extends Error {
   }
 };
 
-},{}],31:[function(_dereq_,module,exports){
+},{}],31:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
@@ -1962,16 +1962,16 @@ module.exports = jsonld => {
   return JsonLdProcessor;
 };
 
-},{}],32:[function(_dereq_,module,exports){
+},{}],32:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
 // TODO: move `NQuads` to its own package
-module.exports = _dereq_('rdf-canonize').NQuads;
+module.exports = require('rdf-canonize').NQuads;
 
-},{"rdf-canonize":69}],33:[function(_dereq_,module,exports){
+},{"rdf-canonize":69}],33:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
@@ -1984,7 +1984,7 @@ const {
   RDF_OBJECT,
   RDF_XML_LITERAL,
   XSD_STRING,
-} = _dereq_('./constants');
+} = require('./constants');
 
 let _Node;
 if(typeof Node !== 'undefined') {
@@ -2108,12 +2108,12 @@ module.exports = class Rdfa {
 
 function getXMLSerializerClass() {
   if(typeof XMLSerializer === 'undefined') {
-    return _dereq_('xmldom').XMLSerializer;
+    return require('xmldom').XMLSerializer;
   }
   return XMLSerializer;
 }
 
-},{"./constants":37,"xmldom":27}],34:[function(_dereq_,module,exports){
+},{"./constants":37,"xmldom":27}],34:[function(require,module,exports){
 /*
  * Copyright (c) 2017-2019 Digital Bazaar, Inc. All rights reserved.
  */
@@ -2153,13 +2153,13 @@ module.exports = class RequestQueue {
   }
 };
 
-},{}],35:[function(_dereq_,module,exports){
+},{}],35:[function(require,module,exports){
 /*
  * Copyright (c) 2019 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const LRU = _dereq_('lru-cache');
+const LRU = require('lru-cache');
 
 const MAX_ACTIVE_CONTEXTS = 10;
 
@@ -2185,20 +2185,20 @@ module.exports = class ResolvedContext {
   }
 };
 
-},{"lru-cache":52}],36:[function(_dereq_,module,exports){
+},{"lru-cache":52}],36:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const JsonLdError = _dereq_('./JsonLdError');
+const JsonLdError = require('./JsonLdError');
 
 const {
   isArray: _isArray,
   isObject: _isObject,
   isString: _isString,
   isUndefined: _isUndefined
-} = _dereq_('./types');
+} = require('./types');
 
 const {
   isList: _isList,
@@ -2206,7 +2206,7 @@ const {
   isGraph: _isGraph,
   isSimpleGraph: _isSimpleGraph,
   isSubjectReference: _isSubjectReference
-} = _dereq_('./graphTypes');
+} = require('./graphTypes');
 
 const {
   expandIri: _expandIri,
@@ -2214,18 +2214,18 @@ const {
   isKeyword: _isKeyword,
   process: _processContext,
   processingMode: _processingMode
-} = _dereq_('./context');
+} = require('./context');
 
 const {
   removeBase: _removeBase,
   prependBase: _prependBase
-} = _dereq_('./url');
+} = require('./url');
 
 const {
   addValue: _addValue,
   asArray: _asArray,
   compareShortestLeast: _compareShortestLeast
-} = _dereq_('./util');
+} = require('./util');
 
 const api = {};
 module.exports = api;
@@ -3365,7 +3365,7 @@ function _checkNestProperty(activeCtx, nestProperty, options) {
   }
 }
 
-},{"./JsonLdError":30,"./context":38,"./graphTypes":45,"./types":49,"./url":50,"./util":51}],37:[function(_dereq_,module,exports){
+},{"./JsonLdError":30,"./context":38,"./graphTypes":45,"./types":49,"./url":50,"./util":51}],37:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
@@ -3399,33 +3399,33 @@ module.exports = {
   XSD_STRING: XSD + 'string',
 };
 
-},{}],38:[function(_dereq_,module,exports){
+},{}],38:[function(require,module,exports){
 /*
  * Copyright (c) 2017-2019 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const util = _dereq_('./util');
-const JsonLdError = _dereq_('./JsonLdError');
+const util = require('./util');
+const JsonLdError = require('./JsonLdError');
 
 const {
   isArray: _isArray,
   isObject: _isObject,
   isString: _isString,
   isUndefined: _isUndefined
-} = _dereq_('./types');
+} = require('./types');
 
 const {
   isAbsolute: _isAbsoluteIri,
   isRelative: _isRelativeIri,
   prependBase,
   parse: parseUrl
-} = _dereq_('./url');
+} = require('./url');
 
 const {
   asArray: _asArray,
   compareShortestLeast: _compareShortestLeast
-} = _dereq_('./util');
+} = require('./util');
 
 const INITIAL_CONTEXT_CACHE = new Map();
 const INITIAL_CONTEXT_CACHE_MAX_SIZE = 10000;
@@ -3796,7 +3796,7 @@ api.process = async ({
         if(process) {
           try {
             await api.process({
-              activeCtx: rval,
+              activeCtx: rval.clone(),
               localCtx: ctx[key]['@context'],
               overrideProtected: true,
               options,
@@ -4871,17 +4871,17 @@ function _deepCompare(x1, x2) {
   return true;
 }
 
-},{"./JsonLdError":30,"./types":49,"./url":50,"./util":51}],39:[function(_dereq_,module,exports){
+},{"./JsonLdError":30,"./types":49,"./url":50,"./util":51}],39:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const {parseLinkHeader, buildHeaders} = _dereq_('../util');
-const {LINK_HEADER_CONTEXT} = _dereq_('../constants');
-const JsonLdError = _dereq_('../JsonLdError');
-const RequestQueue = _dereq_('../RequestQueue');
-const {prependBase} = _dereq_('../url');
+const {parseLinkHeader, buildHeaders} = require('../util');
+const {LINK_HEADER_CONTEXT} = require('../constants');
+const JsonLdError = require('../JsonLdError');
+const RequestQueue = require('../RequestQueue');
+const {prependBase} = require('../url');
 
 /**
  * Creates a built-in node document loader.
@@ -4908,8 +4908,8 @@ module.exports = ({
 } = {strictSSL: true, maxRedirects: -1, headers: {}}) => {
   headers = buildHeaders(headers);
   // TODO: use `axios`
-  request = request || _dereq_('request');
-  const http = _dereq_('http');
+  request = request || require('request');
+  const http = require('http');
 
   const queue = new RequestQueue();
   return queue.wrapLoader(function(url) {
@@ -5048,17 +5048,17 @@ function _request(request, options) {
   });
 }
 
-},{"../JsonLdError":30,"../RequestQueue":34,"../constants":37,"../url":50,"../util":51,"http":27,"request":27}],40:[function(_dereq_,module,exports){
+},{"../JsonLdError":30,"../RequestQueue":34,"../constants":37,"../url":50,"../util":51,"http":27,"request":27}],40:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const {parseLinkHeader, buildHeaders} = _dereq_('../util');
-const {LINK_HEADER_CONTEXT} = _dereq_('../constants');
-const JsonLdError = _dereq_('../JsonLdError');
-const RequestQueue = _dereq_('../RequestQueue');
-const {prependBase} = _dereq_('../url');
+const {parseLinkHeader, buildHeaders} = require('../util');
+const {LINK_HEADER_CONTEXT} = require('../constants');
+const JsonLdError = require('../JsonLdError');
+const RequestQueue = require('../RequestQueue');
+const {prependBase} = require('../url');
 
 const REGEX_LINK_HEADER = /(^|(\r\n))link:/i;
 
@@ -5167,13 +5167,13 @@ function _get(xhr, url, headers) {
   });
 }
 
-},{"../JsonLdError":30,"../RequestQueue":34,"../constants":37,"../url":50,"../util":51}],41:[function(_dereq_,module,exports){
+},{"../JsonLdError":30,"../RequestQueue":34,"../constants":37,"../url":50,"../util":51}],41:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const JsonLdError = _dereq_('./JsonLdError');
+const JsonLdError = require('./JsonLdError');
 
 const {
   isArray: _isArray,
@@ -5181,14 +5181,14 @@ const {
   isEmptyObject: _isEmptyObject,
   isString: _isString,
   isUndefined: _isUndefined
-} = _dereq_('./types');
+} = require('./types');
 
 const {
   isList: _isList,
   isValue: _isValue,
   isGraph: _isGraph,
   isSubject: _isSubject
-} = _dereq_('./graphTypes');
+} = require('./graphTypes');
 
 const {
   expandIri: _expandIri,
@@ -5196,18 +5196,18 @@ const {
   isKeyword: _isKeyword,
   process: _processContext,
   processingMode: _processingMode
-} = _dereq_('./context');
+} = require('./context');
 
 const {
   isAbsolute: _isAbsoluteIri
-} = _dereq_('./url');
+} = require('./url');
 
 const {
   addValue: _addValue,
   asArray: _asArray,
   getValues: _getValues,
   validateTypeValue: _validateTypeValue
-} = _dereq_('./util');
+} = require('./util');
 
 const api = {};
 module.exports = api;
@@ -6284,7 +6284,7 @@ async function _expandIndexMap(
   return rval;
 }
 
-},{"./JsonLdError":30,"./context":38,"./graphTypes":45,"./types":49,"./url":50,"./util":51}],42:[function(_dereq_,module,exports){
+},{"./JsonLdError":30,"./context":38,"./graphTypes":45,"./types":49,"./url":50,"./util":51}],42:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
@@ -6292,11 +6292,11 @@ async function _expandIndexMap(
 
 const {
   isSubjectReference: _isSubjectReference
-} = _dereq_('./graphTypes');
+} = require('./graphTypes');
 
 const {
   createMergedNodeMap: _createMergedNodeMap
-} = _dereq_('./nodeMap');
+} = require('./nodeMap');
 
 const api = {};
 module.exports = api;
@@ -6324,22 +6324,22 @@ api.flatten = input => {
   return flattened;
 };
 
-},{"./graphTypes":45,"./nodeMap":47}],43:[function(_dereq_,module,exports){
+},{"./graphTypes":45,"./nodeMap":47}],43:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const {isKeyword} = _dereq_('./context');
-const graphTypes = _dereq_('./graphTypes');
-const types = _dereq_('./types');
-const util = _dereq_('./util');
-const url = _dereq_('./url');
-const JsonLdError = _dereq_('./JsonLdError');
+const {isKeyword} = require('./context');
+const graphTypes = require('./graphTypes');
+const types = require('./types');
+const util = require('./util');
+const url = require('./url');
+const JsonLdError = require('./JsonLdError');
 const {
   createNodeMap: _createNodeMap,
   mergeNodeMapGraphs: _mergeNodeMapGraphs
-} = _dereq_('./nodeMap');
+} = require('./nodeMap');
 
 const api = {};
 module.exports = api;
@@ -7151,16 +7151,16 @@ function _valueMatch(pattern, value) {
   return true;
 }
 
-},{"./JsonLdError":30,"./context":38,"./graphTypes":45,"./nodeMap":47,"./types":49,"./url":50,"./util":51}],44:[function(_dereq_,module,exports){
+},{"./JsonLdError":30,"./context":38,"./graphTypes":45,"./nodeMap":47,"./types":49,"./url":50,"./util":51}],44:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const JsonLdError = _dereq_('./JsonLdError');
-const graphTypes = _dereq_('./graphTypes');
-const types = _dereq_('./types');
-const util = _dereq_('./util');
+const JsonLdError = require('./JsonLdError');
+const graphTypes = require('./graphTypes');
+const types = require('./types');
+const util = require('./util');
 
 // constants
 const {
@@ -7181,7 +7181,7 @@ const {
   XSD_DOUBLE,
   XSD_INTEGER,
   XSD_STRING,
-} = _dereq_('./constants');
+} = require('./constants');
 
 const REGEX_BCP47 = /^[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*$/;
 
@@ -7500,13 +7500,13 @@ function _RDFToObject(o, useNativeTypes, rdfDirection) {
   return rval;
 }
 
-},{"./JsonLdError":30,"./constants":37,"./graphTypes":45,"./types":49,"./util":51}],45:[function(_dereq_,module,exports){
+},{"./JsonLdError":30,"./constants":37,"./graphTypes":45,"./types":49,"./util":51}],45:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const types = _dereq_('./types');
+const types = require('./types');
 
 const api = {};
 module.exports = api;
@@ -7621,7 +7621,7 @@ api.isBlankNode = v => {
   return false;
 };
 
-},{"./types":49}],46:[function(_dereq_,module,exports){
+},{"./types":49}],46:[function(require,module,exports){
 (function (process,global){
 /**
  * A JavaScript implementation of the JSON-LD API.
@@ -7658,52 +7658,52 @@ api.isBlankNode = v => {
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-const canonize = _dereq_('rdf-canonize');
-const util = _dereq_('./util');
-const ContextResolver = _dereq_('./ContextResolver');
+const canonize = require('rdf-canonize');
+const util = require('./util');
+const ContextResolver = require('./ContextResolver');
 const IdentifierIssuer = util.IdentifierIssuer;
-const JsonLdError = _dereq_('./JsonLdError');
-const LRU = _dereq_('lru-cache');
-const NQuads = _dereq_('./NQuads');
-const Rdfa = _dereq_('./Rdfa');
+const JsonLdError = require('./JsonLdError');
+const LRU = require('lru-cache');
+const NQuads = require('./NQuads');
+const Rdfa = require('./Rdfa');
 
-const {expand: _expand} = _dereq_('./expand');
-const {flatten: _flatten} = _dereq_('./flatten');
-const {fromRDF: _fromRDF} = _dereq_('./fromRdf');
-const {toRDF: _toRDF} = _dereq_('./toRdf');
+const {expand: _expand} = require('./expand');
+const {flatten: _flatten} = require('./flatten');
+const {fromRDF: _fromRDF} = require('./fromRdf');
+const {toRDF: _toRDF} = require('./toRdf');
 
 const {
   frameMergedOrDefault: _frameMergedOrDefault,
   cleanupNull: _cleanupNull
-} = _dereq_('./frame');
+} = require('./frame');
 
 const {
   isArray: _isArray,
   isObject: _isObject,
   isString: _isString
-} = _dereq_('./types');
+} = require('./types');
 
 const {
   isSubjectReference: _isSubjectReference,
-} = _dereq_('./graphTypes');
+} = require('./graphTypes');
 
 const {
   expandIri: _expandIri,
   getInitialContext: _getInitialContext,
   process: _processContext,
   processingMode: _processingMode
-} = _dereq_('./context');
+} = require('./context');
 
 const {
   compact: _compact,
   compactIri: _compactIri
-} = _dereq_('./compact');
+} = require('./compact');
 
 const {
   createNodeMap: _createNodeMap,
   createMergedNodeMap: _createMergedNodeMap,
   mergeNodeMaps: _mergeNodeMaps
-} = _dereq_('./nodeMap');
+} = require('./nodeMap');
 
 // determine if in-browser or using Node.js
 const _nodejs = (
@@ -8558,14 +8558,14 @@ jsonld.processContext = async function(
 };
 
 // backwards compatibility
-jsonld.getContextValue = _dereq_('./context').getContextValue;
+jsonld.getContextValue = require('./context').getContextValue;
 
 /**
  * Document loaders.
  */
 jsonld.documentLoaders = {};
-jsonld.documentLoaders.node = _dereq_('./documentLoaders/node');
-jsonld.documentLoaders.xhr = _dereq_('./documentLoaders/xhr');
+jsonld.documentLoaders.node = require('./documentLoaders/node');
+jsonld.documentLoaders.xhr = require('./documentLoaders/xhr');
 
 /**
  * Assigns the default document loader for external document URLs to a built-in
@@ -8618,7 +8618,7 @@ jsonld.registerRDFParser('application/nquads', NQuads.parse);
 jsonld.registerRDFParser('rdfa-api', Rdfa.parse);
 
 /* URL API */
-jsonld.url = _dereq_('./url');
+jsonld.url = require('./url');
 
 /* Utility API */
 jsonld.util = util;
@@ -8629,10 +8629,10 @@ Object.assign(jsonld, util);
 jsonld.promises = jsonld;
 
 // backwards compatibility
-jsonld.RequestQueue = _dereq_('./RequestQueue');
+jsonld.RequestQueue = require('./RequestQueue');
 
 /* WebIDL API */
-jsonld.JsonLdProcessor = _dereq_('./JsonLdProcessor')(jsonld);
+jsonld.JsonLdProcessor = require('./JsonLdProcessor')(jsonld);
 
 // setup browser global JsonLdProcessor
 if(_browser && typeof global.JsonLdProcessor === 'undefined') {
@@ -8678,18 +8678,18 @@ wrapper(factory);
 // export API
 module.exports = factory;
 
-}).call(this,_dereq_('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./ContextResolver":29,"./JsonLdError":30,"./JsonLdProcessor":31,"./NQuads":32,"./Rdfa":33,"./RequestQueue":34,"./compact":36,"./context":38,"./documentLoaders/node":39,"./documentLoaders/xhr":40,"./expand":41,"./flatten":42,"./frame":43,"./fromRdf":44,"./graphTypes":45,"./nodeMap":47,"./toRdf":48,"./types":49,"./url":50,"./util":51,"_process":59,"lru-cache":52,"rdf-canonize":69}],47:[function(_dereq_,module,exports){
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./ContextResolver":29,"./JsonLdError":30,"./JsonLdProcessor":31,"./NQuads":32,"./Rdfa":33,"./RequestQueue":34,"./compact":36,"./context":38,"./documentLoaders/node":39,"./documentLoaders/xhr":40,"./expand":41,"./flatten":42,"./frame":43,"./fromRdf":44,"./graphTypes":45,"./nodeMap":47,"./toRdf":48,"./types":49,"./url":50,"./util":51,"_process":59,"lru-cache":52,"rdf-canonize":69}],47:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const {isKeyword} = _dereq_('./context');
-const graphTypes = _dereq_('./graphTypes');
-const types = _dereq_('./types');
-const util = _dereq_('./util');
-const JsonLdError = _dereq_('./JsonLdError');
+const {isKeyword} = require('./context');
+const graphTypes = require('./graphTypes');
+const types = require('./types');
+const util = require('./util');
+const JsonLdError = require('./JsonLdError');
 
 const api = {};
 module.exports = api;
@@ -8971,18 +8971,18 @@ api.mergeNodeMaps = graphs => {
   return defaultGraph;
 };
 
-},{"./JsonLdError":30,"./context":38,"./graphTypes":45,"./types":49,"./util":51}],48:[function(_dereq_,module,exports){
+},{"./JsonLdError":30,"./context":38,"./graphTypes":45,"./types":49,"./util":51}],48:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const {createNodeMap} = _dereq_('./nodeMap');
-const {isKeyword} = _dereq_('./context');
-const graphTypes = _dereq_('./graphTypes');
-const jsonCanonicalize = _dereq_('canonicalize');
-const types = _dereq_('./types');
-const util = _dereq_('./util');
+const {createNodeMap} = require('./nodeMap');
+const {isKeyword} = require('./context');
+const graphTypes = require('./graphTypes');
+const jsonCanonicalize = require('canonicalize');
+const types = require('./types');
+const util = require('./util');
 
 const {
   // RDF,
@@ -9002,11 +9002,11 @@ const {
   XSD_DOUBLE,
   XSD_INTEGER,
   XSD_STRING,
-} = _dereq_('./constants');
+} = require('./constants');
 
 const {
   isAbsolute: _isAbsoluteIri
-} = _dereq_('./url');
+} = require('./url');
 
 const api = {};
 module.exports = api;
@@ -9253,7 +9253,7 @@ function _objectToRDF(item, issuer, dataset, graphTerm, rdfDirection) {
   return object;
 }
 
-},{"./constants":37,"./context":38,"./graphTypes":45,"./nodeMap":47,"./types":49,"./url":50,"./util":51,"canonicalize":28}],49:[function(_dereq_,module,exports){
+},{"./constants":37,"./context":38,"./graphTypes":45,"./nodeMap":47,"./types":49,"./url":50,"./util":51,"canonicalize":28}],49:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
@@ -9347,13 +9347,13 @@ api.isString = v => (typeof v === 'string' ||
  */
 api.isUndefined = v => typeof v === 'undefined';
 
-},{}],50:[function(_dereq_,module,exports){
+},{}],50:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const types = _dereq_('./types');
+const types = require('./types');
 
 const api = {};
 module.exports = api;
@@ -9650,17 +9650,17 @@ api.isAbsolute = v => types.isString(v) && isAbsoluteRegex.test(v);
  */
 api.isRelative = v => types.isString(v);
 
-},{"./types":49}],51:[function(_dereq_,module,exports){
+},{"./types":49}],51:[function(require,module,exports){
 /*
  * Copyright (c) 2017-2019 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const graphTypes = _dereq_('./graphTypes');
-const types = _dereq_('./types');
+const graphTypes = require('./graphTypes');
+const types = require('./types');
 // TODO: move `IdentifierIssuer` to its own package
-const IdentifierIssuer = _dereq_('rdf-canonize').IdentifierIssuer;
-const JsonLdError = _dereq_('./JsonLdError');
+const IdentifierIssuer = require('rdf-canonize').IdentifierIssuer;
+const JsonLdError = require('./JsonLdError');
 
 // constants
 const REGEX_LINK_HEADERS = /(?:<[^>]*?>|"[^"]*?"|[^,])+/g;
@@ -10103,11 +10103,11 @@ function _labelBlankNodes(issuer, element) {
   return element;
 }
 
-},{"./JsonLdError":30,"./graphTypes":45,"./types":49,"rdf-canonize":69}],52:[function(_dereq_,module,exports){
+},{"./JsonLdError":30,"./graphTypes":45,"./types":49,"rdf-canonize":69}],52:[function(require,module,exports){
 'use strict'
 
 // A linked list to keep track of recently-used-ness
-const Yallist = _dereq_('yallist')
+const Yallist = require('yallist')
 
 const MAX = Symbol('max')
 const LENGTH = Symbol('length')
@@ -10439,7 +10439,7 @@ const forEachStep = (self, fn, node, thisp) => {
 
 module.exports = LRUCache
 
-},{"yallist":82}],53:[function(_dereq_,module,exports){
+},{"yallist":83}],53:[function(require,module,exports){
 (function (Buffer){
 /**
  * Base-N/Base-X encoding/decoding functions.
@@ -10628,8 +10628,8 @@ function _encodeWithByteBuffer(input, alphabet) {
   return output;
 }
 
-}).call(this,_dereq_("buffer").Buffer)
-},{"buffer":27}],54:[function(_dereq_,module,exports){
+}).call(this,require("buffer").Buffer)
+},{"buffer":27}],54:[function(require,module,exports){
 /**
  * Node.js module for Forge.
  *
@@ -10644,7 +10644,7 @@ module.exports = {
   }
 };
 
-},{}],55:[function(_dereq_,module,exports){
+},{}],55:[function(require,module,exports){
 /**
  * Node.js module for Forge message digests.
  *
@@ -10652,12 +10652,12 @@ module.exports = {
  *
  * Copyright 2011-2017 Digital Bazaar, Inc.
  */
-var forge = _dereq_('./forge');
+var forge = require('./forge');
 
 module.exports = forge.md = forge.md || {};
 forge.md.algorithms = forge.md.algorithms || {};
 
-},{"./forge":54}],56:[function(_dereq_,module,exports){
+},{"./forge":54}],56:[function(require,module,exports){
 /**
  * Secure Hash Algorithm with 160-bit digest (SHA-1) implementation.
  *
@@ -10665,9 +10665,9 @@ forge.md.algorithms = forge.md.algorithms || {};
  *
  * Copyright (c) 2010-2015 Digital Bazaar, Inc.
  */
-var forge = _dereq_('./forge');
-_dereq_('./md');
-_dereq_('./util');
+var forge = require('./forge');
+require('./md');
+require('./util');
 
 var sha1 = module.exports = forge.sha1 = forge.sha1 || {};
 forge.md.sha1 = forge.md.algorithms.sha1 = sha1;
@@ -10978,7 +10978,7 @@ function _update(s, w, bytes) {
   }
 }
 
-},{"./forge":54,"./md":55,"./util":58}],57:[function(_dereq_,module,exports){
+},{"./forge":54,"./md":55,"./util":58}],57:[function(require,module,exports){
 /**
  * Secure Hash Algorithm with 256-bit digest (SHA-256) implementation.
  *
@@ -10988,9 +10988,9 @@ function _update(s, w, bytes) {
  *
  * Copyright (c) 2010-2015 Digital Bazaar, Inc.
  */
-var forge = _dereq_('./forge');
-_dereq_('./md');
-_dereq_('./util');
+var forge = require('./forge');
+require('./md');
+require('./util');
 
 var sha256 = module.exports = forge.sha256 = forge.sha256 || {};
 forge.md.sha256 = forge.md.algorithms.sha256 = sha256;
@@ -11307,7 +11307,7 @@ function _update(s, w, bytes) {
   }
 }
 
-},{"./forge":54,"./md":55,"./util":58}],58:[function(_dereq_,module,exports){
+},{"./forge":54,"./md":55,"./util":58}],58:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,setImmediate){
 /**
  * Utility functions for web applications.
@@ -11316,8 +11316,8 @@ function _update(s, w, bytes) {
  *
  * Copyright (c) 2010-2018 Digital Bazaar, Inc.
  */
-var forge = _dereq_('./forge');
-var baseN = _dereq_('./baseN');
+var forge = require('./forge');
+var baseN = require('./baseN');
 
 /* Utilities API */
 var util = module.exports = forge.util = forge.util || {};
@@ -13825,102 +13825,6 @@ util.makeLink = function(path, query, fragment) {
 };
 
 /**
- * Follows a path of keys deep into an object hierarchy and set a value.
- * If a key does not exist or it's value is not an object, create an
- * object in it's place. This can be destructive to a object tree if
- * leaf nodes are given as non-final path keys.
- * Used to avoid exceptions from missing parts of the path.
- *
- * SECURITY NOTE: Do not use unsafe inputs. Doing so could expose a prototype
- * pollution security issue.
- *
- * @param object the starting object.
- * @param keys an array of string keys.
- * @param value the value to set.
- */
-util.setPath = function(object, keys, value) {
-  // need to start at an object
-  if(typeof(object) === 'object' && object !== null) {
-    var i = 0;
-    var len = keys.length;
-    while(i < len) {
-      var next = keys[i++];
-      if(i == len) {
-        // last
-        object[next] = value;
-      } else {
-        // more
-        var hasNext = (next in object);
-        if(!hasNext ||
-          (hasNext && typeof(object[next]) !== 'object') ||
-          (hasNext && object[next] === null)) {
-          object[next] = {};
-        }
-        object = object[next];
-      }
-    }
-  }
-};
-
-/**
- * Follows a path of keys deep into an object hierarchy and return a value.
- * If a key does not exist, create an object in it's place.
- * Used to avoid exceptions from missing parts of the path.
- *
- * @param object the starting object.
- * @param keys an array of string keys.
- * @param _default value to return if path not found.
- *
- * @return the value at the path if found, else default if given, else
- *         undefined.
- */
-util.getPath = function(object, keys, _default) {
-  var i = 0;
-  var len = keys.length;
-  var hasNext = true;
-  while(hasNext && i < len &&
-    typeof(object) === 'object' && object !== null) {
-    var next = keys[i++];
-    hasNext = next in object;
-    if(hasNext) {
-      object = object[next];
-    }
-  }
-  return (hasNext ? object : _default);
-};
-
-/**
- * Follow a path of keys deep into an object hierarchy and delete the
- * last one. If a key does not exist, do nothing.
- * Used to avoid exceptions from missing parts of the path.
- *
- * @param object the starting object.
- * @param keys an array of string keys.
- */
-util.deletePath = function(object, keys) {
-  // need to start at an object
-  if(typeof(object) === 'object' && object !== null) {
-    var i = 0;
-    var len = keys.length;
-    while(i < len) {
-      var next = keys[i++];
-      if(i == len) {
-        // last
-        delete object[next];
-      } else {
-        // more
-        if(!(next in object) ||
-          (typeof(object[next]) !== 'object') ||
-          (object[next] === null)) {
-           break;
-        }
-        object = object[next];
-      }
-    }
-  }
-};
-
-/**
  * Check if an object is empty.
  *
  * Taken from:
@@ -14313,8 +14217,8 @@ util.estimateCores = function(options, callback) {
   }
 };
 
-}).call(this,_dereq_('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],_dereq_("timers").setImmediate)
-},{"./baseN":53,"./forge":54,"_process":59,"buffer":27,"timers":80}],59:[function(_dereq_,module,exports){
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],require("timers").setImmediate)
+},{"./baseN":53,"./forge":54,"_process":59,"buffer":27,"timers":81}],59:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -14500,13 +14404,13 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],60:[function(_dereq_,module,exports){
+},{}],60:[function(require,module,exports){
 /**
  * Copyright (c) 2016-2017 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const util = _dereq_('./util');
+const util = require('./util');
 
 module.exports = class AsyncAlgorithm {
   constructor({
@@ -14629,13 +14533,13 @@ module.exports = class AsyncAlgorithm {
   }
 };
 
-},{"./util":70}],61:[function(_dereq_,module,exports){
+},{"./util":70}],61:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2017 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const util = _dereq_('./util');
+const util = require('./util');
 
 module.exports = class IdentifierIssuer {
   /**
@@ -14702,16 +14606,16 @@ module.exports = class IdentifierIssuer {
   }
 };
 
-},{"./util":70}],62:[function(_dereq_,module,exports){
+},{"./util":70}],62:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2017 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const forge = _dereq_('node-forge/lib/forge');
-_dereq_('node-forge/lib/md');
-_dereq_('node-forge/lib/sha1');
-_dereq_('node-forge/lib/sha256');
+const forge = require('node-forge/lib/forge');
+require('node-forge/lib/md');
+require('node-forge/lib/sha1');
+require('node-forge/lib/sha256');
 
 module.exports = class MessageDigest {
   /**
@@ -14732,12 +14636,13 @@ module.exports = class MessageDigest {
   }
 };
 
-},{"node-forge/lib/forge":54,"node-forge/lib/md":55,"node-forge/lib/sha1":56,"node-forge/lib/sha256":57}],63:[function(_dereq_,module,exports){
+},{"node-forge/lib/forge":54,"node-forge/lib/md":55,"node-forge/lib/sha1":56,"node-forge/lib/sha256":57}],63:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2017 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
+// eslint-disable-next-line no-unused-vars
 const TERMS = ['subject', 'predicate', 'object', 'graph'];
 const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 const RDF_LANGSTRING = RDF + 'langString';
@@ -14994,8 +14899,8 @@ module.exports = class NQuads {
 
     const termTypeMap = {
       'blank node': 'BlankNode',
-      'IRI': 'NamedNode',
-      'literal': 'Literal'
+      IRI: 'NamedNode',
+      literal: 'Literal'
     };
 
     for(const graphName in dataset) {
@@ -15113,7 +15018,7 @@ function _unescape(s) {
   });
 }
 
-},{}],64:[function(_dereq_,module,exports){
+},{}],64:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2017 Digital Bazaar, Inc. All rights reserved.
  */
@@ -15200,18 +15105,18 @@ module.exports = class Permutator {
 };
 
 
-},{}],65:[function(_dereq_,module,exports){
+},{}],65:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2017 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const AsyncAlgorithm = _dereq_('./AsyncAlgorithm');
-const IdentifierIssuer = _dereq_('./IdentifierIssuer');
-const MessageDigest = _dereq_('./MessageDigest');
-const Permutator = _dereq_('./Permutator');
-const NQuads = _dereq_('./NQuads');
-const util = _dereq_('./util');
+const AsyncAlgorithm = require('./AsyncAlgorithm');
+const IdentifierIssuer = require('./IdentifierIssuer');
+const MessageDigest = require('./MessageDigest');
+const Permutator = require('./Permutator');
+const NQuads = require('./NQuads');
+const util = require('./util');
 
 const POSITIONS = {subject: 's', object: 'o', graph: 'g'};
 
@@ -15738,19 +15643,19 @@ module.exports = class URDNA2015 extends AsyncAlgorithm {
         const position = POSITIONS[key];
         self.hashRelatedBlankNode(
           related, quad, issuer, position, (err, hash) => {
-          if(err) {
-            return callback(err);
-          }
-          // 3.1.2) Add a mapping of hash to the blank node identifier for
-          // component to hash to related blank nodes map, adding an entry as
-          // necessary.
-          if(hash in hashToRelated) {
-            hashToRelated[hash].push(related);
-          } else {
-            hashToRelated[hash] = [related];
-          }
-          callback();
-        });
+            if(err) {
+              return callback(err);
+            }
+            // 3.1.2) Add a mapping of hash to the blank node identifier for
+            // component to hash to related blank nodes map, adding an entry as
+            // necessary.
+            if(hash in hashToRelated) {
+              hashToRelated[hash].push(related);
+            } else {
+              hashToRelated[hash] = [related];
+            }
+            callback();
+          });
       }, callback);
     }, err => callback(err, hashToRelated));
   }
@@ -15767,17 +15672,17 @@ module.exports = class URDNA2015 extends AsyncAlgorithm {
   }
 };
 
-},{"./AsyncAlgorithm":60,"./IdentifierIssuer":61,"./MessageDigest":62,"./NQuads":63,"./Permutator":64,"./util":70}],66:[function(_dereq_,module,exports){
+},{"./AsyncAlgorithm":60,"./IdentifierIssuer":61,"./MessageDigest":62,"./NQuads":63,"./Permutator":64,"./util":70}],66:[function(require,module,exports){
 /*
  * Copyright (c) 2016 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const IdentifierIssuer = _dereq_('./IdentifierIssuer');
-const MessageDigest = _dereq_('./MessageDigest');
-const Permutator = _dereq_('./Permutator');
-const NQuads = _dereq_('./NQuads');
-const util = _dereq_('./util');
+const IdentifierIssuer = require('./IdentifierIssuer');
+const MessageDigest = require('./MessageDigest');
+const Permutator = require('./Permutator');
+const NQuads = require('./NQuads');
+const util = require('./util');
 
 const POSITIONS = {subject: 's', object: 'o', graph: 'g'};
 
@@ -16261,14 +16166,14 @@ module.exports = class URDNA2015Sync {
   }
 };
 
-},{"./IdentifierIssuer":61,"./MessageDigest":62,"./NQuads":63,"./Permutator":64,"./util":70}],67:[function(_dereq_,module,exports){
+},{"./IdentifierIssuer":61,"./MessageDigest":62,"./NQuads":63,"./Permutator":64,"./util":70}],67:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2017 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const URDNA2015 = _dereq_('./URDNA2015');
-const util = _dereq_('./util');
+const URDNA2015 = require('./URDNA2015');
+const util = require('./util');
 
 module.exports = class URDNA2012 extends URDNA2015 {
   constructor(options) {
@@ -16336,28 +16241,28 @@ module.exports = class URDNA2012 extends URDNA2015 {
       // nodes map, adding an entry as necessary.
       self.hashRelatedBlankNode(
         related, quad, issuer, position, (err, hash) => {
-        if(err) {
-          return callback(err);
-        }
-        if(hash in hashToRelated) {
-          hashToRelated[hash].push(related);
-        } else {
-          hashToRelated[hash] = [related];
-        }
-        callback();
-      });
+          if(err) {
+            return callback(err);
+          }
+          if(hash in hashToRelated) {
+            hashToRelated[hash].push(related);
+          } else {
+            hashToRelated[hash] = [related];
+          }
+          callback();
+        });
     }, err => callback(err, hashToRelated));
   }
 };
 
-},{"./URDNA2015":65,"./util":70}],68:[function(_dereq_,module,exports){
+},{"./URDNA2015":65,"./util":70}],68:[function(require,module,exports){
 /*
  * Copyright (c) 2016 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const URDNA2015Sync = _dereq_('./URDNA2015Sync');
-const util = _dereq_('./util');
+const URDNA2015Sync = require('./URDNA2015Sync');
+const util = require('./util');
 
 module.exports = class URDNA2012Sync extends URDNA2015Sync {
   constructor() {
@@ -16436,7 +16341,7 @@ module.exports = class URDNA2012Sync extends URDNA2015Sync {
   }
 };
 
-},{"./URDNA2015Sync":66,"./util":70}],69:[function(_dereq_,module,exports){
+},{"./URDNA2015Sync":66,"./util":70}],69:[function(require,module,exports){
 /**
  * An implementation of the RDF Dataset Normalization specification.
  * This library works in the browser and node.js.
@@ -16473,24 +16378,24 @@ module.exports = class URDNA2012Sync extends URDNA2015Sync {
  */
 'use strict';
 
-const util = _dereq_('./util');
-const URDNA2015 = _dereq_('./URDNA2015');
-const URGNA2012 = _dereq_('./URGNA2012');
-const URDNA2015Sync = _dereq_('./URDNA2015Sync');
-const URGNA2012Sync = _dereq_('./URGNA2012Sync');
+const util = require('./util');
+const URDNA2015 = require('./URDNA2015');
+const URGNA2012 = require('./URGNA2012');
+const URDNA2015Sync = require('./URDNA2015Sync');
+const URGNA2012Sync = require('./URGNA2012Sync');
 
 // optional native support
 let rdfCanonizeNative;
 try {
-  rdfCanonizeNative = _dereq_('rdf-canonize-native');
+  rdfCanonizeNative = require('rdf-canonize-native');
 } catch(e) {}
 
 const api = {};
 module.exports = api;
 
 // expose helpers
-api.NQuads = _dereq_('./NQuads');
-api.IdentifierIssuer = _dereq_('./IdentifierIssuer');
+api.NQuads = require('./NQuads');
+api.IdentifierIssuer = require('./IdentifierIssuer');
 
 /**
  * Get or set native API.
@@ -16598,7 +16503,7 @@ api.canonizeSync = function(dataset, options) {
     'Invalid RDF Dataset Canonicalization algorithm: ' + options.algorithm);
 };
 
-},{"./IdentifierIssuer":61,"./NQuads":63,"./URDNA2015":65,"./URDNA2015Sync":66,"./URGNA2012":67,"./URGNA2012Sync":68,"./util":70,"rdf-canonize-native":27}],70:[function(_dereq_,module,exports){
+},{"./IdentifierIssuer":61,"./NQuads":63,"./URDNA2015":65,"./URDNA2015Sync":66,"./URGNA2012":67,"./URGNA2012Sync":68,"./util":70,"rdf-canonize-native":27}],70:[function(require,module,exports){
 (function (process,setImmediate){
 /*
  * Copyright (c) 2016-2017 Digital Bazaar, Inc. All rights reserved.
@@ -16711,14 +16616,16 @@ function _invokeCallback(callback, err, result) {
   }
 }
 
-}).call(this,_dereq_('_process'),_dereq_("timers").setImmediate)
-},{"_process":59,"timers":80}],71:[function(_dereq_,module,exports){
+}).call(this,require('_process'),require("timers").setImmediate)
+},{"_process":59,"timers":81}],71:[function(require,module,exports){
 "use strict";
 
 // the functions for a class Object
-var util = _dereq_('./utilities');
+var util = require('./utilities');
 
-class Class {
+var Term = require('./Term');
+
+class Class extends Term {
   /**
    * A Class represents an rdfs:Class. It is identified by its IRI
    *
@@ -16727,25 +16634,7 @@ class Class {
    * @param {Graph} graph - The underlying data graph to enable the methods of this Class
    */
   constructor(IRI, graph) {
-    this.IRI = IRI;
-    this.graph = graph;
-  }
-  /**
-   * Retrieves the IRI (@id) of this Class in compact/absolute form
-   *
-   * @param {boolean} compactForm - (default = false), if true -> return compact IRI -> "schema:Book", if false -> return absolute IRI -> "http://schema.org/Book"
-   * @returns {string} The IRI (@id) of this Class
-   */
-
-
-  getIRI() {
-    var compactForm = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
-    if (compactForm) {
-      return this.IRI;
-    }
-
-    return util.toAbsoluteIRI(this.IRI, this.graph.context);
+    super(IRI, graph);
   }
   /**
    * Retrieves the term type (@type) of this Class (is always "rdfs:Class")
@@ -16758,90 +16647,14 @@ class Class {
     return 'rdfs:Class';
   }
   /**
-   * Retrieves the original vocabulary (schema:isPartOf) of this Class
+   * Retrieves the term object of this Class
    *
-   * @returns {string|null} The vocabulary IRI given by the "schema:isPartOf" of this Class
+   * @returns {string} The term object of this Class
    */
 
 
-  getVocabulary() {
-    var classObj = this.graph.classes[this.IRI];
-
-    if (!util.isNil(classObj['schema:isPartOf'])) {
-      return classObj['schema:isPartOf'];
-    }
-
-    return null;
-  }
-  /**
-   * Retrieves the source (dc:source) of this Class
-   *
-   * @returns {string|null} The source IRI given by the "dc:source" of this Class (null if none)
-   */
-
-
-  getSource() {
-    var classObj = this.graph.classes[this.IRI];
-
-    if (!util.isNil(classObj['dc:source'])) {
-      return classObj['dc:source'];
-    } else if (!util.isNil(classObj['schema:source'])) {
-      return classObj['schema:source'];
-    }
-
-    return null;
-  }
-  /**
-   * Retrieves the class superseding (schema:supersededBy) this Class
-   *
-   * @returns {string|null} The Class superseding this Class (null if none)
-   */
-
-
-  isSupersededBy() {
-    var classObj = this.graph.classes[this.IRI];
-
-    if (util.isString(classObj['schema:supersededBy'])) {
-      return classObj['schema:supersededBy'];
-    }
-
-    return null;
-  }
-  /**
-   * Retrieves the name (rdfs:label) of this Class in a wished language (optional)
-   *
-   * @param {string} language - (default = "en") the wished language for the name
-   * @returns {string|null} The name of this Class (null if not given for specified language)
-   */
-
-
-  getName() {
-    var language = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'en';
-    var nameObj = this.graph.classes[this.IRI]['rdfs:label'];
-
-    if (util.isNil(nameObj) || util.isNil(nameObj[language])) {
-      return null;
-    }
-
-    return nameObj[language];
-  }
-  /**
-   * Retrieves the description (rdfs:comment) of this Class in a wished language (optional)
-   *
-   * @param {string} language - (default = "en") the wished language for the description
-   * @returns {string|null} The description of this Class (null if not given for specified language)
-   */
-
-
-  getDescription() {
-    var language = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'en';
-    var descriptionObj = this.graph.classes[this.IRI]['rdfs:comment'];
-
-    if (util.isNil(descriptionObj) || util.isNil(descriptionObj[language])) {
-      return null;
-    }
-
-    return descriptionObj[language];
+  getTermObj() {
+    return this.graph.classes[this.IRI];
   }
   /**
    * Retrieves the explicit/implicit properties (soa:hasProperty) of this Class
@@ -16855,7 +16668,7 @@ class Class {
   getProperties() {
     var implicit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
     var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var classObj = this.graph.classes[this.IRI];
+    var classObj = this.getTermObj();
     var result = [];
     result.push(...classObj['soa:hasProperty']);
 
@@ -16878,7 +16691,7 @@ class Class {
   getSuperClasses() {
     var implicit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
     var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var classObj = this.graph.classes[this.IRI];
+    var classObj = this.getTermObj();
     var result = [];
 
     if (implicit) {
@@ -16901,7 +16714,7 @@ class Class {
   getSubClasses() {
     var implicit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
     var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var classObj = this.graph.classes[this.IRI];
+    var classObj = this.getTermObj();
     var result = [];
 
     if (implicit) {
@@ -16929,20 +16742,10 @@ class Class {
     if (implicit) {
       result.push(...this.graph.reasoner.inferRangeOf(this.IRI));
     } else {
-      result.push(...this.graph.classes[this.IRI]['soa:isRangeOf']);
+      result.push(...this.getTermObj()['soa:isRangeOf']);
     }
 
     return util.applyFilter(util.uniquifyArray(result), filter, this.graph);
-  }
-  /**
-   * Generates a string representation of this Class (Based on its JSON representation)
-   *
-   * @returns {string} The string representation of this Class
-   */
-
-
-  toString() {
-    return JSON.stringify(this.toJSON(false, null), null, 2);
   }
   /**
    * Generates an explicit/implicit JSON representation of this Class.
@@ -16960,15 +16763,7 @@ class Class {
     // properties of all parent classes
     // sub-classes and their subclasses
     // super-classes and their superclasses
-    var result = {};
-    result.id = this.getIRI(true);
-    result.IRI = this.getIRI();
-    result.type = this.getTermType();
-    result.vocabulary = this.getVocabulary();
-    result.source = this.getSource();
-    result.supersededBy = this.isSupersededBy();
-    result.name = this.getName();
-    result.description = this.getDescription();
+    var result = super.toJSON();
     result.superClasses = this.getSuperClasses(implicit, filter);
     result.subClasses = this.getSubClasses(implicit, filter);
     result.properties = this.getProperties(implicit, filter);
@@ -16980,13 +16775,15 @@ class Class {
 
 module.exports = Class;
 
-},{"./utilities":79}],72:[function(_dereq_,module,exports){
+},{"./Term":79,"./utilities":80}],72:[function(require,module,exports){
 "use strict";
 
 // the functions for a data type Object
-var util = _dereq_('./utilities');
+var util = require('./utilities');
 
-class DataType {
+var Term = require('./Term');
+
+class DataType extends Term {
   /**
    * A DataType represents an schema:DataType. It is identified by its IRI
    *
@@ -16995,25 +16792,7 @@ class DataType {
    * @param {Graph} graph - The underlying data graph to enable the methods of this DataType
    */
   constructor(IRI, graph) {
-    this.IRI = IRI;
-    this.graph = graph;
-  }
-  /**
-   * Retrieves the IRI (@id) of this DataType in compact/absolute form
-   *
-   * @param {boolean} compactForm - (default = false), if true -> return compact IRI -> "schema:Number", if false -> return absolute IRI -> "http://schema.org/Number"
-   * @returns {string} The IRI (@id) of this DataType
-   */
-
-
-  getIRI() {
-    var compactForm = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
-    if (compactForm) {
-      return this.IRI;
-    }
-
-    return util.toAbsoluteIRI(this.IRI, this.graph.context);
+    super(IRI, graph);
   }
   /**
    * Retrieves the term type (@type) of this DataType (is always "schema:DataType")
@@ -17026,90 +16805,14 @@ class DataType {
     return 'schema:DataType';
   }
   /**
-   * Retrieves the original vocabulary (schema:isPartOf) of this DataType
+   * Retrieves the term object of this DataType
    *
-   * @returns {string|null} The vocabulary IRI given by the "schema:isPartOf" of this DataType
+   * @returns {string} The term object of this DataType
    */
 
 
-  getVocabulary() {
-    var dataTypeObj = this.graph.dataTypes[this.IRI];
-
-    if (!util.isNil(dataTypeObj['schema:isPartOf'])) {
-      return dataTypeObj['schema:isPartOf'];
-    }
-
-    return null;
-  }
-  /**
-   * Retrieves the source (dc:source) of this DataType
-   *
-   * @returns {string|null} The source IRI given by the "dc:source" of this DataType (null if none)
-   */
-
-
-  getSource() {
-    var dataTypeObj = this.graph.dataTypes[this.IRI];
-
-    if (!util.isNil(dataTypeObj['dc:source'])) {
-      return dataTypeObj['dc:source'];
-    } else if (!util.isNil(dataTypeObj['schema:source'])) {
-      return dataTypeObj['schema:source'];
-    }
-
-    return null;
-  }
-  /**
-   * Retrieves the DataType superseding (schema:supersededBy) this DataType
-   *
-   * @returns {string|null} The DataType superseding this DataType (null if none)
-   */
-
-
-  isSupersededBy() {
-    var dataTypeObj = this.graph.dataTypes[this.IRI];
-
-    if (util.isString(dataTypeObj['schema:supersededBy'])) {
-      return dataTypeObj['schema:supersededBy'];
-    }
-
-    return null;
-  }
-  /**
-   * Retrieves the name (rdfs:label) of this DataType in a wished language (optional)
-   *
-   * @param {string} language - (default = "en") the wished language for the name
-   * @returns {string|null} The name of this DataType (null if not given for specified language)
-   */
-
-
-  getName() {
-    var language = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'en';
-    var nameObj = this.graph.dataTypes[this.IRI]['rdfs:label'];
-
-    if (util.isNil(nameObj) || util.isNil(nameObj[language])) {
-      return null;
-    }
-
-    return nameObj[language];
-  }
-  /**
-   * Retrieves the description (rdfs:comment) of this DataType in a wished language (optional)
-   *
-   * @param {string} language - (default = "en") the wished language for the description
-   * @returns {string|null} The description of this DataType (null if not given for specified language)
-   */
-
-
-  getDescription() {
-    var language = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'en';
-    var descriptionObj = this.graph.dataTypes[this.IRI]['rdfs:comment'];
-
-    if (util.isNil(descriptionObj) || util.isNil(descriptionObj[language])) {
-      return null;
-    }
-
-    return descriptionObj[language];
+  getTermObj() {
+    return this.graph.dataTypes[this.IRI];
   }
   /**
    * Retrieves the explicit/implicit super-DataTypes (rdfs:subClassOf) of this DataType
@@ -17123,7 +16826,7 @@ class DataType {
   getSuperDataTypes() {
     var implicit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
     var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var dataTypeObj = this.graph.dataTypes[this.IRI];
+    var dataTypeObj = this.getTermObj();
     var result = [];
 
     if (implicit) {
@@ -17146,7 +16849,7 @@ class DataType {
   getSubDataTypes() {
     var implicit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
     var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var dataTypeObj = this.graph.dataTypes[this.IRI];
+    var dataTypeObj = this.getTermObj();
     var result = [];
 
     if (implicit) {
@@ -17174,20 +16877,10 @@ class DataType {
     if (implicit) {
       result.push(...this.graph.reasoner.inferRangeOf(this.IRI));
     } else {
-      result.push(...this.graph.dataTypes[this.IRI]['soa:isRangeOf']);
+      result.push(...this.getTermObj()['soa:isRangeOf']);
     }
 
     return util.applyFilter(util.uniquifyArray(result), filter, this.graph);
-  }
-  /**
-   * Generates a string representation of this DataType (Based on its JSON representation)
-   *
-   * @returns {string} The string representation of this DataType
-   */
-
-
-  toString() {
-    return JSON.stringify(this.toJSON(false, null), null, 2);
   }
   /**
    * Generates an explicit/implicit JSON representation of this DataType.
@@ -17201,15 +16894,7 @@ class DataType {
   toJSON() {
     var implicit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
     var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var result = {};
-    result.id = this.getIRI(true);
-    result.IRI = this.getIRI();
-    result.type = this.getTermType();
-    result.vocabulary = this.getVocabulary();
-    result.source = this.getSource();
-    result.supersededBy = this.isSupersededBy();
-    result.name = this.getName();
-    result.description = this.getDescription();
+    var result = super.toJSON();
     result.superDataTypes = this.getSuperDataTypes(implicit, filter);
     result.subDataTypes = this.getSubDataTypes(implicit, filter);
     result.rangeOf = this.isRangeOf(implicit, filter);
@@ -17220,13 +16905,15 @@ class DataType {
 
 module.exports = DataType;
 
-},{"./utilities":79}],73:[function(_dereq_,module,exports){
+},{"./Term":79,"./utilities":80}],73:[function(require,module,exports){
 "use strict";
 
 // the functions for a enumeration Object
-var util = _dereq_('./utilities');
+var util = require('./utilities');
 
-class Enumeration {
+var Class = require('./Class');
+
+class Enumeration extends Class {
   /**
    * An Enumeration represents a schema:Enumeration, which is also a sub-type of an rdfs:Class. It is identified by its IRI
    *
@@ -17235,25 +16922,7 @@ class Enumeration {
    * @param {Graph} graph - The underlying data graph to enable the methods of this Enumeration
    */
   constructor(IRI, graph) {
-    this.IRI = IRI;
-    this.graph = graph;
-  }
-  /**
-   * Retrieves the IRI (@id) of this Enumeration in compact/absolute form
-   *
-   * @param {boolean} compactForm - (default = false), if true -> return compact IRI -> "schema:DayOfWeek", if false -> return absolute IRI -> "http://schema.org/DayOfWeek"
-   * @returns {string} The IRI (@id) of this Enumeration
-   */
-
-
-  getIRI() {
-    var compactForm = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
-    if (compactForm) {
-      return this.IRI;
-    }
-
-    return util.toAbsoluteIRI(this.IRI, this.graph.context);
+    super(IRI, graph);
   }
   /**
    * Retrieves the term type (@type) of this Enumeration (is always "schema:Enumeration")
@@ -17266,90 +16935,14 @@ class Enumeration {
     return 'schema:Enumeration';
   }
   /**
-   * Retrieves the original vocabulary (schema:isPartOf) of this Enumeration
+   * Retrieves the term object of this Enumeration
    *
-   * @returns {string|null} The vocabulary IRI given by the "schema:isPartOf" of this Enumeration
+   * @returns {string} The term object of this Enumeration
    */
 
 
-  getVocabulary() {
-    var enumObj = this.graph.enumerations[this.IRI];
-
-    if (!util.isNil(enumObj['schema:isPartOf'])) {
-      return enumObj['schema:isPartOf'];
-    }
-
-    return null;
-  }
-  /**
-   * Retrieves the source (dc:source) of this Enumeration
-   *
-   * @returns {string|null} The source IRI given by the "dc:source" of this Enumeration (null if none)
-   */
-
-
-  getSource() {
-    var enumObj = this.graph.enumerations[this.IRI];
-
-    if (!util.isNil(enumObj['dc:source'])) {
-      return enumObj['dc:source'];
-    } else if (!util.isNil(enumObj['schema:source'])) {
-      return enumObj['schema:source'];
-    }
-
-    return null;
-  }
-  /**
-   * Retrieves the Enumeration superseding (schema:supersededBy) this Enumeration
-   *
-   * @returns {string|null} The Enumeration superseding this Enumeration (null if none)
-   */
-
-
-  isSupersededBy() {
-    var enumObj = this.graph.enumerations[this.IRI];
-
-    if (util.isString(enumObj['schema:supersededBy'])) {
-      return enumObj['schema:supersededBy'];
-    }
-
-    return null;
-  }
-  /**
-   * Retrieves the name (rdfs:label) of this Enumeration in a wished language (optional)
-   *
-   * @param {string} language - (default = "en") the wished language for the name
-   * @returns {string|null} The name of this Enumeration (null if not given for specified language)
-   */
-
-
-  getName() {
-    var language = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'en';
-    var nameObj = this.graph.enumerations[this.IRI]['rdfs:label'];
-
-    if (util.isNil(nameObj) || util.isNil(nameObj[language])) {
-      return null;
-    }
-
-    return nameObj[language];
-  }
-  /**
-   * Retrieves the description (rdfs:comment) of this Enumeration in a wished language (optional)
-   *
-   * @param {string} language - (default = "en") the wished language for the description
-   * @returns {string|null} The description of this Enumeration (null if not given for specified language)
-   */
-
-
-  getDescription() {
-    var language = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'en';
-    var descriptionObj = this.graph.enumerations[this.IRI]['rdfs:comment'];
-
-    if (util.isNil(descriptionObj) || util.isNil(descriptionObj[language])) {
-      return null;
-    }
-
-    return descriptionObj[language];
+  getTermObj() {
+    return this.graph.enumerations[this.IRI];
   }
   /**
    * Retrieves the enumeration members (soa:hasEnumerationMember) of this Enumeration
@@ -17364,7 +16957,7 @@ class Enumeration {
     var implicit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
     var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
     var result = [];
-    result.push(...this.graph.enumerations[this.IRI]['soa:hasEnumerationMember']);
+    result.push(...this.getTermObj()['soa:hasEnumerationMember']);
 
     if (implicit) {
       var subClasses = this.getSubClasses(true, null);
@@ -17381,105 +16974,6 @@ class Enumeration {
     return util.applyFilter(util.uniquifyArray(result), filter, this.graph);
   }
   /**
-   * Retrieves the explicit/implicit properties (soa:hasProperty) of this Enumeration
-   *
-   * @param {boolean} implicit - (default = true) retrieves also implicit properties (inheritance from super-classes)
-   * @param {object|null} filter - (default = null) an optional filter for the properties
-   * @returns {string[]} The properties of this Enumeration
-   */
-
-
-  getProperties() {
-    var implicit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-    var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var enumObj = this.graph.enumerations[this.IRI];
-    var result = [];
-    result.push(...enumObj['soa:hasProperty']);
-
-    if (implicit) {
-      // add properties from super-classes
-      result.push(...this.graph.reasoner.inferPropertiesFromSuperClasses(enumObj['rdfs:subClassOf']));
-    }
-
-    return util.applyFilter(util.uniquifyArray(result), filter, this.graph);
-  }
-  /**
-   * Retrieves the explicit/implicit super-classes (rdfs:subClassOf) of this Enumeration
-   *
-   * @param {boolean} implicit - (default = true) retrieves also implicit super-classes (recursive from super-classes)
-   * @param {object|null} filter - (default = null) an optional filter for the super-classes
-   * @returns {string[]} The super-classes of this Enumeration
-   */
-
-
-  getSuperClasses() {
-    var implicit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-    var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var result = [];
-
-    if (implicit) {
-      result.push(...this.graph.reasoner.inferSuperClasses(this.IRI));
-    } else {
-      result.push(...this.graph.enumerations[this.IRI]['rdfs:subClassOf']);
-    }
-
-    return util.applyFilter(util.uniquifyArray(result), filter, this.graph);
-  }
-  /**
-   * Retrieves the explicit/implicit sub-classes (soa:superClassOf) of this Enumeration
-   *
-   * @param {boolean} implicit - (default = true) retrieves also implicit sub-classes (recursive from sub-classes)
-   * @param {object|null} filter - (default = null) an optional filter for the sub-classes
-   * @returns {string[]} The sub-classes of this Enumeration
-   */
-
-
-  getSubClasses() {
-    var implicit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-    var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var result = [];
-
-    if (implicit) {
-      result.push(...this.graph.reasoner.inferSubClasses(this.IRI));
-    } else {
-      result.push(...this.graph.enumerations[this.IRI]['soa:superClassOf']);
-    }
-
-    return util.applyFilter(util.uniquifyArray(result), filter, this.graph);
-  }
-  /**
-   * Retrieves the properties that have this Enumeration as a range
-   *
-   * @param {boolean} implicit - (default = true) includes also implicit data
-   * @param {object|null} filter - (default = null) an optional filter for the generated data
-   * @returns {Array} The properties that have this Enumeration as a range
-   */
-
-
-  isRangeOf() {
-    var implicit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-    var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var result = [];
-
-    if (implicit) {
-      result.push(...this.graph.reasoner.inferRangeOf(this.IRI));
-    } else {
-      result.push(...this.graph.enumerations[this.IRI]['soa:isRangeOf']);
-    }
-
-    return util.applyFilter(util.uniquifyArray(result), filter, this.graph);
-  }
-  /**
-   * Generates a string representation of this Enumeration (Based on its JSON representation)
-   *
-   * @returns {string} The string representation of this Enumeration
-   */
-
-
-  toString() {
-    return JSON.stringify(this.toJSON(false, null), null, 2);
-  }
-  /**
    * Generates an explicit/implicit JSON representation of this Enumeration
    *
    * @param {boolean} implicit - (default = true) includes also implicit data
@@ -17491,20 +16985,8 @@ class Enumeration {
   toJSON() {
     var implicit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
     var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var result = {};
-    result.id = this.getIRI(true);
-    result.IRI = this.getIRI();
-    result.type = this.getTermType();
-    result.vocabulary = this.getVocabulary();
-    result.source = this.getSource();
-    result.supersededBy = this.isSupersededBy();
-    result.name = this.getName();
-    result.description = this.getDescription();
+    var result = super.toJSON(implicit, filter);
     result.enumerationMembers = this.getEnumerationMembers(implicit, filter);
-    result.superClasses = this.getSuperClasses(implicit, filter);
-    result.subClasses = this.getSubClasses(implicit, filter);
-    result.properties = this.getProperties(implicit, filter);
-    result.rangeOf = this.isRangeOf(implicit, filter);
     return result;
   }
 
@@ -17512,13 +16994,15 @@ class Enumeration {
 
 module.exports = Enumeration;
 
-},{"./utilities":79}],74:[function(_dereq_,module,exports){
+},{"./Class":71,"./utilities":80}],74:[function(require,module,exports){
 "use strict";
 
 // the functions for a enumeration member Object
-var util = _dereq_('./utilities');
+var util = require('./utilities');
 
-class EnumerationMember {
+var Term = require('./Term');
+
+class EnumerationMember extends Term {
   /**
    * An EnumerationMember represents a possible value for a schema:Enumeration. It is identified by its IRI
    *
@@ -17527,25 +17011,7 @@ class EnumerationMember {
    * @param {Graph} graph - The underlying data graph to enable the methods of this EnumerationMember
    */
   constructor(IRI, graph) {
-    this.IRI = IRI;
-    this.graph = graph;
-  }
-  /**
-   * Retrieves the IRI (@id) of this EnumerationMember in compact/absolute form
-   *
-   * @param {boolean} compactForm - (default = false), if true -> return compact IRI -> "schema:Friday", if false -> return absolute IRI -> "http://schema.org/Friday"
-   * @returns {string} The IRI (@id) of this EnumerationMember
-   */
-
-
-  getIRI() {
-    var compactForm = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
-    if (compactForm) {
-      return this.IRI;
-    }
-
-    return util.toAbsoluteIRI(this.IRI, this.graph.context);
+    super(IRI, graph);
   }
   /**
    * Retrieves the term type (@type) of this EnumerationMember (is always "schema:Enumeration")
@@ -17558,90 +17024,14 @@ class EnumerationMember {
     return 'soa:EnumerationMember';
   }
   /**
-   * Retrieves the original vocabulary (schema:isPartOf) of this EnumerationMember
+   * Retrieves the term object of this Enumeration Member
    *
-   * @returns {string|null} The vocabulary IRI given by the "schema:isPartOf" of this EnumerationMember
+   * @returns {string} The term object of this Enumeration Member
    */
 
 
-  getVocabulary() {
-    var enumObj = this.graph.enumerationMembers[this.IRI];
-
-    if (!util.isNil(enumObj['schema:isPartOf'])) {
-      return enumObj['schema:isPartOf'];
-    }
-
-    return null;
-  }
-  /**
-   * Retrieves the source (dc:source) of this EnumerationMember
-   *
-   * @returns {string|Array|null} The source IRI given by the "dc:source" of this EnumerationMember (null if none)
-   */
-
-
-  getSource() {
-    var enumObj = this.graph.enumerationMembers[this.IRI];
-
-    if (!util.isNil(enumObj['dc:source'])) {
-      return enumObj['dc:source'];
-    } else if (!util.isNil(enumObj['schema:source'])) {
-      return enumObj['schema:source'];
-    }
-
-    return null;
-  }
-  /**
-   * Retrieves the EnumerationMember superseding (schema:supersededBy) this EnumerationMember
-   *
-   * @returns {string|null} The EnumerationMember superseding this EnumerationMember (null if none)
-   */
-
-
-  isSupersededBy() {
-    var enumObj = this.graph.enumerationMembers[this.IRI];
-
-    if (util.isString(enumObj['schema:supersededBy'])) {
-      return enumObj['schema:supersededBy'];
-    }
-
-    return null;
-  }
-  /**
-   * Retrieves the name (rdfs:label) of this EnumerationMember in a wished language (optional)
-   *
-   * @param {string} language - (default = "en") the wished language for the name
-   * @returns {string|null} The name of this EnumerationMember (null if not given for specified language)
-   */
-
-
-  getName() {
-    var language = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'en';
-    var nameObj = this.graph.enumerationMembers[this.IRI]['rdfs:label'];
-
-    if (util.isNil(nameObj) || util.isNil(nameObj[language])) {
-      return null;
-    }
-
-    return nameObj[language];
-  }
-  /**
-   * Retrieves the description (rdfs:comment) of this EnumerationMember in a wished language (optional)
-   *
-   * @param {string} language - (default = "en") the wished language for the description
-   * @returns {string|null} The description of this EnumerationMember (null if not given for specified language)
-   */
-
-
-  getDescription() {
-    var language = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'en';
-    var descriptionObj = this.graph.enumerationMembers[this.IRI]['rdfs:comment'];
-
-    if (util.isNil(descriptionObj) || util.isNil(descriptionObj[language])) {
-      return null;
-    }
-
-    return descriptionObj[language];
+  getTermObj() {
+    return this.graph.enumerationMembers[this.IRI];
   }
   /**
    * Retrieves the domain enumerations (soa:enumerationDomainIncludes) of this EnumerationMember
@@ -17655,7 +17045,7 @@ class EnumerationMember {
   getDomainEnumerations() {
     var implicit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
     var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var enumObj = this.graph.enumerationMembers[this.IRI];
+    var enumObj = this.getTermObj();
     var result = [];
     result.push(...enumObj['soa:enumerationDomainIncludes']);
 
@@ -17674,16 +17064,6 @@ class EnumerationMember {
     return util.applyFilter(util.uniquifyArray(result), filter, this.graph);
   }
   /**
-   * Generates a string representation of this EnumerationMember (Based on its JSON representation)
-   *
-   * @returns {string} The string representation of this EnumerationMember
-   */
-
-
-  toString() {
-    return JSON.stringify(this.toJSON(false, null), null, 2);
-  }
-  /**
    * Generates a JSON representation of this EnumerationMember
    *
    * @param {boolean} implicit - (default = false) includes also implicit data
@@ -17695,15 +17075,7 @@ class EnumerationMember {
   toJSON() {
     var implicit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
     var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var result = {};
-    result['id'] = this.getIRI(true);
-    result['IRI'] = this.getIRI();
-    result['type'] = this.getTermType();
-    result['vocabulary'] = this.getVocabulary();
-    result['source'] = this.getSource();
-    result['supersededBy'] = this.isSupersededBy();
-    result['name'] = this.getName();
-    result['description'] = this.getDescription();
+    var result = super.toJSON();
     result['domainEnumerations'] = this.getDomainEnumerations(implicit, filter);
     return result;
   }
@@ -17712,26 +17084,26 @@ class EnumerationMember {
 
 module.exports = EnumerationMember;
 
-},{"./utilities":79}],75:[function(_dereq_,module,exports){
+},{"./Term":79,"./utilities":80}],75:[function(require,module,exports){
 "use strict";
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
-var util = _dereq_('./utilities');
+var util = require('./utilities');
 
-var Class = _dereq_('./Class');
+var Class = require('./Class');
 
-var Property = _dereq_('./Property');
+var Property = require('./Property');
 
-var Enumeration = _dereq_('./Enumeration');
+var Enumeration = require('./Enumeration');
 
-var EnumerationMember = _dereq_('./EnumerationMember');
+var EnumerationMember = require('./EnumerationMember');
 
-var DataType = _dereq_('./DataType');
+var DataType = require('./DataType');
 
-var ReasoningEngine = _dereq_('./ReasoningEngine');
+var ReasoningEngine = require('./ReasoningEngine');
 
 class Graph {
   /**
@@ -18396,7 +17768,7 @@ class Graph {
    *
    * @param {string} id - The id of the wished term, can be an IRI (absolute or compact) or a label
    * @param {object} filter - (optional) The filter settings to be applied on the result
-   * @returns {Class|Property|Enumeration|EnumerationMember|DataType} the JS-Class for the given IRI
+   * @returns {Term} the JS-Class for the given IRI
    */
 
 
@@ -18714,13 +18086,15 @@ class Graph {
 
 module.exports = Graph;
 
-},{"./Class":71,"./DataType":72,"./Enumeration":73,"./EnumerationMember":74,"./Property":76,"./ReasoningEngine":77,"./utilities":79}],76:[function(_dereq_,module,exports){
+},{"./Class":71,"./DataType":72,"./Enumeration":73,"./EnumerationMember":74,"./Property":76,"./ReasoningEngine":77,"./utilities":80}],76:[function(require,module,exports){
 "use strict";
 
 // the functions for a property Object
-var util = _dereq_('./utilities');
+var util = require('./utilities');
 
-class Property {
+var Term = require('./Term');
+
+class Property extends Term {
   /**
    * A Property represents an rdf:Property. It is identified by its IRI
    *
@@ -18729,25 +18103,7 @@ class Property {
    * @param {Graph} graph - The underlying data graph to enable the methods of this Property
    */
   constructor(IRI, graph) {
-    this.IRI = IRI;
-    this.graph = graph;
-  }
-  /**
-   * Retrieves the IRI (@id) of this Property in compact/absolute form
-   *
-   * @param {boolean} compactForm - (default = false), if true -> return compact IRI -> "schema:address", if false -> return absolute IRI -> "http://schema.org/address"
-   * @returns {string} The IRI (@id) of this Property
-   */
-
-
-  getIRI() {
-    var compactForm = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
-    if (compactForm) {
-      return this.IRI;
-    }
-
-    return util.toAbsoluteIRI(this.IRI, this.graph.context);
+    super(IRI, graph);
   }
   /**
    * Retrieves the term type of this Property (is always "rdf:Property")
@@ -18760,90 +18116,14 @@ class Property {
     return 'rdf:Property';
   }
   /**
-   * Retrieves the original vocabulary (schema:isPartOf) of this Property
+   * Retrieves the term object of this Property
    *
-   * @returns {string|null} The vocabulary IRI given by the "schema:isPartOf" of this Property
+   * @returns {string} The term object of this Property
    */
 
 
-  getVocabulary() {
-    var propertyObj = this.graph.properties[this.IRI];
-
-    if (!util.isNil(propertyObj['schema:isPartOf'])) {
-      return propertyObj['schema:isPartOf'];
-    }
-
-    return null;
-  }
-  /**
-   * Retrieves the source (dc:source) of this Property
-   *
-   * @returns {string|null} The source IRI given by the "dc:source" of this Property (null if none)
-   */
-
-
-  getSource() {
-    var propertyObj = this.graph.properties[this.IRI];
-
-    if (!util.isNil(propertyObj['dc:source'])) {
-      return propertyObj['dc:source'];
-    } else if (!util.isNil(propertyObj['schema:source'])) {
-      return propertyObj['schema:source'];
-    }
-
-    return null;
-  }
-  /**
-   * Retrieves the Property superseding (schema:supersededBy) this Property
-   *
-   * @returns {string|null} The Property superseding this Property (null if none)
-   */
-
-
-  isSupersededBy() {
-    var propertyObj = this.graph.properties[this.IRI];
-
-    if (util.isString(propertyObj['schema:supersededBy'])) {
-      return propertyObj['schema:supersededBy'];
-    }
-
-    return null;
-  }
-  /**
-   * Retrieves the name (rdfs:label) of this Property in a wished language (optional)
-   *
-   * @param {string} language - (default = "en") the wished language for the name
-   * @returns {string|null} The name of this Property (null if not given for specified language)
-   */
-
-
-  getName() {
-    var language = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'en';
-    var nameObj = this.graph.properties[this.IRI]['rdfs:label'];
-
-    if (util.isNil(nameObj) || util.isNil(nameObj[language])) {
-      return null;
-    }
-
-    return nameObj[language];
-  }
-  /**
-   * Retrieves the description (rdfs:comment) of this Property in a wished language (optional)
-   *
-   * @param {string} language - (default = "en") the wished language for the description
-   * @returns {string|null} The description of this Property (null if not given for specified language)
-   */
-
-
-  getDescription() {
-    var language = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'en';
-    var descriptionObj = this.graph.properties[this.IRI]['rdfs:comment'];
-
-    if (util.isNil(descriptionObj) || util.isNil(descriptionObj[language])) {
-      return null;
-    }
-
-    return descriptionObj[language];
+  getTermObj() {
+    return this.graph.properties[this.IRI];
   }
   /**
    * Retrieves the explicit/implicit ranges (schema:rangeIncludes) of this Property
@@ -18857,7 +18137,7 @@ class Property {
   getRanges() {
     var implicit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
     var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var propertyObj = this.graph.properties[this.IRI];
+    var propertyObj = this.getTermObj();
     var result = [];
     result.push(...propertyObj['schema:rangeIncludes']);
 
@@ -18886,7 +18166,7 @@ class Property {
   getDomains() {
     var implicit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
     var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var propertyObj = this.graph.properties[this.IRI];
+    var propertyObj = this.getTermObj();
     var result = [];
     result.push(...propertyObj['schema:domainIncludes']);
 
@@ -18915,7 +18195,7 @@ class Property {
   getSuperProperties() {
     var implicit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
     var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var propertyObj = this.graph.properties[this.IRI];
+    var propertyObj = this.getTermObj();
     var result = [];
 
     if (implicit) {
@@ -18938,7 +18218,7 @@ class Property {
   getSubProperties() {
     var implicit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
     var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var propertyObj = this.graph.properties[this.IRI];
+    var propertyObj = this.getTermObj();
     var result = [];
 
     if (implicit) {
@@ -18957,18 +18237,8 @@ class Property {
 
 
   getInverseOf() {
-    var propertyObj = this.graph.properties[this.IRI];
+    var propertyObj = this.getTermObj();
     return propertyObj['schema:inverseOf'];
-  }
-  /**
-   * Generates a string representation of this Property (Based on its JSON representation)
-   *
-   * @returns {string} The string representation of this Property
-   */
-
-
-  toString() {
-    return JSON.stringify(this.toJSON(false, null), null, 2);
   }
   /**
    * Generates an explicit/implicit JSON representation of this Property.
@@ -18982,15 +18252,7 @@ class Property {
   toJSON() {
     var implicit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
     var filter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var result = {};
-    result['id'] = this.getIRI(true);
-    result['IRI'] = this.getIRI();
-    result['type'] = this.getTermType();
-    result['vocabulary'] = this.getVocabulary();
-    result['source'] = this.getSource();
-    result['supersededBy'] = this.isSupersededBy();
-    result['name'] = this.getName();
-    result['description'] = this.getDescription();
+    var result = super.toJSON();
     result['ranges'] = this.getRanges(implicit, filter);
     result['domains'] = this.getDomains(implicit, filter);
     result['superProperties'] = this.getSuperProperties(implicit, filter);
@@ -19003,10 +18265,10 @@ class Property {
 
 module.exports = Property;
 
-},{"./utilities":79}],77:[function(_dereq_,module,exports){
+},{"./Term":79,"./utilities":80}],77:[function(require,module,exports){
 "use strict";
 
-var util = _dereq_('./utilities');
+var util = require('./utilities');
 
 class ReasoningEngine {
   /**
@@ -19312,18 +18574,18 @@ class ReasoningEngine {
 
 module.exports = ReasoningEngine;
 
-},{"./utilities":79}],78:[function(_dereq_,module,exports){
+},{"./utilities":80}],78:[function(require,module,exports){
 "use strict";
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
-var Graph = _dereq_('./Graph');
+var Graph = require('./Graph');
 
-var util = _dereq_('./utilities');
+var util = require('./utilities');
 
-var axios = _dereq_('axios');
+var axios = require('axios');
 
 var URI_SEMANTIFY_GITHUB = 'https://raw.githubusercontent.com/semantifyit/schemaorg/main/';
 var URI_SEMANTIFY_RELEASES = URI_SEMANTIFY_GITHUB + 'data/releases/';
@@ -19417,7 +18679,7 @@ class SDOAdapter {
    *
    * @param {string} id - The id of the wished term, can be an IRI (absolute or compact) or a label
    * @param {object} filter - (optional) The filter settings to be applied on the result
-   * @returns {Class|Property|Enumeration|EnumerationMember|DataType} the JS-Class for the given IRI
+   * @returns {Term} the JS-Class for the given IRI
    */
 
 
@@ -19923,14 +19185,191 @@ class SDOAdapter {
 
 module.exports = SDOAdapter;
 
-},{"./Graph":75,"./utilities":79,"axios":1}],79:[function(_dereq_,module,exports){
+},{"./Graph":75,"./utilities":80,"axios":1}],79:[function(require,module,exports){
+"use strict";
+
+// the functions for a term Object
+var util = require('./utilities');
+
+class Term {
+  /**
+   * A vocabulary term. It is identified by its IRI.
+   *
+   * @class
+   * @param {string} IRI - The compacted IRI of this Term
+   * @param {Graph} graph - The underlying data graph to enable the methods of this Term
+   */
+  constructor(IRI, graph) {
+    this.IRI = IRI;
+    this.graph = graph;
+  }
+  /**
+   * Retrieves the IRI (@id) of this Term in compact/absolute form
+   *
+   * @param {boolean} compactForm - (default = false), if true -> return compact IRI -> "schema:Friday", if false -> return absolute IRI -> "http://schema.org/Friday"
+   * @returns {string} The IRI (@id) of this Term
+   */
+
+
+  getIRI() {
+    var compactForm = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+    if (compactForm) {
+      return this.IRI;
+    }
+
+    return util.toAbsoluteIRI(this.IRI, this.graph.context);
+  }
+  /**
+   * Retrieves the term type (@type) of this Term
+   *
+   * @abstract
+   * @returns {string} The term type of this Term
+   */
+
+
+  getTermType() {
+    throw new Error('must be implemented by subclass!');
+  }
+  /**
+   * Retrieves the term object of this Term
+   *
+   * @abstract
+   * @returns {string} The term object of this Term
+   */
+
+
+  getTermObj() {
+    throw new Error('must be implemented by subclass!');
+  }
+  /**
+   * Retrieves the original vocabulary (schema:isPartOf) of this Term
+   *
+   * @returns {string|null} The vocabulary IRI given by the "schema:isPartOf" of this Term
+   */
+
+
+  getVocabulary() {
+    var termObj = this.getTermObj();
+
+    if (!util.isNil(termObj['schema:isPartOf'])) {
+      return termObj['schema:isPartOf'];
+    }
+
+    return null;
+  }
+  /**
+   * Retrieves the source (dc:source) of this Term
+   *
+   * @returns {string|Array|null} The source IRI given by the "dc:source" of this Term (null if none)
+   */
+
+
+  getSource() {
+    var termObj = this.getTermObj();
+
+    if (!util.isNil(termObj['dc:source'])) {
+      return termObj['dc:source'];
+    } else if (!util.isNil(termObj['schema:source'])) {
+      return termObj['schema:source'];
+    }
+
+    return null;
+  }
+  /**
+   * Retrieves the Term superseding (schema:supersededBy) this Term
+   *
+   * @returns {string|null} The Term superseding this Term (null if none)
+   */
+
+
+  isSupersededBy() {
+    var termObj = this.getTermObj();
+
+    if (util.isString(termObj['schema:supersededBy'])) {
+      return termObj['schema:supersededBy'];
+    }
+
+    return null;
+  }
+  /**
+   * Retrieves the name (rdfs:label) of this Term in a wished language (optional)
+   *
+   * @param {string} language - (default = "en") the wished language for the name
+   * @returns {string|null} The name of this Term (null if not given for specified language)
+   */
+
+
+  getName() {
+    var language = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'en';
+    var termObj = this.getTermObj()['rdfs:label'];
+
+    if (util.isNil(termObj) || util.isNil(termObj[language])) {
+      return null;
+    }
+
+    return termObj[language];
+  }
+  /**
+   * Retrieves the description (rdfs:comment) of this Term in a wished language (optional)
+   *
+   * @param {string} language - (default = "en") the wished language for the description
+   * @returns {string|null} The description of this Term (null if not given for specified language)
+   */
+
+
+  getDescription() {
+    var language = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'en';
+    var termObj = this.getTermObj()['rdfs:comment'];
+
+    if (util.isNil(termObj) || util.isNil(termObj[language])) {
+      return null;
+    }
+
+    return termObj[language];
+  }
+  /**
+   * Generates a string representation of this Term (Based on its JSON representation)
+   *
+   * @returns {string} The string representation of this Term
+   */
+
+
+  toString() {
+    return JSON.stringify(this.toJSON(false, null), null, 2);
+  }
+  /**
+   * Generates a JSON representation of this Term
+   *
+   * @returns {object} The JSON representation of this Term
+   */
+
+
+  toJSON() {
+    var result = {};
+    result['id'] = this.getIRI(true);
+    result['IRI'] = this.getIRI();
+    result['type'] = this.getTermType();
+    result['vocabulary'] = this.getVocabulary();
+    result['source'] = this.getSource();
+    result['supersededBy'] = this.isSupersededBy();
+    result['name'] = this.getName();
+    result['description'] = this.getDescription();
+    return result;
+  }
+
+}
+
+module.exports = Term;
+
+},{"./utilities":80}],80:[function(require,module,exports){
 "use strict";
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
-var jsonld = _dereq_('jsonld');
+var jsonld = require('jsonld');
 /**
  * Applies a filter to the IRIs in the given Array
  *
@@ -20386,6 +19825,10 @@ function curateVocabNode(vocabNode, vocabularies) {
     vocabNode['schema:rangeIncludes'] = [];
   }
 
+  if (vocabNode['schema:inverseOf'] === undefined && vocabNode['@type'] === 'rdf:Property') {
+    vocabNode['schema:inverseOf'] = null;
+  }
+
   if (!isString(vocabNode['schema:isPartOf'])) {
     var vocabKeys = Object.keys(vocabularies);
     var vocab;
@@ -20538,9 +19981,9 @@ module.exports = {
   getFileNameForSchemaOrgVersion
 };
 
-},{"jsonld":46}],80:[function(_dereq_,module,exports){
+},{"jsonld":46}],81:[function(require,module,exports){
 (function (setImmediate,clearImmediate){
-var nextTick = _dereq_('process/browser.js').nextTick;
+var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
 var slice = Array.prototype.slice;
 var immediateIds = {};
@@ -20616,8 +20059,8 @@ exports.setImmediate = typeof setImmediate === "function" ? setImmediate : funct
 exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
   delete immediateIds[id];
 };
-}).call(this,_dereq_("timers").setImmediate,_dereq_("timers").clearImmediate)
-},{"process/browser.js":59,"timers":80}],81:[function(_dereq_,module,exports){
+}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
+},{"process/browser.js":59,"timers":81}],82:[function(require,module,exports){
 'use strict'
 module.exports = function (Yallist) {
   Yallist.prototype[Symbol.iterator] = function* () {
@@ -20627,7 +20070,7 @@ module.exports = function (Yallist) {
   }
 }
 
-},{}],82:[function(_dereq_,module,exports){
+},{}],83:[function(require,module,exports){
 'use strict'
 module.exports = Yallist
 
@@ -21052,23 +20495,39 @@ function Node (value, prev, next, list) {
 
 try {
   // add if support for Symbol.iterator is present
-  _dereq_('./iterator.js')(Yallist)
+  require('./iterator.js')(Yallist)
 } catch (er) {}
 
-},{"./iterator.js":81}],83:[function(_dereq_,module,exports){
+},{"./iterator.js":82}],84:[function(require,module,exports){
 "use strict";
 
+/** This class is responsible to render a schema.org based Class in the HTML element of the browser. */
 class ClassRenderer {
+  /**
+   * Create a ClassRenderer object.
+   *
+   * @param {SDOVocabBrowser} browser - the underlying vocab browser to enable access to its data members.
+   */
   constructor(browser) {
     this.browser = browser;
     this.util = this.browser.util;
   }
+  /**
+   * Render the Class.
+   */
+
 
   render() {
-    var superTypes = this.util.getTypeStructures(this.browser.term);
-    var mainContent = this.util.createHeader(superTypes, 'rdfs:subClassOf') + this.createProperties();
+    var typeStructure = this.util.getTypeStructure(this.browser.term);
+    var mainContent = this.util.createHeader(typeStructure, 'rdfs:subClassOf') + this.createProperties();
     this.browser.elem.innerHTML = this.util.createMainContent('rdfs:Class', mainContent);
   }
+  /**
+   * Create a HTML table for the properties of the Class.
+   *
+   * @returns {string} - The resulting HTML.
+   */
+
 
   createProperties() {
     var html = '<table class="definition-table">' + this.createPropertiesHeader();
@@ -21087,20 +20546,38 @@ class ClassRenderer {
     html += '</table>' + '<br>' + this.createSpecificTypes();
     return html;
   }
+  /**
+   * Create a HTML table header for the properties of the Class.
+   *
+   * @returns {string} - The resulting HTML.
+   */
+
 
   createPropertiesHeader() {
     return '' + '<thead>' + '<tr>' + '<th>Property</th>' + '<th>Expected Type</th>' + '<th>Description</th>' + '</tr>' + '</thead>';
   }
+  /**
+   * Create a HTML table body for a property of the Class.
+   *
+   * @returns {string} - The resulting HTML.
+   */
+
 
   createPropertyHeader(className) {
     return '' + '<tbody>' + '<tr class="supertype">' + '<th class="supertype-name" colspan="3">' + 'Properties from ' + this.util.createLink(className.getIRI(true)) + '</th>' + '</tr>' + '</tbody>';
   }
+  /**
+   * Create HTML for the more specific types of the Class.
+   *
+   * @returns {string} - The resulting HTML.
+   */
+
 
   createSpecificTypes() {
     var subClasses = this.browser.term.getSubClasses(false);
 
     if (subClasses.length !== 0) {
-      return '' + '<browser>' + '<a id="subtypes" title="Link: #subtypes" href="#subtypes" class="clickableAnchor">' + 'More specific Types' + '</a>' + '</browser>' + '<ul>' + subClasses.map(s => {
+      return '' + '<b>' + '<a id="subtypes" title="Link: #subtypes" href="#subtypes" class="clickableAnchor">' + 'More specific Types' + '</a>' + '</b>' + '<ul>' + subClasses.map(s => {
         return '<li>' + this.util.createLink(s) + '</li>';
       }) + '</ul>' + '<br>';
     } else {
@@ -21112,18 +20589,29 @@ class ClassRenderer {
 
 module.exports = ClassRenderer;
 
-},{}],84:[function(_dereq_,module,exports){
+},{}],85:[function(require,module,exports){
 "use strict";
 
+/** This class is responsible to render a schema.org based DataType in the HTML element of the browser. */
 class DataTypeRenderer {
+  /**
+   * Create a DataTypeRenderer object.
+   *
+   * @param {SDOVocabBrowser} browser - the underlying vocab browser to enable access to its data members.
+   */
   constructor(browser) {
     this.browser = browser;
     this.util = this.browser.util;
   }
+  /**
+   * Render the DataType.
+   */
+
 
   render() {
     var breadCrumbStart = this.util.createFullLink('schema:DataType', null, 'rdfs:subClassOf') + ' > ';
-    var mainContent = '' + this.util.createHeader(this.util.getTypeStructures(this.browser.term, 'getSuperDataTypes'), '', breadCrumbStart) + this.util.createRangesOf();
+    var typeStructure = this.util.getTypeStructure(this.browser.term, 'getSuperDataTypes');
+    var mainContent = this.util.createHeader(typeStructure, '', breadCrumbStart) + this.util.createRangesOf();
     this.browser.elem.innerHTML = this.util.createMainContent('rdfs:Class', mainContent);
   }
 
@@ -21131,24 +20619,40 @@ class DataTypeRenderer {
 
 module.exports = DataTypeRenderer;
 
-},{}],85:[function(_dereq_,module,exports){
+},{}],86:[function(require,module,exports){
 "use strict";
 
+/** This class is responsible to render a schema.org based EnumerationMember in the HTML element of the browser. */
 class EnumerationMemberRenderer {
+  /**
+   * Create a EnumerationMemberRenderer object.
+   *
+   * @param {SDOVocabBrowser} browser - the underlying vocab browser to enable access to its data members.
+   */
   constructor(browser) {
     this.browser = browser;
     this.util = this.browser.util;
   }
+  /**
+   * Render the EnumerationMember.
+   */
+
 
   render() {
-    var typeStructures = this.browser.term.getDomainEnumerations().flatMap(d => {
-      return this.util.getTypeStructures(this.browser.sdoAdapter.getClass(d));
+    var typeStructure = this.browser.term.getDomainEnumerations().flatMap(d => {
+      return this.util.getTypeStructure(this.browser.sdoAdapter.getClass(d));
     });
     var breadCrumbEnd = ' :: ' + this.util.createLink(this.browser.term.getIRI(true)); // TODO: Can we use @type here?
 
-    var mainContent = this.util.createHeader(typeStructures, '@type', '', breadCrumbEnd) + this.createDomains();
+    var mainContent = this.util.createHeader(typeStructure, '@type', '', breadCrumbEnd) + this.createDomains();
     this.browser.elem.innerHTML = this.util.createMainContent('rdfs:Class', mainContent);
   }
+  /**
+   * Create HTML for the domains of the EnumerationMember.
+   *
+   * @returns {string} The resulting HTML.
+   */
+
 
   createDomains() {
     var domains = this.browser.term.getDomainEnumerations();
@@ -21159,25 +20663,42 @@ class EnumerationMemberRenderer {
 
 module.exports = EnumerationMemberRenderer;
 
-},{}],86:[function(_dereq_,module,exports){
+},{}],87:[function(require,module,exports){
 "use strict";
 
+/** This class is responsible to render a schema.org based Enumeration in the HTML element of the browser. */
 class EnumerationRenderer {
+  /**
+   * Create a EnumerationRenderer object.
+   *
+   * @param {SDOVocabBrowser} browser - the underlying vocab browser to enable access to its data members.
+   */
   constructor(browser) {
     this.browser = browser;
     this.util = this.browser.util;
   }
+  /**
+   * Render the Enumeration.
+   */
+
 
   render() {
-    var mainContent = this.util.createHeader(this.util.getTypeStructures(this.browser.term), 'rdfs:subClassOf') + this.createEnumerationMembers() + this.util.createRangesOf(true);
+    var typeStructure = this.util.getTypeStructure(this.browser.term);
+    var mainContent = this.util.createHeader(typeStructure, 'rdfs:subClassOf') + this.createEnumerationMembers() + this.util.createRangesOf(true);
     this.browser.elem.innerHTML = this.util.createMainContent('rdfs:Class', mainContent);
   }
+  /**
+   * Create HTML for the enumeration members of the Enumeration.
+   *
+   * @returns {string} The resulting HTML.
+   */
+
 
   createEnumerationMembers() {
     var enumMembers = this.browser.term.getEnumerationMembers();
 
     if (enumMembers.length !== 0) {
-      return '' + 'An Enumeration with:<br>' + '<browser>' + '<a id="enumbers" title="Link: #enumbers" href="#enumbers" class="clickableAnchor">' + 'Enumeration members' + '</a>' + '</browser>' + '<ul>' + enumMembers.map(e => {
+      return '' + 'An Enumeration with:<br>' + '<b>' + '<a id="enumbers" title="Link: #enumbers" href="#enumbers" class="clickableAnchor">' + 'Enumeration members' + '</a>' + '</b>' + '<ul>' + enumMembers.map(e => {
         return '<li>' + this.util.createLink(e) + '</li>';
       }).join('') + '</ul>' + '<br>';
     } else {
@@ -21189,33 +20710,70 @@ class EnumerationRenderer {
 
 module.exports = EnumerationRenderer;
 
-},{}],87:[function(_dereq_,module,exports){
+},{}],88:[function(require,module,exports){
 "use strict";
 
+/** This class is responsible to render a semantify.it based List in the HTML element of the browser. */
 class ListRenderer {
+  /**
+   * Create a ListRenderer object.
+   *
+   * @param {SDOVocabBrowser} browser - the underlying vocab browser to enable access to its data members.
+   */
   constructor(browser) {
     this.browser = browser;
     this.util = this.browser.util;
   }
+  /**
+   * Render the List.
+   */
+
 
   render() {
     var mainContent = this.createHeader() + this.createVocabsTable();
     this.browser.elem.innerHTML = this.util.createMainContent('schema:DataSet', mainContent);
   }
+  /**
+   * Create HTML for the header of the List.
+   *
+   * @returns {string} The resulting HTML
+   */
+
 
   createHeader() {
     return '<h1>' + this.browser.list['schema:name'] + '</h1>';
   }
+  /**
+   * Create HTML table for the vocabularies of the List.
+   *
+   * @returns {string} The resulting HTML.
+   */
+
 
   createVocabsTable() {
-    return '' + '<table class="definition-table">' + '<thead>' + '<tr>' + '<th>Name</th>' + '<th>IRI</th>' + '<th>Author</th>' + '<th>Description</th>' + '</tr>' + '</thead>' + '<tbody class="supertype">' + this.createVocabsTbody() + '</tbody>' + '</table>';
+    return this.util.createDefinitionTable(['Name', 'IRI', 'Author', 'Description'], this.createVocabsTbody(), {
+      'class': 'supertype'
+    });
   }
+  /**
+   * Create HTML table bodies for the vocabularies of the List.
+   *
+   * @returns {string} The resulting HTML.
+   */
+
 
   createVocabsTbody() {
     return this.browser.list['schema:hasPart'].map(vocab => {
       return this.util.createTableRow('http://vocab.sti2.at/ds/Vocabulary', vocab['@id'], 'schema:name', this.util.createJSLink('voc', vocab['@id'].split('/').pop(), vocab['schema:name'] || 'No Name'), this.createVocabsSideCols(vocab));
     }).join('');
   }
+  /**
+   * Create HTML side columns for a vocabulary of the List.
+   *
+   * @param {object} vocab - The vocabulary of the List.
+   * @returns {string} The resulting HTML.
+   */
+
 
   createVocabsSideCols(vocab) {
     return '' + '<td property="@id">' + this.util.createExternalLink(vocab['@id']) + '</td>' + '<td property="schema:author">' + (vocab['schema:author'] && vocab['schema:author']['schema:name'] || '') + '</td>' + '<td property="schema:description">' + (vocab['schema:description'] || '') + '</td>';
@@ -21225,27 +20783,49 @@ class ListRenderer {
 
 module.exports = ListRenderer;
 
-},{}],88:[function(_dereq_,module,exports){
+},{}],89:[function(require,module,exports){
 "use strict";
 
+/** This class is responsible to render a schema.org based Property in the HTML element of the browser. */
 class PropertyRenderer {
+  /**
+   * Create a PropertyRenderer object.
+   *
+   * @param {SDOVocabBrowser} browser - the underlying vocab browser to enable access to its data members.
+   */
   constructor(browser) {
     this.browser = browser;
     this.util = this.browser.util;
   }
+  /**
+   * Render the Property.
+   */
+
 
   render() {
     var startBreadcrumbs = this.createStartBreadcrumbs();
-    var superProperties = this.util.getTypeStructures(this.browser.term, 'getSuperProperties');
-    var mainContent = this.util.createHeader(superProperties, 'rdfs:subPropertyOf', startBreadcrumbs) + this.createRanges() + this.createDomainIncludes() + this.createSuperProperties() + this.createSubProperties();
+    var typeStructure = this.util.getTypeStructure(this.browser.term, 'getSuperProperties');
+    var mainContent = this.util.createHeader(typeStructure, 'rdfs:subPropertyOf', startBreadcrumbs) + this.createRanges() + this.createDomainIncludes() + this.createSuperproperties() + this.createSubproperties();
     this.browser.elem.innerHTML = this.util.createMainContent('rdf:Property', mainContent);
   }
+  /**
+   * Create HTML for the initial breadcrumbs of the Property.
+   *
+   * @returns {string} The resulting HTML.
+   */
+
 
   createStartBreadcrumbs() {
     return '' + this.util.createLink('schema:Thing') + " > " + this.util.createLink('schema:Property', {
       'title': 'Defined in section: meta.schema.org'
     }) + " > ";
   }
+  /**
+   * Create HTML for the ranges of the Property.
+   *
+   * @returns {string} The resulting HTML.
+   */
+
 
   createRanges() {
     var ranges = this.browser.term.getRanges(false).map(r => {
@@ -21256,6 +20836,12 @@ class PropertyRenderer {
     }).join('<br>');
     return this.util.createDefinitionTable('Values expected to be one of these types', '<td>' + ranges + '</td>');
   }
+  /**
+   * Create HTML for the domains of the Property.
+   *
+   * @returns {string} The resulting HTML.
+   */
+
 
   createDomainIncludes() {
     var domains = this.browser.term.getDomains(false).map(d => {
@@ -21266,85 +20852,135 @@ class PropertyRenderer {
     }).join('<br>');
     return this.util.createDefinitionTable('Used on these types', '<td>' + domains + '</td>');
   }
+  /**
+   * Create HTML for the superproperties of the Property.
+   *
+   * @returns {string} The resulting HTML.
+   */
 
-  createSuperProperties() {
+
+  createSuperproperties() {
     var superProperties = this.browser.term.getSuperProperties(false);
-    return this.createRelationship(superProperties, 'Super-properties');
+    return this.createRelatedProperties(superProperties, 'Super-properties');
   }
+  /**
+   * Create HTML for related properties (superproperties or subproperties) of the Property.
+   *
+   * @param {string[]} relatedProperties - The related properties of the Property.
+   * @param {string} th - The table header for the related properties.
+   * @returns {string} The resulting HTML.
+   */
 
-  createRelationship(relatedTerms, tableHeader) {
-    if (relatedTerms.length !== 0) {
-      var relatedTermsHTML = relatedTerms.map(s => {
+
+  createRelatedProperties(relatedProperties, th) {
+    if (relatedProperties.length !== 0) {
+      var relatedTermsHTML = relatedProperties.map(s => {
         var title = {
           'title': s + ': \'\'' + (this.browser.sdoAdapter.getProperty(s).getDescription() || '') + '\'\''
         };
         return this.util.createCodeLink(s, null, title);
       }).join('<br>');
-      return this.util.createDefinitionTable(tableHeader, '<td>' + relatedTermsHTML + '</td>');
+      return this.util.createDefinitionTable(th, '<td>' + relatedTermsHTML + '</td>');
     } else {
       return '';
     }
   }
+  /**
+   * Create HTML for the subproperties of the Property.
+   *
+   * @returns {string} The resulting HTML.
+   */
 
-  createSubProperties() {
+
+  createSubproperties() {
     var subProperties = this.browser.term.getSubProperties(false);
-    return this.createRelationship(subProperties, 'Sub-properties');
+    return this.createRelatedProperties(subProperties, 'Sub-properties');
   }
 
 }
 
 module.exports = PropertyRenderer;
 
-},{}],89:[function(_dereq_,module,exports){
+},{}],90:[function(require,module,exports){
 "use strict";
+
+var _schemaOrgAdapter = _interopRequireDefault(require("schema-org-adapter"));
+
+var _Util = _interopRequireDefault(require("./Util"));
+
+var _ListRenderer = _interopRequireDefault(require("./ListRenderer"));
+
+var _VocabRenderer = _interopRequireDefault(require("./VocabRenderer"));
+
+var _ClassRenderer = _interopRequireDefault(require("./ClassRenderer"));
+
+var _PropertyRenderer = _interopRequireDefault(require("./PropertyRenderer"));
+
+var _EnumerationRenderer = _interopRequireDefault(require("./EnumerationRenderer"));
+
+var _EnumerationMemberRenderer = _interopRequireDefault(require("./EnumerationMemberRenderer"));
+
+var _DataTypeRenderer = _interopRequireDefault(require("./DataTypeRenderer"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
-var SDOAdapter = _dereq_('schema-org-adapter');
-
-var Util = _dereq_('./Util');
-
-var ListRenderer = _dereq_('./ListRenderer');
-
-var VocabRenderer = _dereq_('./VocabRenderer');
-
-var ClassRenderer = _dereq_('./ClassRenderer');
-
-var PropertyRenderer = _dereq_('./PropertyRenderer');
-
-var EnumerationRenderer = _dereq_('./EnumerationRenderer');
-
-var EnumerationMemberRenderer = _dereq_('./EnumerationMemberRenderer');
-
-var DataTypeRenderer = _dereq_('./DataTypeRenderer');
-
-var TYPES = {
+/**
+ * The 2 different types of the vocabulary browser.
+ *
+ * @type {{VOCAB: string, LIST: string}}
+ */
+var BROWSER_TYPES = {
   VOCAB: 'VOCAB',
   LIST: 'LIST'
 };
+/**
+ * The SDOVocabBrowser is a JS-Class that represents the interface between the user and this library.
+ * After the constructor was called, the 'render' method can be used to render the vocab browser.
+ */
 
 class SDOVocabBrowser {
-  constructor(elem, vocabOrVocabList) {
+  /**
+   * Create a SDOVocabBrowser object.
+   *
+   * @param {Element} elem - The HTML element in which the vocab browser will be rendered.
+   * @param {string|object} vocabOrList - Can be one of the following:
+   * - a vocabulary based on the schema.org vocabulary
+   * (see: https://github.com/semantifyit/schema-org-adapter/blob/master/docu/vocabulary.md)
+   * - a list based on semantify.it specifications (see: https://semantify.it/documentation/lists)
+   * The data type of the vocabulary or the list must be either a JSON-LD object, a string which represents a JSON-LD
+   * document or an IRI which points to a JSON-LD document.
+   * @param {BROWSER_TYPES} type - The type of the browser, either 'VOCAB' (default) or 'LIST'.
+   */
+  constructor(elem, vocabOrList) {
     var _this = this;
 
-    var type = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : TYPES.VOCAB;
+    var type = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : BROWSER_TYPES.VOCAB;
     this.elem = elem;
-    this.vocabOrVocabList = vocabOrVocabList;
+    this.vocabOrList = vocabOrList;
     this.type = type;
-    this.util = new Util(this);
-    this.listRenderer = new ListRenderer(this);
-    this.vocabRenderer = new VocabRenderer(this);
-    this.classRenderer = new ClassRenderer(this);
-    this.propertyRenderer = new PropertyRenderer(this);
-    this.enumerationRenderer = new EnumerationRenderer(this);
-    this.enumerationMemberRenderer = new EnumerationMemberRenderer(this);
-    this.dataTypeRenderer = new DataTypeRenderer(this);
+    this.util = new _Util.default(this);
+    this.listRenderer = new _ListRenderer.default(this);
+    this.vocabRenderer = new _VocabRenderer.default(this);
+    this.classRenderer = new _ClassRenderer.default(this);
+    this.propertyRenderer = new _PropertyRenderer.default(this);
+    this.enumerationRenderer = new _EnumerationRenderer.default(this);
+    this.enumerationMemberRenderer = new _EnumerationMemberRenderer.default(this);
+    this.dataTypeRenderer = new _DataTypeRenderer.default(this);
     window.addEventListener('popstate', /*#__PURE__*/_asyncToGenerator(function* () {
       yield _this.render();
     }));
   }
+  /**
+   * Render the vocab browser in the specified HTML element.
+   * This is the only method which should be called by the client.
+   *
+   * @returns {Promise<void>} A 'void' Promise to indicate the process ending.
+   */
+
 
   render() {
     var _this2 = this;
@@ -21360,7 +20996,7 @@ class SDOVocabBrowser {
         var format = searchParams.get('format');
 
         if (format && format === 'jsonld') {
-          _this2.vocabRenderer.renderJSONLD();
+          _this2.vocabRenderer.renderJsonld();
         } else {
           _this2.vocabRenderer.render();
         }
@@ -21373,6 +21009,12 @@ class SDOVocabBrowser {
       document.body.scrollTop = document.documentElement.scrollTop = 0;
     })();
   }
+  /**
+   * Initialize either the list, the vocabulary or both.
+   *
+   * @returns {Promise<void>} A 'void' Promise to indicate the process ending.
+   */
+
 
   init() {
     var _this3 = this;
@@ -21389,32 +21031,56 @@ class SDOVocabBrowser {
       }
     })();
   }
+  /**
+   * Check if the list needs initialization.
+   *
+   * @returns {boolean} 'true' if list needs initialization.
+   */
+
 
   listNeedsInit() {
-    return this.type === TYPES.LIST && !this.list;
+    return this.type === BROWSER_TYPES.LIST && !this.list;
   }
+  /**
+   * Initialize the list.
+   *
+   * @returns {Promise<void>} A 'void' Promise to indicate the process ending.
+   */
+
 
   initList() {
     var _this4 = this;
 
     return _asyncToGenerator(function* () {
-      _this4.list = yield _this4.util.parseToObject(_this4.vocabOrVocabList);
+      _this4.list = yield _this4.util.parseToObject(_this4.vocabOrList);
     })();
   }
+  /**
+   * Check if the vocabulary needs initialization.
+   *
+   * @returns {boolean} 'true' if no vocabulary was initialized so far or a new vocabulary was selected in the list.
+   */
+
 
   vocabNeedsInit() {
     var searchParams = new URLSearchParams(window.location.search);
     var vocUID = searchParams.get('voc');
-    return this.type === TYPES.LIST && vocUID && vocUID !== this.vocUID || this.type === TYPES.VOCAB && !this.vocab;
+    return this.type === BROWSER_TYPES.LIST && vocUID && vocUID !== this.vocUID || this.type === BROWSER_TYPES.VOCAB && !this.vocab;
   }
+  /**
+   * Initialize the vocabulary (initializing a new SDOAdapter is part of this step).
+   *
+   * @returns {Promise<void>} A 'void' Promise to indicate the process ending.
+   */
+
 
   initVocab() {
     var _this5 = this;
 
     return _asyncToGenerator(function* () {
-      if (_this5.type === TYPES.VOCAB) {
-        _this5.vocab = yield _this5.util.parseToObject(_this5.vocabOrVocabList);
-      } else if (_this5.type === TYPES.LIST) {
+      if (_this5.type === BROWSER_TYPES.VOCAB) {
+        _this5.vocab = yield _this5.util.parseToObject(_this5.vocabOrList);
+      } else if (_this5.type === BROWSER_TYPES.LIST) {
         var searchParams = new URLSearchParams(window.location.search);
         _this5.vocUID = searchParams.get('voc');
 
@@ -21429,45 +21095,80 @@ class SDOVocabBrowser {
         }
       }
 
-      _this5.sdoAdapter = new SDOAdapter();
-      var sdoURL = yield _this5.sdoAdapter.constructSDOVocabularyURL('latest', 'all-layers'); // JSON or URL can both be parsed
+      yield _this5.initSDOAdapter();
+    })();
+  }
+  /**
+   * Initialize the SDOAdapter with the latest schema.org vocabulary and the given/selected vocabulary.
+   *
+   * @returns {Promise<void>} A 'void' Promise to indicate the process ending.
+   */
 
-      yield _this5.sdoAdapter.addVocabularies([sdoURL, _this5.vocab]);
-      _this5.namespaces = _this5.sdoAdapter.getVocabularies();
-      delete _this5.namespaces['schema'];
-      var vocabNames = Object.keys(_this5.namespaces);
-      _this5.classes = _this5.sdoAdapter.getListOfClasses({
+
+  initSDOAdapter() {
+    var _this6 = this;
+
+    return _asyncToGenerator(function* () {
+      _this6.sdoAdapter = new _schemaOrgAdapter.default();
+      var sdoURL = yield _this6.sdoAdapter.constructSDOVocabularyURL('latest');
+      yield _this6.sdoAdapter.addVocabularies([sdoURL, _this6.vocab]);
+      _this6.namespaces = _this6.sdoAdapter.getVocabularies();
+      delete _this6.namespaces['schema'];
+      var vocabNames = Object.keys(_this6.namespaces);
+      _this6.classes = _this6.sdoAdapter.getListOfClasses({
         fromVocabulary: vocabNames
       });
-      _this5.properties = _this5.sdoAdapter.getListOfProperties({
+      _this6.properties = _this6.sdoAdapter.getListOfProperties({
         fromVocabulary: vocabNames
       });
-      _this5.enumerations = _this5.sdoAdapter.getListOfEnumerations({
+      _this6.enumerations = _this6.sdoAdapter.getListOfEnumerations({
         fromVocabulary: vocabNames
       });
-      _this5.enumerationMembers = _this5.sdoAdapter.getListOfEnumerationMembers({
+      _this6.enumerationMembers = _this6.sdoAdapter.getListOfEnumerationMembers({
         fromVocabulary: vocabNames
       });
-      _this5.dataTypes = _this5.sdoAdapter.getListOfDataTypes({
+      _this6.dataTypes = _this6.sdoAdapter.getListOfDataTypes({
         fromVocabulary: vocabNames
       });
     })();
   }
+  /**
+   * Check if the list should be rendered.
+   *
+   * @returns {boolean} 'true' if the list should be rendered.
+   */
+
 
   isListRendering() {
     var searchParams = new URLSearchParams(window.location.search);
-    return this.type === TYPES.LIST && !searchParams.get('voc');
+    return this.type === BROWSER_TYPES.LIST && !searchParams.get('voc');
   }
+  /**
+   * Checks if the vocabulary should be rendered.
+   *
+   * @returns {boolean} 'true' if the vocabulary should be rendered.
+   */
+
 
   isVocabRendering() {
     var searchParams = new URLSearchParams(window.location.search);
-    return this.type === TYPES.LIST && searchParams.get('voc') && !searchParams.get('term') || this.type === TYPES.VOCAB && !searchParams.get('term');
+    return this.type === BROWSER_TYPES.LIST && searchParams.get('voc') && !searchParams.get('term') || this.type === BROWSER_TYPES.VOCAB && !searchParams.get('term');
   }
+  /**
+   * Check if a term should be rendered.
+   *
+   * @returns {boolean} 'true' if a term should be rendered.
+   */
+
 
   isTermRendering() {
     var searchParams = new URLSearchParams(window.location.search);
-    return searchParams.get('term');
+    return searchParams.get('term') !== null;
   }
+  /**
+   * Render a term.
+   */
+
 
   renderTerm() {
     var searchParams = new URLSearchParams(window.location.search);
@@ -21496,21 +21197,26 @@ class SDOVocabBrowser {
         break;
     }
   }
+  /**
+   * Add an 'EventListener' to every JavaScript link in the HTML element.
+   * Depending on the user action, the link will either open a new window or trigger the 'render' method.
+   */
+
 
   addJSLinkEventListener() {
-    var _this6 = this;
+    var _this7 = this;
 
-    var aJSLinks = document.getElementsByClassName('a-js-link');
+    var aJSLinks = this.elem.getElementsByClassName('a-js-link');
 
     var _loop = function _loop(aJSLink) {
       // forEach() not possible ootb for HTMLCollections
       aJSLink.addEventListener('click', /*#__PURE__*/function () {
-        var _ref2 = _asyncToGenerator(function* (e) {
-          if (e.ctrlKey) {
+        var _ref2 = _asyncToGenerator(function* (event) {
+          if (event.ctrlKey) {
             window.open(aJSLink.href);
           } else {
             history.pushState(null, null, aJSLink.href);
-            yield _this6.render();
+            yield _this7.render();
           }
         });
 
@@ -21529,27 +21235,44 @@ class SDOVocabBrowser {
 
 module.exports = SDOVocabBrowser;
 
-},{"./ClassRenderer":83,"./DataTypeRenderer":84,"./EnumerationMemberRenderer":85,"./EnumerationRenderer":86,"./ListRenderer":87,"./PropertyRenderer":88,"./Util":90,"./VocabRenderer":91,"schema-org-adapter":78}],90:[function(_dereq_,module,exports){
+},{"./ClassRenderer":84,"./DataTypeRenderer":85,"./EnumerationMemberRenderer":86,"./EnumerationRenderer":87,"./ListRenderer":88,"./PropertyRenderer":89,"./Util":91,"./VocabRenderer":92,"schema-org-adapter":78}],91:[function(require,module,exports){
 "use strict";
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
+/** This class provides helper methods and common methods for the other classes. */
 class Util {
+  /**
+   * Create a Util object.
+   *
+   * @param {SDOVocabBrowser} browser - the underlying vocab browser to enable access to its data members.
+   */
   constructor(browser) {
     this.browser = browser;
   }
+  /**
+   * Parse a variable to a JSON object.
+   *
+   * @param {string|object} variable - The variable that should be parsed.
+   * Can be either a JSON object, a string which represents a JSON document or an IRI which points to a JSON document.
+   * @returns {Promise<object>} A Promise with the parsed JSON object.
+   */
+
 
   parseToObject(variable) {
     var _this = this;
 
     return _asyncToGenerator(function* () {
       if (_this.isString(variable)) {
+        /**
+         * @type string
+         */
         var jsonString;
 
         if (_this.isValidUrl(variable)) {
-          jsonString = yield _this.get(variable);
+          jsonString = yield _this.getJsonld(variable);
         } else {
           jsonString = variable;
         }
@@ -21560,10 +21283,24 @@ class Util {
       }
     })();
   }
+  /**
+   * Check if a variable is a string.
+   *
+   * @param {*} variable - The variable that should be checked.
+   * @returns {boolean} 'true' if the variable is a string.
+   */
 
-  isString(myVar) {
-    return typeof myVar === 'string' || myVar instanceof String;
+
+  isString(variable) {
+    return typeof variable === 'string' || variable instanceof String;
   }
+  /**
+   * Check if a string represents a valid URL.
+   *
+   * @param {string} string - The variable that should be checked.
+   * @returns {boolean} 'true' if the string represents a valid URL.
+   */
+
 
   isValidUrl(string) {
     try {
@@ -21574,8 +21311,15 @@ class Util {
 
     return true;
   }
+  /**
+   * Retrieve the JSON-LD content of an URL.
+   *
+   * @param {string} url - The url.
+   * @returns {Promise<string|object>} A Promise with either the JSON-LD content of the URL or an error object.
+   */
 
-  get(url) {
+
+  getJsonld(url) {
     return new Promise(function (resolve, reject) {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', url);
@@ -21602,118 +21346,218 @@ class Util {
       xhr.send();
     });
   }
+  /**
+   * Create an IRI with the current browser IRI and the given query parameter.
+   * The query parameter can be either set, overwritten or deleted.
+   *
+   * @param {string} key - The query parameter key.
+   * @param {string} val - The query parameter values.
+   * @returns {string} The resulting IRI.
+   */
 
-  createIRIwithQueryParam(key, val) {
+
+  createIriWithQueryParam(key, val) {
     var searchParams = new URLSearchParams(window.location.search);
     val && val !== '' ? searchParams.set(key, val) : searchParams.delete(key);
     var queryString = searchParams.toString();
     return window.location.origin + window.location.pathname + (queryString !== '' ? '?' + queryString : '');
   }
+  /**
+   * Create a HTML table row with RDFa (https://en.wikipedia.org/wiki/RDFa) attributes.
+   *
+   * @param {string} rdfaTypeOf - The RDFa type of the table row.
+   * @param {string} rdfaResource - The RDFa resource.
+   * @param {string} mainColRdfaProp - The RDFa property of the main column.
+   * @param {string} mainColTermOrLink - The term name that should be linked or the link of the main column.
+   * @param {string} sideCols - The HTML of the side columns.
+   * @param {string|null} mainColClass - The CSS class of the main column.
+   * @returns {string} The resulting HTML.
+   */
 
-  createTableRow(typeOf, resource, mainColProp, mainColTermOrLink, sideCols) {
+
+  createTableRow(rdfaTypeOf, rdfaResource, mainColRdfaProp, mainColTermOrLink, sideCols) {
     var mainColClass = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
-    return '' + '<tr typeof="' + typeOf + '" resource="' + resource + '">' + this.createMainColEntry(mainColProp, mainColTermOrLink, mainColClass) + sideCols + '</tr>';
+    return '' + '<tr typeof="' + rdfaTypeOf + '" resource="' + rdfaResource + '">' + this.createMainCol(mainColRdfaProp, mainColTermOrLink, mainColClass) + sideCols + '</tr>';
   }
+  /**
+   * Create a HTML main column for a table row with RDFa (https://en.wikipedia.org/wiki/RDFa) attributes.
+   *
+   * @param {string} rdfaProp - The RDFa property of the column.
+   * @param {string} termOrLink - The term name that should be linked or the link of the column.
+   * @param {string|null} className -  The CSS class of the column.
+   * @returns {string} The resulting HTML.
+   */
 
-  createMainColEntry(property, link) {
+
+  createMainCol(rdfaProp, termOrLink) {
     var className = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    return '' + '<th' + (className ? ' class="' + className + '"' : '') + ' scope="row">' + this.createCodeLink(link, {
-      'property': property
+    return '' + '<th' + (className ? ' class="' + className + '"' : '') + ' scope="row">' + this.createCodeLink(termOrLink, {
+      'property': rdfaProp
     }) + '</th>';
   }
+  /**
+   * Create a HTML code element with a link inside it.
+   *
+   * @param {string} termOrLink - The term name that should be linked or the link.
+   * @param {object|null} codeAttr - The HTML attributes of the code element.
+   * @param {object|null} linkAttr - The HTML attributes of the link.
+   * @param {string|null} rdfaProp - The RDFa property of the link.
+   * @returns {string} The resulting HTML.
+   */
+
 
   createCodeLink(termOrLink) {
     var codeAttr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
     var linkAttr = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var rdfa = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-    return '' + '<code' + this.createHTMLAttr(codeAttr) + '>' + this.createFullLink(termOrLink, linkAttr, rdfa) + '</code>';
+    var rdfaProp = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+    return '' + '<code' + this.createHtmlAttr(codeAttr) + '>' + this.createFullLink(termOrLink, linkAttr, rdfaProp) + '</code>';
   }
+  /**
+   * Create a HTML link, optionally with semantic attributes.
+   *
+   * @param termOrLink - The term name that should be linked or a link.
+   * @param linkAttr - The HTML attributes of the link.
+   * @param rdfaProp - The RDFa property of the link.
+   * @returns {string} The resulting HTML.
+   */
 
-  createFullLink(termOrLink, linkAttr, rdfa) {
+
+  createFullLink(termOrLink, linkAttr, rdfaProp) {
     var term = null;
 
     try {
       term = this.browser.sdoAdapter.getTerm(termOrLink);
     } catch (e) {}
 
-    return '' + (rdfa ? this.createSemanticLink(rdfa, termOrLink) : '') + (term ? this.createLink(termOrLink, linkAttr) : termOrLink);
+    return '' + (rdfaProp ? this.createSemanticLink(rdfaProp, termOrLink) : '') + (term ? this.createLink(termOrLink, linkAttr) : termOrLink);
   }
+  /**
+   * Create a HTML JavaScript link that imitates a standard link with the current browser IRI and the given query
+   * parameter.
+   *
+   * @param {string} queryKey - The query parameter key.
+   * @param {string|null} queryVal - The query parameter value.
+   * @param {string|null} text - The text of the link.
+   * @param {object|null} attr - The HTML attributes of the link.
+   * @returns {string} The resulting HTML.
+   */
+
 
   createJSLink(queryKey, queryVal) {
     var text = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
     var attr = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-    return '<a ' + this.createAttrForJSLink(queryKey, queryVal, attr) + '>' + (text ? this.escHTML(text) : this.escHTML(queryVal)) + '</a>';
-  }
-
-  createAttrForJSLink(queryKey, queryVal) {
-    var attr = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var iri = this.createIRIwithQueryParam(queryKey, queryVal);
-    return 'class="a-js-link" href="' + this.escHTML(iri) + '" onclick="return false;"' + this.createHTMLAttr(attr);
-  }
-
-  escHTML(unsafe) {
-    return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    var iri = this.createIriWithQueryParam(queryKey, queryVal);
+    return '' + '<a ' + 'class="a-js-link" ' + 'href="' + this.escHtml(iri) + '" ' + 'onclick="return false;"' + this.createHtmlAttr(attr) + '>' + (text ? this.escHtml(text) : this.escHtml(queryVal)) + '</a>';
   }
   /**
+   * Escape HTML characters.
    *
-   * @param {object|null} attr
-   * @returns {string}
+   * @param {string} chars - The characters that should be escaped.
+   * @returns {string} The escaped characters.
    */
 
 
-  createHTMLAttr(attr) {
+  escHtml(chars) {
+    return chars.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  }
+  /**
+   * Create HTML attributes for elements.
+   *
+   * @param {object|null} attr - The attributes as key-value pairs.
+   * @returns {string} The resulting HTML.
+   */
+
+
+  createHtmlAttr(attr) {
     if (attr) {
       return Object.entries(attr).map(a => {
-        return ' ' + this.escHTML(a[0]) + '="' + this.escHTML(a[1]) + '"';
+        return ' ' + this.escHtml(a[0]) + '="' + this.escHtml(a[1]) + '"';
       }).join('');
     } else {
       return '';
     }
   }
+  /**
+   * Create a HTML link to on external IRI.
+   *
+   * @param {string} href - The href value of the link.
+   * @param {string|null} text - The text of the link.
+   * @param {object|null} attr - The HTML attributes as key-value pairs.
+   * @returns {string} The resulting HTML.
+   */
+
 
   createExternalLink(href) {
     var text = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
     var attr = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    return '<a href="' + this.escHTML(href) + '" target="_blank"' + this.createHTMLAttr(attr) + '>' + (text ? this.prettyPrintURI(text) : this.prettyPrintURI(href)) + '</a>';
+    return '<a href="' + this.escHtml(href) + '" target="_blank"' + this.createHtmlAttr(attr) + '>' + (text ? this.prettyPrintIri(text) : this.prettyPrintIri(href)) + '</a>';
   }
+  /**
+   * Replace 'schema:' and escapes characters in iri.
+   *
+   * @param {string} iri - The IRI that should pretty-printed.
+   * @returns {string} The pretty-printed IRI.
+   */
 
-  prettyPrintURI(uri) {
+
+  prettyPrintIri(iri) {
     var schema = 'schema:';
 
-    if (uri.startsWith(schema)) {
-      return uri.substring(schema.length);
+    if (iri.startsWith(schema)) {
+      return iri.substring(schema.length);
     }
 
-    return this.escHTML(uri);
+    return this.escHtml(iri);
   }
+  /**
+   * Create a HTML div with the main content for the vocab browser element.
+   *
+   * @param {string} rdfaTypeOf - The RDFa type of the main content.
+   * @param {string} mainContent - The HTML of the main content.
+   * @returns {string} The resulting HTML.
+   */
 
-  createMainContent(typeOf, mainContent) {
-    return '' + '<div id="mainContent" vocab="http://schema.org/" typeof="' + typeOf + '" resource="' + window.location + '">' + mainContent + '</div>';
+
+  createMainContent(rdfaTypeOf, mainContent) {
+    return '' + '<div id="mainContent" vocab="http://schema.org/" typeof="' + rdfaTypeOf + '" ' + 'resource="' + window.location + '">' + mainContent + '</div>';
   }
+  /**
+   * Replace spaces with underscores.
+   *
+   * @param {string} text - The text that should be replaced.
+   * @returns {string} The resulting text.
+   */
+
 
   underscore(text) {
     return text.replace(/ /g, '_');
   }
   /**
+   * Retrieve the type structure of a vocabulary term.
    *
-   * @param term
-   * @param {string} superTypeFunc
-   * @returns {[][]|null}
+   * @param {Term} term - The vocabulary term.
+   * @param {string} supertypeFunc - The supertype function that should be called for the vocabulary term.
+   * @returns {string[][]} The type structure of the vocabulary term. E.g. https://schema.org/Campground:
+   * [
+   *   ['schema:Campground', 'schema:LodgingBusiness', 'schema:LocalBusiness', 'schema:Organization', 'schema:Thing'],
+   *   ['schema:Campground', 'schema:LodgingBusiness', 'schema:LocalBusiness', 'schema:Place', 'schema:Thing'],
+   *   ['schema:Campground', 'schema:CivicStructure', 'schema:Place', 'schema:Thing']
+   * ]
    */
 
 
-  getTypeStructures(term) {
-    var superTypeFunc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'getSuperClasses';
-    var superTypes = term[superTypeFunc](false);
+  getTypeStructure(term) {
+    var supertypeFunc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'getSuperClasses';
+    var supertypes = term[supertypeFunc](false);
 
-    if (superTypes.length === 0) {
+    if (supertypes.length === 0) {
       return [[term.getIRI(true)]];
     } else {
       var ret = [];
-      superTypes.forEach(s => {
+      supertypes.forEach(s => {
         var newTerm = this.browser.sdoAdapter.getTerm(s);
-        var newSuperTypes = this.getTypeStructures(newTerm, superTypeFunc);
-        newSuperTypes.forEach(n => {
+        var newSupertypes = this.getTypeStructure(newTerm, supertypeFunc);
+        newSupertypes.forEach(n => {
           n.push(term.getIRI(true));
           ret.push(n);
         });
@@ -21721,48 +21565,94 @@ class Util {
       return ret;
     }
   }
+  /**
+   * Create a HTML header for the vocab browser element.
+   *
+   * @param {string[][]} typeStructure - The type structure of the vocabulary term.
+   * @param {string} supertypeRelationship - The relationship between the vocabulary term and its supertype.
+   * @param {string} breadcrumbStart - The HTML in front of every breadcrumb.
+   * @param {string} breadcrumbEnd - The HTML in the end of every breadcrumb.
+   * @returns {string} The resulting HTML.
+   */
 
-  createHeader(superTypes, superTypeRelationship) {
-    var breadCrumbStart = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
-    var breadCrumbEnd = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
+
+  createHeader(typeStructure, supertypeRelationship) {
+    var breadcrumbStart = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+    var breadcrumbEnd = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
     var term = this.browser.term;
-    return '' + (this.browser.vocName ? '<span style="float: right;">' + '(Vocabulary: ' + this.createJSLink('term', null, this.browser.vocName) + ')' + '</span>' : '') + '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' + this.createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) + '</h4>' + '<div property="rdfs:comment">' + (term.getDescription() || '') + '<br><br></div>';
+    return '' + '<span style="float: right;">' + (this.browser.vocName ? '(from Vocabulary: ' + this.createJSLink('term', null, this.browser.vocName) + ')' : '(go to ' + this.createJSLink('term', null, 'Vocabulary') + ')') + '</span>' + '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' + this.createTypeStructureBreadcrumbs(typeStructure, supertypeRelationship, breadcrumbStart, breadcrumbEnd) + '</h4>' + '<div property="rdfs:comment">' + (term.getDescription() || '') + '<br><br></div>';
   }
+  /**
+   * Create HTML breadcrumbs for the type structure of a vocabulary term.
+   *
+   * @param {string[][]} typeStructure - The type structure of the vocabulary term.
+   * @param {string} supertypeRelationship - The relationship between the vocabulary term and its supertype.
+   * @param {string} breadcrumbStart - The HTML in front of every breadcrumb.
+   * @param {string} breadcrumbEnd - The HTML in the end of every breadcrumb.
+   * @returns {string} - The resulting HTML.
+   */
 
-  createSuperTypeBreadcrumbs(superTypes, superTypeRelationship, breadCrumbStart, breadCrumbEnd) {
-    if (superTypes) {
-      return '' + '<h4>' + superTypes.map(s => {
-        return '' + '<span class="breadcrumbs">' + breadCrumbStart + s.map((superType, i) => {
-          var html = '';
 
-          if (breadCrumbEnd === '' && i + 2 === s.length || breadCrumbEnd !== '' && i + 1 === s.length) {
-            html += this.createSemanticLink(superTypeRelationship, superType);
-          }
+  createTypeStructureBreadcrumbs(typeStructure, supertypeRelationship, breadcrumbStart, breadcrumbEnd) {
+    return '' + '<h4>' + typeStructure.map(s => {
+      return '' + '<span class="breadcrumbs">' + breadcrumbStart + s.map((superType, i) => {
+        var html = '';
 
-          html += this.createLink(superType);
-          return html;
-        }).join(' > ') + breadCrumbEnd + '</span>';
-      }).join('<br>') + '</h4>';
-    }
+        if (breadcrumbEnd === '' && i + 2 === s.length || breadcrumbEnd !== '' && i + 1 === s.length) {
+          html += this.createSemanticLink(supertypeRelationship, superType);
+        }
 
-    return '';
+        html += this.createLink(superType);
+        return html;
+      }).join(' > ') + breadcrumbEnd + '</span>';
+    }).join('<br>') + '</h4>';
   }
+  /**
+   * Create a HTML semantic link for a term.
+   *
+   * @param {string} property - The RDFa property of the link.
+   * @param {string} term - The vocabulary term.
+   * @returns {string} The resulting HTML.
+   */
+
 
   createSemanticLink(property, term) {
-    return '<link property="' + this.escHTML(property) + '" href="' + this.escHTML(this.createHref(term)) + '">';
+    return '<link property="' + this.escHtml(property) + '" href="' + this.escHtml(this.createHref(term)) + '">';
   }
+  /**
+   * Create a HTML href for a vocabulary term.
+   *
+   * @param {string} term - The vocabulary term.
+   * @returns {string} The resulting HTML.
+   */
+
 
   createHref(term) {
     if (this.isTermOfVocab(term)) {
-      return this.createIRIwithQueryParam('term', term);
+      return this.createIriWithQueryParam('term', term);
     } else {
       return this.browser.sdoAdapter.getTerm(term).getIRI();
     }
   }
+  /**
+   * Check if the vocabulary term is part of the current vocabulary.
+   *
+   * @param {string} term - The vocabulary term.
+   * @returns {boolean} 'true' if the term is part of the current vocabulary.
+   */
+
 
   isTermOfVocab(term) {
     return this.browser.vocab && (this.browser.classes.includes(term) || this.browser.properties.includes(term) || this.browser.enumerations.includes(term) || this.browser.enumerationMembers.includes(term) || this.browser.dataTypes.includes(term));
   }
+  /**
+   * Create a HTML link for a term.
+   *
+   * @param {string} term - The vocabulary term.
+   * @param {object|null} attr - The HTML attributes as key-value pairs.
+   * @returns {string} The resulting HTML.
+   */
+
 
   createLink(term) {
     var attr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
@@ -21773,16 +21663,43 @@ class Util {
       return this.createExternalLink(this.createHref(term), term, attr);
     }
   }
+  /**
+   * Create a HTML table row of a schema.org based property.
+   *
+   * @param {string} property - The schema.org based property
+   * @param {boolean} onlyDomainIncludes - Indicates whether 'domainIncludes' is the only semantic link for the
+   * property.
+   * @returns {string} The resulting HTML.
+   */
 
-  createPropertyTableRow(p) {
+
+  createPropertyTableRow(property) {
     var onlyDomainIncludes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-    return this.createTableRow('rdfs:Property', this.createHref(p), 'rdfs:label', this.createLink(p), this.createPropertySideCols(p, onlyDomainIncludes), 'prop-name');
+    return this.createTableRow('rdfs:Property', this.createHref(property), 'rdfs:label', this.createLink(property), this.createPropertySideCols(property, onlyDomainIncludes), 'prop-name');
   }
+  /**
+   * Create HTML side columns of a schema.org based property.
+   *
+   * @param {string} property - The schema.org based property.
+   * @param {boolean} onlyDomainIncludes - Indicates whether 'domainIncludes' is the only semantic link for the
+   * property.
+   * @returns {string} The resulting HTML.
+   */
+
 
   createPropertySideCols(property, onlyDomainIncludes) {
     var sdoProperty = this.browser.sdoAdapter.getProperty(property);
     return '' + '<td class="prop-etc">' + this.createPropertyRange(sdoProperty, onlyDomainIncludes) + '</td>' + '<td class="prop-desc" property="rdfs:comment">' + (sdoProperty.getDescription() || '') + '</td>';
   }
+  /**
+   * Create HTML links of schema.org based property ranges.
+   *
+   * @param {Property} sdoProperty - The schema.org based property.
+   * @param {boolean} onlyDomainIncludes - Indicates whether 'domainIncludes' is the only semantic link for the
+   * property.
+   * @returns {string} The resulting HTML.
+   */
+
 
   createPropertyRange(sdoProperty, onlyDomainIncludes) {
     var expectedType = '';
@@ -21799,8 +21716,19 @@ class Util {
     }).join(onlyDomainIncludes ? separator : '');
     return expectedType + domainIncludes;
   }
+  /**
+   * Create a HTML table with class 'definition-table'.
+   *
+   * @param {string|string[]} ths - The table header cell/s. Must include <th> tags.
+   * @param {string|string[]} trs - The table body row/s. Can already include <tr> tags to be more flexible.
+   * @param {object|null} tbodyAttr - The HTML attributes of the table body.
+   * @returns {string} The resulting HTML.
+   */
+
 
   createDefinitionTable(ths, trs) {
+    var tbodyAttr = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
     if (!Array.isArray(ths)) {
       ths = [ths];
     }
@@ -21811,10 +21739,17 @@ class Util {
 
     return '' + '<table class="definition-table">' + '<thead>' + '<tr>' + ths.map(th => {
       return '<th>' + th + '</th>';
-    }).join('') + '</tr>' + '</thead>' + '<tbody>' + (trs[0].startsWith('<tr') ? trs.join('') : trs.map(tr => {
+    }).join('') + '</tr>' + '</thead>' + '<tbody' + this.createHtmlAttr(tbodyAttr) + '>' + (trs[0].startsWith('<tr') ? trs.join('') : trs.map(tr => {
       return '<tr>' + tr + '</tr>';
     }).join('')) + '</tbody>' + '</table>';
   }
+  /**
+   * Create HTML for ranges of a vocabulary term.
+   *
+   * @param isForEnumMember - Indicates whether the the method is called for an Enumeration Member.
+   * @returns {string} The resulting HTML.
+   */
+
 
   createRangesOf() {
     var isForEnumMember = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
@@ -21834,9 +21769,14 @@ class Util {
 
 module.exports = Util;
 
-},{}],91:[function(_dereq_,module,exports){
+},{}],92:[function(require,module,exports){
 "use strict";
 
+/**
+ * A constant to map singulars to their plural forms for term types.
+ *
+ * @type {{Enumeration: string, "Data Type": string, "Enumeration Member": string, Class: string, Property: string}}
+ */
 var TYPES_PLURAL = {
   'Class': 'Classes',
   'Property': 'Properties',
@@ -21844,59 +21784,110 @@ var TYPES_PLURAL = {
   'Enumeration Member': 'Enumeration Members',
   'Data Type': 'Data Types'
 };
+/** This class is responsible to render a schema.org based Vocabulary in the HTML element of the browser. */
 
 class VocabRenderer {
+  /**
+   * Create a VocabRenderer object.
+   *
+   * @param {SDOVocabBrowser} browser - the underlying vocab browser to enable access to its data members.
+   */
   constructor(browser) {
     this.browser = browser;
     this.util = this.browser.util;
   }
+  /**
+   * Render the JSON-LD serialization of the Vocabulary.
+   */
 
-  renderJSONLD() {
+
+  renderJsonld() {
     var preStyle = '' + // Overwrite schema.org CSS
     'font-size: medium; ' + 'background: none; ' + 'text-align: left; ' + 'width: auto; ' + 'padding: 0; ' + 'overflow: visible; ' + 'color: rgb(0, 0, 0); ' + 'line-height: normal; ' + // Defaults for pre https://www.w3schools.com/cssref/css_default_values.asp
     'display: block; ' + 'font-family: monospace; ' + 'margin: 1em 0; ' + // From Browser when loading json-ld file
     'word-wrap: break-word; ' + 'white-space: pre-wrap;';
     this.browser.elem.innerHTML = '' + '<pre style="' + preStyle + '">' + JSON.stringify(this.browser.vocab, null, 2) + '</pre>';
   }
+  /**
+   * Render the Vocabulary.
+   */
+
 
   render() {
     var mainContent = this.createHeading() + this.createContentSection() + this.createSection(this.browser.classes, 'Class') + this.createSection(this.browser.properties, 'Property') + this.createSection(this.browser.enumerations, 'Enumeration') + this.createSection(this.browser.enumerationMembers, 'Enumeration Member') + this.createSection(this.browser.dataTypes, 'Data Type');
     this.browser.elem.innerHTML = this.util.createMainContent('schema:DataSet', mainContent);
   }
+  /**
+   * Create HTML for the heading of the Vocabulary.
+   *
+   * @returns {string} The resulting HTML.
+   */
+
 
   createHeading() {
-    return '' + '<span style="float: right;">' + '(' + this.util.createJSLink('format', 'jsonld', 'JSON-LD serialization') + (this.browser.list ? ' | from List: ' + this.util.createJSLink('voc', null, this.browser.list['schema:name']) : '') + ')' + '</span>' + (this.browser.vocName ? '<h1>' + this.browser.vocName + '</h1>' : '') + // If there is no headline, h2 should have no margin
-    '<h2' + (this.browser.vocName ? '' : ' style="clear: none; margin: 0;"') + '>Namespaces</h2>' + '<ul>' + Object.entries(this.browser.namespaces).map(vocab => {
+    return '' + '<span style="float: right;">' + '(' + this.util.createJSLink('format', 'jsonld', 'JSON-LD serialization') + (this.browser.list ? ' | from List: ' + this.util.createJSLink('voc', null, this.browser.list['schema:name']) : '') + ')' + '</span>' + '<h1>' + (this.browser.vocName ? this.browser.vocName : 'Vocabulary') + '</h1>' + // If there is no headline, h2 should have no margin
+    '<h2>Namespaces</h2>' + '<ul>' + Object.entries(this.browser.namespaces).map(vocab => {
       return '<li>' + vocab[0] + ': ' + vocab[1] + '</li>';
     }).join('') + '</ul>';
   }
+  /**
+   * Create HTML for the content section of the Vocabulary.
+   *
+   * @returns {string} The resulting HTML.
+   */
+
 
   createContentSection() {
     return '' + '<h2>Content</h2>' + '<ul>' + this.createContentListElement(this.browser.classes, 'Class') + this.createContentListElement(this.browser.properties, 'Property') + this.createContentListElement(this.browser.enumerations, 'Enumeration') + this.createContentListElement(this.browser.enumerationMembers, 'Enumeration Member') + this.createContentListElement(this.browser.dataTypes, 'Data Type') + '</ul>';
   }
+  /**
+   * Create a HTML list element for a specific term type of the Vocabulary.
+   *
+   * @param {string[]} terms - The vocabulary terms with the same term type.
+   * @param {string} typeSingular - The singular form of the term type.
+   * @returns {string} The resulting HTML.
+   */
 
-  createContentListElement(objects, typeSingular) {
-    if (objects.length !== 0) {
+
+  createContentListElement(terms, typeSingular) {
+    if (terms.length !== 0) {
       var typePlural = TYPES_PLURAL[typeSingular];
-      return '<li><a href="#' + this.util.underscore(typePlural) + '">' + objects.length + ' ' + (objects.length === 1 ? typeSingular : typePlural) + '</a></li>';
+      return '<li><a href="#' + this.util.underscore(typePlural) + '">' + terms.length + ' ' + (terms.length === 1 ? typeSingular : typePlural) + '</a></li>';
     }
 
     return '';
   }
+  /**
+   * Create HTML for a section of the Vocabulary.
+   *
+   * @param {string[]} terms - The vocabulary terms with the same term type.
+   * @param {string} typeSingular - The singular form of the term type.
+   * @returns {string} The resulting HTML.
+   */
 
-  createSection(objects, typeSingular) {
-    if (objects.length !== 0) {
+
+  createSection(terms, typeSingular) {
+    if (terms.length !== 0) {
       var typePlural = TYPES_PLURAL[typeSingular];
-      return '' + '<h2 id="' + this.util.underscore(typePlural) + '">' + typePlural + '</h2>' + '<table class="definition-table">' + '<thead>' + '<tr>' + '<th>' + typeSingular + '</th>' + '<th>Description</th>' + '</tr>' + '</thead>' + '<tbody class="supertype">' + this.createSectionTbody(objects) + '</tbody>' + '</table>';
+      return '' + '<h2 id="' + this.util.underscore(typePlural) + '">' + typePlural + '</h2>' + this.util.createDefinitionTable([typeSingular, 'Description'], this.createSectionTbody(terms), {
+        'class': 'supertype'
+      });
     }
 
     return '';
   }
+  /**
+   * Create HTML table body for a section of the Vocabulary.
+   *
+   * @param {string[]} terms - The vocabulary terms with the same term type.
+   * @returns {string} The resulting HTML.
+   */
 
-  createSectionTbody(objects) {
-    return objects.map(name => {
+
+  createSectionTbody(terms) {
+    return terms.map(name => {
       var term = this.browser.sdoAdapter.getTerm(name);
-      return this.util.createTableRow(term.getTermType(), this.util.createIRIwithQueryParam('term', name), '@id', this.util.createJSLink('term', name), '<td property="rdfs:comment">' + (term.getDescription() || '') + '</td>');
+      return this.util.createTableRow(term.getTermType(), this.util.createIriWithQueryParam('term', name), '@id', this.util.createJSLink('term', name), '<td property="rdfs:comment">' + (term.getDescription() || '') + '</td>');
     }).join('');
   }
 
@@ -21904,5 +21895,5 @@ class VocabRenderer {
 
 module.exports = VocabRenderer;
 
-},{}]},{},[89])(89)
+},{}]},{},[90])(90)
 });
