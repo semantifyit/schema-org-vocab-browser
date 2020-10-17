@@ -2,13 +2,31 @@
 
 Vocabulary Browser for schema.org based vocabularies.
 
-## Usage
+## Installation
 
-Require the bundled file in your website:
+### Installation via CDN
+
+Add the bundled CDN file to your website:
 
 ``` xml
-<script src="https://cdn.jsdelivr.net/gh/semantifyit/schema-org-vocab-browser@main/dist/schema-org-vocab-browser.min.js">
+<script src="https://cdn.jsdelivr.net/npm/schema-org-vocab-browser@1.0.0/dist/schema-org-vocab-browser.min.js">
 ```
+
+### Installation via NPM
+
+Install the npm package:
+
+``` bash
+npm install schema-org-vocab-browser
+```
+
+Add the bundled file to your website:
+
+``` xml
+<script src="node_modules/schema-org-vocab-browser/dist/schema-org-vocab-browser.min.js">
+```
+
+## Usage
 
 Import your vocabulary and render the corresponding HTML:
 
@@ -28,8 +46,6 @@ If you want to use the same style as [schema.org](https://schema.org/) just impo
 ``` xml
 <link rel="stylesheet" type="text/css" href="https://schema.org/docs/schemaorg.css">
 ```
-
-TODO: Add npm installation possibility, add CDN
 
 ## Screenshot
 
