@@ -21360,7 +21360,8 @@ class Util {
     var searchParams = new URLSearchParams(window.location.search);
     val && val !== '' ? searchParams.set(key, val) : searchParams.delete(key);
     var queryString = searchParams.toString();
-    return window.location.origin + window.location.pathname + (queryString !== '' ? '?' + queryString : '');
+    var origin = window.location.protocol + '//';
+    return origin + window.location.pathname + (queryString !== '' ? '?' + queryString : '');
   }
   /**
    * Create a HTML table row with RDFa (https://en.wikipedia.org/wiki/RDFa) attributes.
@@ -21827,7 +21828,7 @@ class VocabRenderer {
   createHeading() {
     return '' + '<span style="float: right;">' + '(' + this.util.createJSLink('format', 'jsonld', 'JSON-LD serialization') + (this.browser.list ? ' | from List: ' + this.util.createJSLink('voc', null, this.browser.list['schema:name']) : '') + ')' + '</span>' + '<h1>' + (this.browser.vocName ? this.browser.vocName : 'Vocabulary') + '</h1>' + // If there is no headline, h2 should have no margin
     '<h2>Namespaces</h2>' + '<ul>' + Object.entries(this.browser.namespaces).map(vocab => {
-      return '<li>' + vocab[0] + ': ' + vocab[1] + '</li>';
+      return '<li>' + vocab[0] + ': <a href="' + vocab[1] + '">' + vocab[1] + '</a></li>';
     }).join('') + '</ul>';
   }
   /**
