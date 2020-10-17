@@ -21360,7 +21360,7 @@ class Util {
     var searchParams = new URLSearchParams(window.location.search);
     val && val !== '' ? searchParams.set(key, val) : searchParams.delete(key);
     var queryString = searchParams.toString();
-    var origin = window.location.protocol + '//' + (window.host ? window.host : '');
+    var origin = window.location.protocol + '//' + (window.location.host ? window.location.host : '');
     return origin + window.location.pathname + (queryString !== '' ? '?' + queryString : '');
   }
   /**
