@@ -101,7 +101,8 @@ class Util {
         const searchParams = new URLSearchParams(window.location.search);
         (val && val !== '') ? searchParams.set(key, val) : searchParams.delete(key);
         const queryString = searchParams.toString();
-        return window.location.origin + window.location.pathname + (queryString !== '' ? '?' + queryString : '');
+        const origin = window.location.protocol + '//';
+        return origin + window.location.pathname + (queryString !== '' ? '?' + queryString : '');
     }
 
     /**
