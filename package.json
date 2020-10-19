@@ -28,10 +28,10 @@
     "buildMinified": "browserify src/SDOVocabBrowser.js -s SDOVocabBrowser -g [uglifyify] > dist/schema-org-vocab-browser.min.js"
   },
   "devDependencies": {
-    "@babel/core": "^7.11.6",
-    "@babel/preset-env": "^7.11.5",
+    "@babel/core": "^7.12.3",
+    "@babel/preset-env": "^7.12.1",
     "babelify": "^10.0.0",
-    "browserify": "^16.5.2",
+    "browserify": "^17.0.0",
     "uglifyify": "^5.0.2"
   },
   "browserify": {
