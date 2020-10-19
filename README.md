@@ -8,7 +8,7 @@ Vocabulary Browser for schema.org based vocabularies.
 
 Add the bundled CDN file to your website:
 
-``` xml
+``` html
 <script src="https://cdn.jsdelivr.net/npm/schema-org-vocab-browser@1.0.0/dist/schema-org-vocab-browser.min.js">
 ```
 
@@ -22,7 +22,7 @@ npm install schema-org-vocab-browser
 
 Add the bundled file to your website:
 
-``` xml
+``` html
 <script src="node_modules/schema-org-vocab-browser/dist/schema-org-vocab-browser.min.js">
 ```
 
@@ -30,7 +30,7 @@ Add the bundled file to your website:
 
 Import your vocabulary and render the corresponding HTML:
 
-``` xml
+``` html
 <div id="vocab"></div>
 <script>
     (async function() {
@@ -43,7 +43,7 @@ Import your vocabulary and render the corresponding HTML:
 
 If you want to use the same style as [schema.org](https://schema.org/) just import their CSS file:
 
-``` xml
+``` html
 <link rel="stylesheet" type="text/css" href="https://schema.org/docs/schemaorg.css">
 ```
 
