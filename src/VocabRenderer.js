@@ -85,7 +85,7 @@ class VocabRenderer {
             '<h2>Namespaces</h2>' +
             '<ul>' +
             Object.entries(this.browser.namespaces).map((vocab) => {
-                return '<li>' + vocab[0] + ': <a href="' + vocab[1] + '">' + vocab[1] +'</a></li>';
+                return '<li>' + vocab[0] + ': ' + this.util.createExternalLink(vocab[1]) + '</li>';
             }).join('') +
             '</ul>';
     }
