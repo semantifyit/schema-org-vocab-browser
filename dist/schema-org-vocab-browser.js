@@ -786,7 +786,7 @@ module.exports = function transformData(data, headers, fns) {
 };
 
 },{"./../utils":26}],16:[function(require,module,exports){
-(function (process){
+(function (process){(function (){
 'use strict';
 
 var utils = require('./utils');
@@ -886,7 +886,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = defaults;
 
-}).call(this,require('_process'))
+}).call(this)}).call(this,require('_process'))
 },{"./adapters/http":2,"./adapters/xhr":2,"./helpers/normalizeHeaderName":23,"./utils":26,"_process":59}],17:[function(require,module,exports){
 'use strict';
 
@@ -7622,7 +7622,7 @@ api.isBlankNode = v => {
 };
 
 },{"./types":49}],46:[function(require,module,exports){
-(function (process,global){
+(function (process,global){(function (){
 /**
  * A JavaScript implementation of the JSON-LD API.
  *
@@ -8678,7 +8678,7 @@ wrapper(factory);
 // export API
 module.exports = factory;
 
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./ContextResolver":29,"./JsonLdError":30,"./JsonLdProcessor":31,"./NQuads":32,"./Rdfa":33,"./RequestQueue":34,"./compact":36,"./context":38,"./documentLoaders/node":39,"./documentLoaders/xhr":40,"./expand":41,"./flatten":42,"./frame":43,"./fromRdf":44,"./graphTypes":45,"./nodeMap":47,"./toRdf":48,"./types":49,"./url":50,"./util":51,"_process":59,"lru-cache":52,"rdf-canonize":69}],47:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
@@ -10440,7 +10440,7 @@ const forEachStep = (self, fn, node, thisp) => {
 module.exports = LRUCache
 
 },{"yallist":83}],53:[function(require,module,exports){
-(function (Buffer){
+(function (Buffer){(function (){
 /**
  * Base-N/Base-X encoding/decoding functions.
  *
@@ -10628,7 +10628,7 @@ function _encodeWithByteBuffer(input, alphabet) {
   return output;
 }
 
-}).call(this,require("buffer").Buffer)
+}).call(this)}).call(this,require("buffer").Buffer)
 },{"buffer":27}],54:[function(require,module,exports){
 /**
  * Node.js module for Forge.
@@ -11308,7 +11308,7 @@ function _update(s, w, bytes) {
 }
 
 },{"./forge":54,"./md":55,"./util":58}],58:[function(require,module,exports){
-(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,setImmediate){
+(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,setImmediate){(function (){
 /**
  * Utility functions for web applications.
  *
@@ -14217,7 +14217,7 @@ util.estimateCores = function(options, callback) {
   }
 };
 
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],require("timers").setImmediate)
+}).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],require("timers").setImmediate)
 },{"./baseN":53,"./forge":54,"_process":59,"buffer":27,"timers":81}],59:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
@@ -16504,7 +16504,7 @@ api.canonizeSync = function(dataset, options) {
 };
 
 },{"./IdentifierIssuer":61,"./NQuads":63,"./URDNA2015":65,"./URDNA2015Sync":66,"./URGNA2012":67,"./URGNA2012Sync":68,"./util":70,"rdf-canonize-native":27}],70:[function(require,module,exports){
-(function (process,setImmediate){
+(function (process,setImmediate){(function (){
 /*
  * Copyright (c) 2016-2017 Digital Bazaar, Inc. All rights reserved.
  */
@@ -16616,7 +16616,7 @@ function _invokeCallback(callback, err, result) {
   }
 }
 
-}).call(this,require('_process'),require("timers").setImmediate)
+}).call(this)}).call(this,require('_process'),require("timers").setImmediate)
 },{"_process":59,"timers":81}],71:[function(require,module,exports){
 "use strict";
 
@@ -19982,7 +19982,7 @@ module.exports = {
 };
 
 },{"jsonld":46}],81:[function(require,module,exports){
-(function (setImmediate,clearImmediate){
+(function (setImmediate,clearImmediate){(function (){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
 var slice = Array.prototype.slice;
@@ -20059,7 +20059,7 @@ exports.setImmediate = typeof setImmediate === "function" ? setImmediate : funct
 exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
   delete immediateIds[id];
 };
-}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
+}).call(this)}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
 },{"process/browser.js":59,"timers":81}],82:[function(require,module,exports){
 'use strict'
 module.exports = function (Yallist) {
@@ -21828,7 +21828,7 @@ class VocabRenderer {
   createHeading() {
     return '' + '<span style="float: right;">' + '(' + this.util.createJSLink('format', 'jsonld', 'JSON-LD serialization') + (this.browser.list ? ' | from List: ' + this.util.createJSLink('voc', null, this.browser.list['schema:name']) : '') + ')' + '</span>' + '<h1>' + (this.browser.vocName ? this.browser.vocName : 'Vocabulary') + '</h1>' + // If there is no headline, h2 should have no margin
     '<h2>Namespaces</h2>' + '<ul>' + Object.entries(this.browser.namespaces).map(vocab => {
-      return '<li>' + vocab[0] + ': <a href="' + vocab[1] + '">' + vocab[1] + '</a></li>';
+      return '<li>' + vocab[0] + ': ' + this.util.createExternalLink(vocab[1]) + '</li>';
     }).join('') + '</ul>';
   }
   /**
