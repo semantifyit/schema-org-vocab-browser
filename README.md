@@ -9,7 +9,7 @@ Vocabulary Browser for schema.org based vocabularies.
 Add the bundled CDN file to your website:
 
 ``` html
-<script src="https://cdn.jsdelivr.net/npm/schema-org-vocab-browser@1.0.1/dist/schema-org-vocab-browser.min.js">
+<script src="https://cdn.jsdelivr.net/npm/schema-org-vocab-browser@1.0.2/dist/schema-org-vocab-browser.min.js">
 ```
 
 ### Installation via NPM

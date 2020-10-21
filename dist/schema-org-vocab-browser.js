@@ -20741,7 +20741,7 @@ class ListRenderer {
 
 
   createHeader() {
-    return '<h1>' + this.browser.list['schema:name'] + '</h1>';
+    return '' + '<h1>' + this.browser.list['schema:name'] + '</h1>' + this.util.createExternalLinkLegend();
   }
   /**
    * Create HTML table for the vocabularies of the List.
@@ -21479,7 +21479,7 @@ class Util {
     }
   }
   /**
-   * Create a HTML link to on external IRI.
+   * Create a HTML link to an external IRI.
    *
    * @param {string} href - The href value of the link.
    * @param {string|null} text - The text of the link.
@@ -21491,7 +21491,38 @@ class Util {
   createExternalLink(href) {
     var text = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
     var attr = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    var additionalStyles = ' ' + this.createExternalLinkStyle(href);
+
+    if (!attr) {
+      attr = {
+        style: additionalStyles
+      };
+    } else if (!attr.hasOwnProperty('style')) {
+      attr['style'] = additionalStyles;
+    } else {
+      attr['style'] = attr['style'] + additionalStyles;
+    }
+
     return '<a href="' + this.escHtml(href) + '" target="_blank"' + this.createHtmlAttr(attr) + '>' + (text ? this.prettyPrintIri(text) : this.prettyPrintIri(href)) + '</a>';
+  }
+  /**
+   * Create HTML attribute 'style' for an external link.
+   *
+   * @param iri - The IRI of the external link.
+   * @return {string} The resulting style attribute.
+   */
+
+
+  createExternalLinkStyle(iri) {
+    var style = '' + 'background-position: center right; ' + 'background-repeat: no-repeat; ' + 'background-size: 10px 10px; ' + 'padding-right: 13px; ';
+
+    if (iri.indexOf('https://schema.org') === -1 && iri.indexOf('http://schema.org') === -1) {
+      style += 'background-image: url(https://raw.githubusercontent.com/semantifyit/schema-org-vocab-browser/main/images/external-link-icon-blue.png);';
+    } else {
+      style += 'background-image: url(https://raw.githubusercontent.com/semantifyit/schema-org-vocab-browser/main/images/external-link-icon-red.png);';
+    }
+
+    return style;
   }
   /**
    * Replace 'schema:' and escapes characters in iri.
@@ -21581,7 +21612,20 @@ class Util {
     var breadcrumbStart = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
     var breadcrumbEnd = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
     var term = this.browser.term;
-    return '' + '<span style="float: right;">' + (this.browser.vocName ? '(from Vocabulary: ' + this.createJSLink('term', null, this.browser.vocName) + ')' : '(go to ' + this.createJSLink('term', null, 'Vocabulary') + ')') + '</span>' + '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' + this.createTypeStructureBreadcrumbs(typeStructure, supertypeRelationship, breadcrumbStart, breadcrumbEnd) + '</h4>' + '<div property="rdfs:comment">' + (term.getDescription() || '') + '<br><br></div>';
+    return '' + '<span style="float: right;">' + (this.browser.vocName ? '(from Vocabulary: ' + this.createJSLink('term', null, this.browser.vocName) + ')' : '(go to ' + this.createJSLink('term', null, 'Vocabulary') + ')') + '</span>' + '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' + this.createExternalLinkLegend() + this.createTypeStructureBreadcrumbs(typeStructure, supertypeRelationship, breadcrumbStart, breadcrumbEnd) + '</h4>' + '<div property="rdfs:comment">' + (term.getDescription() || '') + '<br><br></div>';
+  }
+  /**
+   * Create HTML for external link legend.
+   *
+   * @returns {string} The resulting HTML.
+   */
+
+
+  createExternalLinkLegend() {
+    var commonExtLinkStyle = 'margin-right: 3px; ';
+    var extLinkStyleBlue = commonExtLinkStyle + this.createExternalLinkStyle('');
+    var extLinkStyleRed = commonExtLinkStyle + this.createExternalLinkStyle('https://schema.org') + ' margin-left: 6px;';
+    return '' + '<p style="font-size: 12px; margin-top: 0">' + '(<span style="' + extLinkStyleBlue + '"></span>External link' + '<span style="' + extLinkStyleRed + '"></span>External link to schema.org )' + '</p>';
   }
   /**
    * Create HTML breadcrumbs for the type structure of a vocabulary term.
@@ -21815,7 +21859,7 @@ class VocabRenderer {
 
 
   render() {
-    var mainContent = this.createHeading() + this.createContentSection() + this.createSection(this.browser.classes, 'Class') + this.createSection(this.browser.properties, 'Property') + this.createSection(this.browser.enumerations, 'Enumeration') + this.createSection(this.browser.enumerationMembers, 'Enumeration Member') + this.createSection(this.browser.dataTypes, 'Data Type');
+    var mainContent = this.createHeading() + this.createNamespaces() + this.createContentSection() + this.createSection(this.browser.classes, 'Class') + this.createSection(this.browser.properties, 'Property') + this.createSection(this.browser.enumerations, 'Enumeration') + this.createSection(this.browser.enumerationMembers, 'Enumeration Member') + this.createSection(this.browser.dataTypes, 'Data Type');
     this.browser.elem.innerHTML = this.util.createMainContent('schema:DataSet', mainContent);
   }
   /**
@@ -21826,8 +21870,17 @@ class VocabRenderer {
 
 
   createHeading() {
-    return '' + '<span style="float: right;">' + '(' + this.util.createJSLink('format', 'jsonld', 'JSON-LD serialization') + (this.browser.list ? ' | from List: ' + this.util.createJSLink('voc', null, this.browser.list['schema:name']) : '') + ')' + '</span>' + '<h1>' + (this.browser.vocName ? this.browser.vocName : 'Vocabulary') + '</h1>' + // If there is no headline, h2 should have no margin
-    '<h2>Namespaces</h2>' + '<ul>' + Object.entries(this.browser.namespaces).map(vocab => {
+    return '' + '<span style="float: right;">' + '(' + this.util.createJSLink('format', 'jsonld', 'JSON-LD serialization') + (this.browser.list ? ' | from List: ' + this.util.createJSLink('voc', null, this.browser.list['schema:name']) : '') + ')' + '</span>' + '<h1>' + (this.browser.vocName ? this.browser.vocName : 'Vocabulary') + '</h1>' + this.util.createExternalLinkLegend();
+  }
+  /**
+   * Create HTML for the namespaces of the Vocabulary.
+   *
+   * @returns {string} The resulting HTML.
+   */
+
+
+  createNamespaces() {
+    return '' + '<h2 style="margin: revert;">Namespaces</h2>' + '<ul>' + Object.entries(this.browser.namespaces).map(vocab => {
       return '<li>' + vocab[0] + ': ' + this.util.createExternalLink(vocab[1]) + '</li>';
     }).join('') + '</ul>';
   }
@@ -21839,7 +21892,7 @@ class VocabRenderer {
 
 
   createContentSection() {
-    return '' + '<h2>Content</h2>' + '<ul>' + this.createContentListElement(this.browser.classes, 'Class') + this.createContentListElement(this.browser.properties, 'Property') + this.createContentListElement(this.browser.enumerations, 'Enumeration') + this.createContentListElement(this.browser.enumerationMembers, 'Enumeration Member') + this.createContentListElement(this.browser.dataTypes, 'Data Type') + '</ul>';
+    return '' + '<h2 style="margin: revert;">Content</h2>' + '<ul>' + this.createContentListElement(this.browser.classes, 'Class') + this.createContentListElement(this.browser.properties, 'Property') + this.createContentListElement(this.browser.enumerations, 'Enumeration') + this.createContentListElement(this.browser.enumerationMembers, 'Enumeration Member') + this.createContentListElement(this.browser.dataTypes, 'Data Type') + '</ul>';
   }
   /**
    * Create a HTML list element for a specific term type of the Vocabulary.

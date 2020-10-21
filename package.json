@@ -1,6 +1,6 @@
 {
   "name": "schema-org-vocab-browser",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Vocabulary Browser for schema.org based vocabularies",
   "repository": {
     "type": "git",
