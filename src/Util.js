@@ -228,7 +228,7 @@ class Util {
     }
 
     /**
-     * Create a HTML link to on external IRI.
+     * Create a HTML link to an external IRI.
      *
      * @param {string} href - The href value of the link.
      * @param {string|null} text - The text of the link.
@@ -236,8 +236,38 @@ class Util {
      * @returns {string} The resulting HTML.
      */
     createExternalLink(href, text = null, attr = null) {
+        let additionalStyles = ' ' + this.createExternalLinkStyle(href);
+
+        if (!attr) {
+            attr = {style: additionalStyles};
+        } else if (!attr.hasOwnProperty('style')) {
+            attr['style'] = additionalStyles;
+        } else {
+            attr['style'] = attr['style'] + additionalStyles;
+        }
+
         return '<a href="' + this.escHtml(href) + '" target="_blank"' + this.createHtmlAttr(attr) + '>' +
             (text ? this.prettyPrintIri(text) : this.prettyPrintIri(href)) + '</a>';
+    }
+
+    /**
+     * Create HTML attribute 'style' for an external link.
+     *
+     * @param iri - The IRI of the external link.
+     * @return {string} The resulting style attribute.
+     */
+    createExternalLinkStyle(iri) {
+        let style = '' +
+            'background-position: center right; ' +
+            'background-repeat: no-repeat; ' +
+            'background-size: 10px 10px; ' +
+            'padding-right: 13px; ';
+        if (iri.indexOf('https://schema.org') === -1 && iri.indexOf('http://schema.org') === -1) {
+            style += 'background-image: url(https://raw.githubusercontent.com/semantifyit/schema-org-vocab-browser/main/images/external-link-icon-blue.png);';
+        } else {
+            style += 'background-image: url(https://raw.githubusercontent.com/semantifyit/schema-org-vocab-browser/main/images/external-link-icon-red.png);'
+        }
+        return style;
     }
 
     /**
@@ -327,9 +357,28 @@ class Util {
                 '(go to ' + this.createJSLink('term', null, 'Vocabulary') + ')') +
             '</span>' +
             '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' +
+            this.createExternalLinkLegend() +
             this.createTypeStructureBreadcrumbs(typeStructure, supertypeRelationship, breadcrumbStart, breadcrumbEnd) +
             '</h4>' +
             '<div property="rdfs:comment">' + (term.getDescription() || '') + '<br><br></div>';
+    }
+
+    /**
+     * Create HTML for external link legend.
+     *
+     * @returns {string} The resulting HTML.
+     */
+    createExternalLinkLegend() {
+        const commonExtLinkStyle = 'margin-right: 3px; ';
+        const extLinkStyleBlue = commonExtLinkStyle + this.createExternalLinkStyle('');
+        const extLinkStyleRed = commonExtLinkStyle + this.createExternalLinkStyle('https://schema.org') +
+            ' margin-left: 6px;';
+
+        return '' +
+        '<p style="font-size: 12px; margin-top: 0">' +
+        '(<span style="' + extLinkStyleBlue + '"></span>External link' +
+        '<span style="' + extLinkStyleRed + '"></span>External link to schema.org )' +
+        '</p>';
     }
 
     /**

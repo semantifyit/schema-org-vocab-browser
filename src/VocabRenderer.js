@@ -58,6 +58,7 @@ class VocabRenderer {
      */
     render() {
         const mainContent = this.createHeading() +
+            this.createNamespaces() +
             this.createContentSection() +
             this.createSection(this.browser.classes, 'Class') +
             this.createSection(this.browser.properties, 'Property') +
@@ -81,8 +82,17 @@ class VocabRenderer {
             ')' +
             '</span>' +
             '<h1>' + (this.browser.vocName ? this.browser.vocName : 'Vocabulary') + '</h1>' +
-            // If there is no headline, h2 should have no margin
-            '<h2>Namespaces</h2>' +
+            this.util.createExternalLinkLegend();
+    }
+
+    /**
+     * Create HTML for the namespaces of the Vocabulary.
+     *
+     * @returns {string} The resulting HTML.
+     */
+    createNamespaces() {
+        return '' +
+            '<h2 style="margin: revert;">Namespaces</h2>' +
             '<ul>' +
             Object.entries(this.browser.namespaces).map((vocab) => {
                 return '<li>' + vocab[0] + ': ' + this.util.createExternalLink(vocab[1]) + '</li>';
@@ -97,7 +107,7 @@ class VocabRenderer {
      */
     createContentSection() {
         return '' +
-            '<h2>Content</h2>' +
+            '<h2 style="margin: revert;">Content</h2>' +
             '<ul>' +
             this.createContentListElement(this.browser.classes, 'Class') +
             this.createContentListElement(this.browser.properties, 'Property') +

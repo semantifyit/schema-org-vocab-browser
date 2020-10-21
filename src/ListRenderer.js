@@ -24,7 +24,9 @@ class ListRenderer {
      * @returns {string} The resulting HTML
      */
     createHeader() {
-        return '<h1>' + this.browser.list['schema:name'] + '</h1>';
+        return '' +
+            '<h1>' + this.browser.list['schema:name'] + '</h1>' +
+            this.util.createExternalLinkLegend();
     }
 
     /**
