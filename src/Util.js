@@ -359,7 +359,6 @@ class Util {
             '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' +
             this.createExternalLinkLegend() +
             this.createTypeStructureBreadcrumbs(typeStructure, supertypeRelationship, breadcrumbStart, breadcrumbEnd) +
-            '</h4>' +
             '<div property="rdfs:comment">' + (term.getDescription() || '') + '<br><br></div>';
     }
 
