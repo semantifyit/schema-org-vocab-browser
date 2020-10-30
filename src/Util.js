@@ -271,17 +271,13 @@ class Util {
     }
 
     /**
-     * Replace 'schema:' and escapes characters in iri.
+     * Removes 'schema:', 'http://schema.org/' & 'https://schema.org/'.
      *
      * @param {string} iri - The IRI that should pretty-printed.
      * @returns {string} The pretty-printed IRI.
      */
     prettyPrintIri(iri) {
-        const schema = 'schema:';
-        if (iri.startsWith(schema)) {
-            return iri.substring(schema.length);
-        }
-        return this.escHtml(iri);
+        return iri.replace(/^(schema:|https?:\/\/schema.org\/)(.+)/, '$2');
     }
 
     /**
