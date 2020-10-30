@@ -20741,7 +20741,7 @@ class ListRenderer {
 
 
   createHeader() {
-    return '' + '<h1>' + this.browser.list['schema:name'] + '</h1>' + this.util.createExternalLinkLegend();
+    return '' + '<h1>' + this.browser.list['schema:name'] + '</h1>' + this.util.createExternalLinkLegend() + this.browser.list['schema:description'] || '';
   }
   /**
    * Create HTML table for the vocabularies of the List.
@@ -21491,16 +21491,20 @@ class Util {
   createExternalLink(href) {
     var text = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
     var attr = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var additionalStyles = ' ' + this.createExternalLinkStyle(href);
+    var urlObj = new URL(href);
 
-    if (!attr) {
-      attr = {
-        style: additionalStyles
-      };
-    } else if (!attr.hasOwnProperty('style')) {
-      attr['style'] = additionalStyles;
-    } else {
-      attr['style'] = attr['style'] + additionalStyles;
+    if (window.location.hostname !== urlObj.hostname) {
+      var additionalStyles = ' ' + this.createExternalLinkStyle(href);
+
+      if (!attr) {
+        attr = {
+          style: additionalStyles
+        };
+      } else if (!attr.hasOwnProperty('style')) {
+        attr['style'] = additionalStyles;
+      } else {
+        attr['style'] = attr['style'] + additionalStyles;
+      }
     }
 
     return '<a href="' + this.escHtml(href) + '" target="_blank"' + this.createHtmlAttr(attr) + '>' + (text ? this.prettyPrintIri(text) : this.prettyPrintIri(href)) + '</a>';
@@ -21525,7 +21529,7 @@ class Util {
     return style;
   }
   /**
-   * Replace 'schema:' and escapes characters in iri.
+   * Removes 'schema:', 'http://schema.org/' & 'https://schema.org/'.
    *
    * @param {string} iri - The IRI that should pretty-printed.
    * @returns {string} The pretty-printed IRI.
@@ -21533,13 +21537,7 @@ class Util {
 
 
   prettyPrintIri(iri) {
-    var schema = 'schema:';
-
-    if (iri.startsWith(schema)) {
-      return iri.substring(schema.length);
-    }
-
-    return this.escHtml(iri);
+    return iri.replace(/^(schema:|https?:\/\/schema.org\/)(.+)/, '$2');
   }
   /**
    * Create a HTML div with the main content for the vocab browser element.
@@ -21612,7 +21610,7 @@ class Util {
     var breadcrumbStart = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
     var breadcrumbEnd = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
     var term = this.browser.term;
-    return '' + '<span style="float: right;">' + (this.browser.vocName ? '(from Vocabulary: ' + this.createJSLink('term', null, this.browser.vocName) + ')' : '(go to ' + this.createJSLink('term', null, 'Vocabulary') + ')') + '</span>' + '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' + this.createExternalLinkLegend() + this.createTypeStructureBreadcrumbs(typeStructure, supertypeRelationship, breadcrumbStart, breadcrumbEnd) + '</h4>' + '<div property="rdfs:comment">' + (term.getDescription() || '') + '<br><br></div>';
+    return '' + '<span style="float: right;">' + (this.browser.vocName ? '(from Vocabulary: ' + this.createJSLink('term', null, this.browser.vocName) + ')' : '(go to ' + this.createJSLink('term', null, 'Vocabulary') + ')') + '</span>' + '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' + this.createExternalLinkLegend() + this.createTypeStructureBreadcrumbs(typeStructure, supertypeRelationship, breadcrumbStart, breadcrumbEnd) + '<div property="rdfs:comment">' + (term.getDescription() || '') + '<br><br></div>';
   }
   /**
    * Create HTML for external link legend.

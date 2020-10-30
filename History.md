@@ -1,3 +1,11 @@
+1.0.3 / 2020-10-30
+==================
+
+  * Update package schema-org-adapter to 3.2.0
+  * Check if link needs external link style
+  * Remove start of schema.org for full IRIs as well when pretty-printing
+  * Add List description
+
 1.0.2 / 2020-10-21
 ==================
 
