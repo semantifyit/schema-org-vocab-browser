@@ -236,14 +236,17 @@ class Util {
      * @returns {string} The resulting HTML.
      */
     createExternalLink(href, text = null, attr = null) {
-        let additionalStyles = ' ' + this.createExternalLinkStyle(href);
+        const urlObj = new URL(href);
+        if (window.location.hostname !== urlObj.hostname) {
+            let additionalStyles = ' ' + this.createExternalLinkStyle(href);
 
-        if (!attr) {
-            attr = {style: additionalStyles};
-        } else if (!attr.hasOwnProperty('style')) {
-            attr['style'] = additionalStyles;
-        } else {
-            attr['style'] = attr['style'] + additionalStyles;
+            if (!attr) {
+                attr = {style: additionalStyles};
+            } else if (!attr.hasOwnProperty('style')) {
+                attr['style'] = additionalStyles;
+            } else {
+                attr['style'] = attr['style'] + additionalStyles;
+            }
         }
 
         return '<a href="' + this.escHtml(href) + '" target="_blank"' + this.createHtmlAttr(attr) + '>' +
