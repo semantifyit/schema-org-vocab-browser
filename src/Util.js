@@ -475,7 +475,7 @@ class Util {
      * @returns {string} The resulting HTML.
      */
     createPropertyTableRow(property, onlyDomainIncludes = false) {
-        return this.createTableRow('rdfs:Property',
+        return this.createTableRow('rdf:Property',
             this.createHref(property),
             'rdfs:label',
             this.createLink(property),
