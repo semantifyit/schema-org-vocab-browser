@@ -18666,7 +18666,11 @@ class SDOAdapter {
   fetchVocabularyFromURL(url) {
     return _asyncToGenerator(function* () {
       return new Promise(function (resolve, reject) {
-        axios.get(url).then(function (res) {
+        axios.get(url, {
+          headers: {
+            'Accept': 'application/ld+json, application/json'
+          }
+        }).then(function (res) {
           resolve(res.data);
         }).catch(function (err) {
           reject('Could not find any resource at the given URL.');
@@ -21505,9 +21509,11 @@ class Util {
       } else {
         attr['style'] = attr['style'] + additionalStyles;
       }
+
+      attr['target'] = '_blank';
     }
 
-    return '<a href="' + this.escHtml(href) + '" target="_blank"' + this.createHtmlAttr(attr) + '>' + (text ? this.prettyPrintIri(text) : this.prettyPrintIri(href)) + '</a>';
+    return '<a href="' + this.escHtml(href) + '"' + this.createHtmlAttr(attr) + '>' + (text ? this.prettyPrintIri(text) : this.prettyPrintIri(href)) + '</a>';
   }
   /**
    * Create HTML attribute 'style' for an external link.
@@ -21718,7 +21724,7 @@ class Util {
 
   createPropertyTableRow(property) {
     var onlyDomainIncludes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-    return this.createTableRow('rdfs:Property', this.createHref(property), 'rdfs:label', this.createLink(property), this.createPropertySideCols(property, onlyDomainIncludes), 'prop-name');
+    return this.createTableRow('rdf:Property', this.createHref(property), 'rdfs:label', this.createLink(property), this.createPropertySideCols(property, onlyDomainIncludes), 'prop-name');
   }
   /**
    * Create HTML side columns of a schema.org based property.
