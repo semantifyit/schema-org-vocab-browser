@@ -34,7 +34,7 @@ class SDOVocabBrowser {
      * - a list based on semantify.it specifications (see: https://semantify.it/documentation/lists)
      * The data type of the vocabulary or the list must be either a JSON-LD object, a string which represents a JSON-LD
      * document or an IRI which points to a JSON-LD document.
-     * @param {BROWSER_TYPES} type - The type of the browser, either 'VOCAB' (default) or 'LIST'.
+     * @param {string} type - The type of the browser, either 'VOCAB' (default) or 'LIST'.
      */
     constructor(elem, vocabOrList, type = BROWSER_TYPES.VOCAB) {
         this.elem = elem;
