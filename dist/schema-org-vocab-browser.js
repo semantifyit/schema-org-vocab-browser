@@ -20534,7 +20534,7 @@ class ClassRenderer {
 
 
   createProperties() {
-    var html = '<table class="definition-table">' + this.createPropertiesHeader();
+    var html = '<table class="table definition-table">' + this.createPropertiesHeader();
     var classes = [this.browser.term, ...this.browser.term.getSuperClasses().map(c => this.browser.sdoAdapter.getClass(c))];
     classes.forEach(c => {
       var properties = c.getProperties(false);
@@ -21786,7 +21786,7 @@ class Util {
       trs = [trs];
     }
 
-    return '' + '<table class="definition-table">' + '<thead>' + '<tr>' + ths.map(th => {
+    return '' + '<table class="table definition-table">' + '<thead>' + '<tr>' + ths.map(th => {
       return '<th>' + th + '</th>';
     }).join('') + '</tr>' + '</thead>' + '<tbody' + this.createHtmlAttr(tbodyAttr) + '>' + (trs[0].startsWith('<tr') ? trs.join('') : trs.map(tr => {
       return '<tr>' + tr + '</tr>';

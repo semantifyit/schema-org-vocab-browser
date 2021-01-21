@@ -538,7 +538,7 @@ class Util {
             trs = [trs];
         }
         return '' +
-            '<table class="definition-table">' +
+            '<table class="table definition-table">' +
             '<thead>' +
             '<tr>' +
             ths.map((th) => {
