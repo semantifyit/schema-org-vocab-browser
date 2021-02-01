@@ -45,11 +45,13 @@ You can use the Vocabulary directly as object or pass a URL to its location.
 
 It is also possible to render a List of Vocabularies. In order to do that, you need to pass the `type` argument to the function `SDOVocabBrowser()`. The `type` argument is `'VOCAB'` by default, but must be `'LIST'` to render a List of Vocabularies.
 
+In order to show the author and the description of List items, that information must be included in the List (for DS-Lists of semantify.it this can be achieved by appending `?representation=lean` to the List URL).
+
 ``` html
 <div id="vocab-container"></div>
 <script>
     (async function() {
-        const listURL = 'https://semantify.it/list/I7ikMwcXo';
+        const listURL = 'https://semantify.it/list/I7ikMwcXo?representation=lean';
         const sdoVocabBrowser = new SDOVocabBrowser(document.getElementById('vocab-container'), listURL, 'LIST');
         await sdoVocabBrowser.render();
     })();
