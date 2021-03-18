@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vocab-Browser Test</title>
+    <link rel="stylesheet" type="text/css" href="https://schema.org/docs/schemaorg.css">
+    <style>
+        table.definition-table {
+            width: 100%
+        }
+    </style>
+</head>
+<body>
+<div id="vocab-container"></div>
+</body>
+<script src="/schema-org-vocab-browser.js"></script>
+<script>
+    (async function () {
+        const listURL = 'https://semantify.it/list/I7ikMwcXo?representation=lean';
+        const vocabBrowser = new SDOVocabBrowser(document.getElementById('vocab-container'), listURL, 'LIST');
+        await vocabBrowser.render();
+    })();
+</script>
+</html>

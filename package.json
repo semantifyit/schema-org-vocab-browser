@@ -25,13 +25,15 @@
   "scripts": {
     "buildAll": "npm run-script build && npm run-script buildMinified",
     "build": "browserify src/SDOVocabBrowser.js -s SDOVocabBrowser > dist/schema-org-vocab-browser.js",
-    "buildMinified": "browserify src/SDOVocabBrowser.js -s SDOVocabBrowser -g [uglifyify] > dist/schema-org-vocab-browser.min.js"
+    "buildMinified": "browserify src/SDOVocabBrowser.js -s SDOVocabBrowser -g [uglifyify] > dist/schema-org-vocab-browser.min.js",
+    "test-localhost": "node test/test-app.js"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
     "@babel/preset-env": "^7.12.1",
     "babelify": "^10.0.0",
     "browserify": "^17.0.0",
+    "express": "^4.17.1",
     "uglifyify": "^5.0.2"
   },
   "browserify": {
