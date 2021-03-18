@@ -14,14 +14,14 @@ class PropertyRenderer {
      * Render the Property.
      */
     render() {
-        const startBreadcrumbs = this.createStartBreadcrumbs();
+        const startBreadcrumbs = this.createHtmlStartBreadcrumbs();
         const typeStructure = this.util.getTypeStructure(this.browser.term, 'getSuperProperties');
-        const mainContent = this.util.createHeader(typeStructure, 'rdfs:subPropertyOf', startBreadcrumbs) +
-            this.createRanges() +
-            this.createDomainIncludes() +
-            this.createSuperproperties() +
-            this.createSubproperties();
-        this.browser.elem.innerHTML = this.util.createMainContent('rdf:Property', mainContent);
+        const mainContent = this.util.createHtmlHeader(typeStructure, 'rdfs:subPropertyOf', startBreadcrumbs) +
+            this.createHtmlRanges() +
+            this.createHtmlDomainIncludes() +
+            this.createHtmlSuperProperties() +
+            this.createHtmlSubProperties();
+        this.browser.targetElement.innerHTML = this.util.createHtmlMainContent('rdf:Property', mainContent);
     }
 
     /**
@@ -29,7 +29,7 @@ class PropertyRenderer {
      *
      * @returns {string} The resulting HTML.
      */
-    createStartBreadcrumbs() {
+    createHtmlStartBreadcrumbs() {
         return '' +
             this.util.createLink('schema:Thing') +
             " > " +
@@ -42,16 +42,16 @@ class PropertyRenderer {
      *
      * @returns {string} The resulting HTML.
      */
-    createRanges() {
+    createHtmlRanges() {
         const ranges = this.browser.term.getRanges(false).map((r) => {
             const title = {
                 'title': 'The \'' + this.browser.term.getIRI(true) +
                     '\' property has values that include instances of the' + ' \'' + r + '\' type.'
             };
-            return this.util.createCodeLink(r, null, title, 'rangeIncludes');
+            return this.util.createHtmlLink(r, null, title, 'rangeIncludes');
         }).join('<br>');
 
-        return this.util.createDefinitionTable('Values expected to be one of these types', '<td>' + ranges + '</td>');
+        return this.util.createHtmlDefinitionTable('Values expected to be one of these types', '<td>' + ranges + '</td>');
     }
 
     /**
@@ -59,16 +59,16 @@ class PropertyRenderer {
      *
      * @returns {string} The resulting HTML.
      */
-    createDomainIncludes() {
+    createHtmlDomainIncludes() {
         const domains = this.browser.term.getDomains(false).map((d) => {
             const title = {
                 'title': 'The \'' + this.browser.term.getIRI(true) + '\' property ' + 'is used on the \'' + d +
                     '\' ' + 'type'
             };
-            return this.util.createCodeLink(d, null, title, 'domainIncludes');
+            return this.util.createHtmlLink(d, null, title, 'domainIncludes');
         }).join('<br>');
 
-        return this.util.createDefinitionTable('Used on these types', '<td>' + domains + '</td>');
+        return this.util.createHtmlDefinitionTable('Used on these types', '<td>' + domains + '</td>');
     }
 
     /**
@@ -76,9 +76,9 @@ class PropertyRenderer {
      *
      * @returns {string} The resulting HTML.
      */
-    createSuperproperties() {
+    createHtmlSuperProperties() {
         const superProperties = this.browser.term.getSuperProperties(false);
-        return this.createRelatedProperties(superProperties, 'Super-properties');
+        return this.createHtmlRelatedProperties(superProperties, 'Super-properties');
     }
 
     /**
@@ -88,19 +88,17 @@ class PropertyRenderer {
      * @param {string} th - The table header for the related properties.
      * @returns {string} The resulting HTML.
      */
-    createRelatedProperties(relatedProperties, th) {
-        if (relatedProperties.length !== 0) {
-            const relatedTermsHTML = relatedProperties.map((s) => {
-                const title = {
-                    'title': s + ': \'\'' + (this.browser.sdoAdapter.getProperty(s).getDescription() || '') + '\'\''
-                };
-                return this.util.createCodeLink(s, null, title);
-            }).join('<br>');
-
-            return this.util.createDefinitionTable(th, '<td>' + relatedTermsHTML + '</td>');
-        } else {
+    createHtmlRelatedProperties(relatedProperties, th) {
+        if (relatedProperties.length === 0) {
             return '';
         }
+        const relatedTermsHTML = relatedProperties.map((s) => {
+            const title = {
+                'title': s + ': \'\'' + (this.browser.sdoAdapter.getProperty(s).getDescription() || '') + '\'\''
+            };
+            return this.util.createHtmlLink(s, null, title);
+        }).join('<br>');
+        return this.util.createHtmlDefinitionTable(th, '<td>' + relatedTermsHTML + '</td>');
     }
 
     /**
@@ -108,9 +106,9 @@ class PropertyRenderer {
      *
      * @returns {string} The resulting HTML.
      */
-    createSubproperties() {
+    createHtmlSubProperties() {
         const subProperties = this.browser.term.getSubProperties(false);
-        return this.createRelatedProperties(subProperties, 'Sub-properties');
+        return this.createHtmlRelatedProperties(subProperties, 'Sub-properties');
     }
 }
 

@@ -19,9 +19,9 @@ class EnumerationMemberRenderer {
         });
         const breadCrumbEnd = ' :: ' + this.util.createLink(this.browser.term.getIRI(true));
         // TODO: Can we use @type here?
-        const mainContent = this.util.createHeader(typeStructure, '@type', '', breadCrumbEnd) +
-            this.createDomains();
-        this.browser.elem.innerHTML = this.util.createMainContent('rdfs:Class', mainContent);
+        const mainContent = this.util.createHtmlHeader(typeStructure, '@type', '', breadCrumbEnd) +
+            this.createHtmlDomains();
+        this.browser.targetElement.innerHTML = this.util.createHtmlMainContent('rdfs:Class', mainContent);
     }
 
     /**
@@ -29,7 +29,7 @@ class EnumerationMemberRenderer {
      *
      * @returns {string} The resulting HTML.
      */
-    createDomains() {
+    createHtmlDomains() {
         const domains = this.browser.term.getDomainEnumerations();
         return 'A member value for enumeration' + (domains.length > 1 ? 's' : '') + ': ' +
             domains.map((d) => this.util.createLink(d)).join(', ') +

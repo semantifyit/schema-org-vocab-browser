@@ -65,11 +65,11 @@ class Util {
      * @returns {Promise<string|object>} A Promise with either the JSON-LD content of the URL or an error object.
      */
     getJsonld(url) {
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
             let xhr = new XMLHttpRequest();
             xhr.open('GET', url);
             xhr.setRequestHeader('Accept', 'application/ld+json');
-            xhr.onload = function () {
+            xhr.onload = function() {
                 if (this.status >= 200 && this.status < 300) {
                     resolve(xhr.response);
                 } else {
@@ -79,7 +79,7 @@ class Util {
                     });
                 }
             };
-            xhr.onerror = function () {
+            xhr.onerror = function() {
                 reject({
                     status: this.status,
                     statusText: xhr.statusText
@@ -116,12 +116,10 @@ class Util {
      * @param {string|null} mainColClass - The CSS class of the main column.
      * @returns {string} The resulting HTML.
      */
-    createTableRow(rdfaTypeOf, rdfaResource, mainColRdfaProp, mainColTermOrLink, sideCols, mainColClass = null) {
-        return '' +
-            '<tr typeof="' + rdfaTypeOf + '" resource="' + rdfaResource + '">' +
-            this.createMainCol(mainColRdfaProp, mainColTermOrLink, mainColClass) +
-            sideCols +
-            '</tr>';
+    createHtmlTableRow(rdfaTypeOf, rdfaResource, mainColRdfaProp, mainColTermOrLink, sideCols, mainColClass = null) {
+        const htmlMainCol = this.createHtmlMainCol(mainColRdfaProp, mainColTermOrLink, mainColClass);
+        return `<tr typeof="${rdfaTypeOf}" resource="${rdfaResource}">
+            ${htmlMainCol} ${sideCols}</tr>`;
     }
 
     /**
@@ -132,11 +130,10 @@ class Util {
      * @param {string|null} className -  The CSS class of the column.
      * @returns {string} The resulting HTML.
      */
-    createMainCol(rdfaProp, termOrLink, className = null) {
-        return '' +
-            '<th' + (className ? ' class="' + className + '"' : '') + ' scope="row">' +
-            this.createCodeLink(termOrLink, {'property': rdfaProp}) +
-            '</th>';
+    createHtmlMainCol(rdfaProp, termOrLink, className = null) {
+        const htmlCodeLink = this.createHtmlLink(termOrLink, {'property': rdfaProp});
+        const htmlClass = className ? ' class="' + className + '"' : '';
+        return `<th ${htmlClass} scope="row">${htmlCodeLink}</th>`;
     }
 
     /**
@@ -148,11 +145,10 @@ class Util {
      * @param {string|null} rdfaProp - The RDFa property of the link.
      * @returns {string} The resulting HTML.
      */
-    createCodeLink(termOrLink, codeAttr = null, linkAttr = null, rdfaProp = null) {
-        return '' +
-            '<code' + this.createHtmlAttr(codeAttr) + '>' +
-            this.createFullLink(termOrLink, linkAttr, rdfaProp) +
-            '</code>';
+    createHtmlLink(termOrLink, codeAttr = null, linkAttr = null, rdfaProp = null) {
+        const htmlAttr = this.createHtmlAttr(codeAttr);
+        const htmlFullLink = this.createHtmlFullLink(termOrLink, linkAttr, rdfaProp);
+        return `<code ${htmlAttr}>${htmlFullLink}</code>`;
     }
 
     /**
@@ -163,14 +159,14 @@ class Util {
      * @param rdfaProp - The RDFa property of the link.
      * @returns {string} The resulting HTML.
      */
-    createFullLink(termOrLink, linkAttr, rdfaProp) {
-        let term = null;
+    createHtmlFullLink(termOrLink, linkAttr, rdfaProp) {
+        let term;
         try {
             term = this.browser.sdoAdapter.getTerm(termOrLink);
         } catch (e) {
+            term = null;
         }
-        return '' +
-            (rdfaProp ? this.createSemanticLink(rdfaProp, termOrLink) : '') +
+        return (rdfaProp ? this.createHtmlSemanticLink(rdfaProp, termOrLink) : '') +
             (term ? this.createLink(termOrLink, linkAttr) : termOrLink);
     }
 
@@ -184,16 +180,13 @@ class Util {
      * @param {object|null} attr - The HTML attributes of the link.
      * @returns {string} The resulting HTML.
      */
-    createJSLink(queryKey, queryVal, text = null, attr = null) {
+    createHtmlJSLink(queryKey, queryVal, text = null, attr = null) {
         const iri = this.createIriWithQueryParam(queryKey, queryVal);
-        return '' +
-            '<a ' +
-            'class="a-js-link" ' +
-            'href="' + this.escHtml(iri) + '" ' +
-            'onclick="return false;"' +
-            this.createHtmlAttr(attr) + '>' +
-            (text ? this.escHtml(text) : this.escHtml(queryVal)) +
-            '</a>';
+        const href = this.escHtml(iri);
+        const htmlAttr = this.createHtmlAttr(attr);
+        const htmlText = text ? this.escHtml(text) : this.escHtml(queryVal);
+        return `<a class="a-js-link" href="${href}" onclick="return false;" ${htmlAttr}>
+            ${htmlText}</a>`;
     }
 
     /**
@@ -218,13 +211,12 @@ class Util {
      * @returns {string} The resulting HTML.
      */
     createHtmlAttr(attr) {
-        if (attr) {
-            return Object.entries(attr).map((a) => {
-                return ' ' + this.escHtml(a[0]) + '="' + this.escHtml(a[1]) + '"';
-            }).join('');
-        } else {
+        if (!attr) {
             return '';
         }
+        return Object.entries(attr).map((a) => {
+            return ' ' + this.escHtml(a[0]) + '="' + this.escHtml(a[1]) + '"';
+        }).join('');
     }
 
     /**
@@ -242,6 +234,7 @@ class Util {
 
             if (!attr) {
                 attr = {style: additionalStyles};
+                // eslint-disable-next-line no-prototype-builtins
             } else if (!attr.hasOwnProperty('style')) {
                 attr['style'] = additionalStyles;
             } else {
@@ -250,7 +243,7 @@ class Util {
             attr['target'] = '_blank';
         }
 
-        return '<a href="' + this.escHtml(href) + '"' +  this.createHtmlAttr(attr) + '>' +
+        return '<a href="' + this.escHtml(href) + '"' + this.createHtmlAttr(attr) + '>' +
             (text ? this.prettyPrintIri(text) : this.prettyPrintIri(href)) + '</a>';
     }
 
@@ -261,15 +254,14 @@ class Util {
      * @return {string} The resulting style attribute.
      */
     createExternalLinkStyle(iri) {
-        let style = '' +
-            'background-position: center right; ' +
-            'background-repeat: no-repeat; ' +
-            'background-size: 10px 10px; ' +
-            'padding-right: 13px; ';
+        let style = `background-position: center right; 
+            background-repeat: no-repeat; 
+            background-size: 10px 10px; 
+            padding-right: 13px; `;
         if (iri.indexOf('https://schema.org') === -1 && iri.indexOf('http://schema.org') === -1) {
             style += 'background-image: url(https://raw.githubusercontent.com/semantifyit/schema-org-vocab-browser/main/images/external-link-icon-blue.png);';
         } else {
-            style += 'background-image: url(https://raw.githubusercontent.com/semantifyit/schema-org-vocab-browser/main/images/external-link-icon-red.png);'
+            style += 'background-image: url(https://raw.githubusercontent.com/semantifyit/schema-org-vocab-browser/main/images/external-link-icon-red.png);';
         }
         return style;
     }
@@ -291,12 +283,9 @@ class Util {
      * @param {string} mainContent - The HTML of the main content.
      * @returns {string} The resulting HTML.
      */
-    createMainContent(rdfaTypeOf, mainContent) {
-        return '' +
-            '<div id="mainContent" vocab="http://schema.org/" typeof="' + rdfaTypeOf + '" ' +
-            'resource="' + window.location + '">' +
-            mainContent +
-            '</div>';
+    createHtmlMainContent(rdfaTypeOf, mainContent) {
+        const resource = window.location;
+        return `<div id="mainContent" vocab="http://schema.org/" typeof="${rdfaTypeOf}" resource="${resource}">${mainContent}</div>`;
     }
 
     /**
@@ -348,18 +337,19 @@ class Util {
      * @param {string} breadcrumbEnd - The HTML in the end of every breadcrumb.
      * @returns {string} The resulting HTML.
      */
-    createHeader(typeStructure, supertypeRelationship, breadcrumbStart = '', breadcrumbEnd = '') {
+    createHtmlHeader(typeStructure, supertypeRelationship, breadcrumbStart = '', breadcrumbEnd = '') {
         const term = this.browser.term;
-        return '' +
-            '<span style="float: right;">' +
-            (this.browser.vocName ?
-                '(from Vocabulary: ' + this.createJSLink('term', null, this.browser.vocName) + ')' :
-                '(go to ' + this.createJSLink('term', null, 'Vocabulary') + ')') +
-            '</span>' +
-            '<h1 property="rdfs:label" class="page-title">' + term.getIRI(true) + '</h1>' +
-            this.createExternalLinkLegend() +
-            this.createTypeStructureBreadcrumbs(typeStructure, supertypeRelationship, breadcrumbStart, breadcrumbEnd) +
-            '<div property="rdfs:comment">' + (term.getDescription() || '') + '<br><br></div>';
+        const termIri = term.getIRI(true);
+        const termDescription = term.getDescription() || '';
+        const htmlVocabLink = this.browser.vocName ?
+            '(from Vocabulary: ' + this.createHtmlJSLink('term', null, this.browser.vocName) + ')' :
+            '(go to ' + this.createHtmlJSLink('term', null, 'Vocabulary') + ')';
+        const htmlExternalLinkLegend = this.createHtmlExternalLinkLegend();
+        const htmlBreadcrumbs = this.createHtmlTypeStructureBreadcrumbs(typeStructure, supertypeRelationship, breadcrumbStart, breadcrumbEnd);
+        return `<span style="float: right;">${htmlVocabLink}</span>
+            <h1 property="rdfs:label" class="page-title">${termIri}</h1>
+            ${htmlExternalLinkLegend} ${htmlBreadcrumbs}
+            <div property="rdfs:comment">${termDescription}<br><br></div>`;
     }
 
     /**
@@ -367,17 +357,14 @@ class Util {
      *
      * @returns {string} The resulting HTML.
      */
-    createExternalLinkLegend() {
+    createHtmlExternalLinkLegend() {
         const commonExtLinkStyle = 'margin-right: 3px; ';
         const extLinkStyleBlue = commonExtLinkStyle + this.createExternalLinkStyle('');
         const extLinkStyleRed = commonExtLinkStyle + this.createExternalLinkStyle('https://schema.org') +
             ' margin-left: 6px;';
-
-        return '' +
-        '<p style="font-size: 12px; margin-top: 0">' +
-        '(<span style="' + extLinkStyleBlue + '"></span>External link' +
-        '<span style="' + extLinkStyleRed + '"></span>External link to schema.org )' +
-        '</p>';
+        return `<p style="font-size: 12px; margin-top: 0">
+            (<span style="${extLinkStyleBlue}"></span>External link
+            <span style="${extLinkStyleRed}"></span>External link to schema.org)</p>`;
     }
 
     /**
@@ -389,9 +376,8 @@ class Util {
      * @param {string} breadcrumbEnd - The HTML in the end of every breadcrumb.
      * @returns {string} - The resulting HTML.
      */
-    createTypeStructureBreadcrumbs(typeStructure, supertypeRelationship, breadcrumbStart, breadcrumbEnd) {
-        return '' +
-            '<h4>' +
+    createHtmlTypeStructureBreadcrumbs(typeStructure, supertypeRelationship, breadcrumbStart, breadcrumbEnd) {
+        return '<h4>' +
             typeStructure.map((s) => {
                 return '' +
                     '<span class="breadcrumbs">' +
@@ -400,7 +386,7 @@ class Util {
                         let html = '';
                         if ((breadcrumbEnd === '' && (i + 2) === s.length) ||
                             (breadcrumbEnd !== '' && (i + 1) === s.length)) {
-                            html += this.createSemanticLink(supertypeRelationship, superType);
+                            html += this.createHtmlSemanticLink(supertypeRelationship, superType);
                         }
                         html += this.createLink(superType);
                         return html;
@@ -418,8 +404,10 @@ class Util {
      * @param {string} term - The vocabulary term.
      * @returns {string} The resulting HTML.
      */
-    createSemanticLink(property, term) {
-        return '<link property="' + this.escHtml(property) + '" href="' + this.escHtml(this.createHref(term)) + '">';
+    createHtmlSemanticLink(property, term) {
+        const htmlProperty = this.escHtml(property);
+        const htmlHref = this.escHtml(this.createHref(term));
+        return `<link property="${htmlProperty}" href="${htmlHref}">`;
     }
 
     /**
@@ -461,7 +449,7 @@ class Util {
      */
     createLink(term, attr = null) {
         if (this.isTermOfVocab(term)) {
-            return this.createJSLink('term', term, null, attr);
+            return this.createHtmlJSLink('term', term, null, attr);
         } else {
             return this.createExternalLink(this.createHref(term), term, attr);
         }
@@ -476,11 +464,11 @@ class Util {
      * @returns {string} The resulting HTML.
      */
     createPropertyTableRow(property, onlyDomainIncludes = false) {
-        return this.createTableRow('rdf:Property',
+        return this.createHtmlTableRow('rdf:Property',
             this.createHref(property),
             'rdfs:label',
             this.createLink(property),
-            this.createPropertySideCols(property, onlyDomainIncludes),
+            this.createHtmlPropertySideCols(property, onlyDomainIncludes),
             'prop-name');
     }
 
@@ -492,11 +480,12 @@ class Util {
      * property.
      * @returns {string} The resulting HTML.
      */
-    createPropertySideCols(property, onlyDomainIncludes) {
+    createHtmlPropertySideCols(property, onlyDomainIncludes) {
         const sdoProperty = this.browser.sdoAdapter.getProperty(property);
-        return '' +
-            '<td class="prop-etc">' + this.createPropertyRange(sdoProperty, onlyDomainIncludes) + '</td>' +
-            '<td class="prop-desc" property="rdfs:comment">' + (sdoProperty.getDescription() || '') + '</td>';
+        const htmlPropertyRange = this.createHtmlPropertyRange(sdoProperty, onlyDomainIncludes);
+        const htmlPropertyDescription = sdoProperty.getDescription() || '';
+        return `<td class="prop-etc">${htmlPropertyRange}</td>
+            <td class="prop-desc" property="rdfs:comment">${htmlPropertyDescription}</td>`;
     }
 
     /**
@@ -507,16 +496,16 @@ class Util {
      * property.
      * @returns {string} The resulting HTML.
      */
-    createPropertyRange(sdoProperty, onlyDomainIncludes) {
+    createHtmlPropertyRange(sdoProperty, onlyDomainIncludes) {
         let expectedType = '';
         const separator = '&nbsp; or <br>';
         if (!onlyDomainIncludes) {
             expectedType = sdoProperty.getRanges(false).map((p) => {
-                return this.createSemanticLink('rangeIncludes', p) + this.createLink(p);
+                return this.createHtmlSemanticLink('rangeIncludes', p) + this.createLink(p);
             }).join(separator);
         }
         const domainIncludes = sdoProperty.getDomains(false).map((d) => {
-            return this.createSemanticLink('domainIncludes', d) +
+            return this.createHtmlSemanticLink('domainIncludes', d) +
                 (onlyDomainIncludes ? this.createLink(d) : '');
         }).join(onlyDomainIncludes ? separator : '');
         return expectedType + domainIncludes;
@@ -530,28 +519,23 @@ class Util {
      * @param {object|null} tbodyAttr - The HTML attributes of the table body.
      * @returns {string} The resulting HTML.
      */
-    createDefinitionTable(ths, trs, tbodyAttr=null) {
+    createHtmlDefinitionTable(ths, trs, tbodyAttr = null) {
         if (!Array.isArray(ths)) {
             ths = [ths];
         }
         if (!Array.isArray(trs)) {
             trs = [trs];
         }
-        return '' +
-            '<table class="definition-table">' +
-            '<thead>' +
-            '<tr>' +
-            ths.map((th) => {
-                return '<th>' + th + '</th>';
-            }).join('') +
-            '</tr>' +
-            '</thead>' +
-            '<tbody' + this.createHtmlAttr(tbodyAttr) + '>' +
-            (trs[0].startsWith('<tr') ? trs.join('') : trs.map((tr) => {
-                return '<tr>' + tr + '</tr>';
-            }).join('')) +
-            '</tbody>' +
-            '</table>';
+        const htmlThs = ths.map((th) => {
+            return '<th>' + th + '</th>';
+        }).join('');
+        const htmlTrs = trs[0].startsWith('<tr') ? trs.join('') : trs.map((tr) => {
+            return '<tr>' + tr + '</tr>';
+        }).join('');
+        const htmlAttr = this.createHtmlAttr(tbodyAttr);
+        return `<table class="definition-table">
+            <thead><tr>${htmlThs}</tr></thead>
+            <tbody ${htmlAttr}>${htmlTrs}</tbody></table>`;
     }
 
     /**
@@ -560,24 +544,19 @@ class Util {
      * @param isForEnumMember - Indicates whether the the method is called for an Enumeration Member.
      * @returns {string} The resulting HTML.
      */
-    createRangesOf(isForEnumMember = false) {
+    createHtmlRangesOf(isForEnumMember = false) {
         const rangeOf = this.browser.term.isRangeOf(false);
-        if (rangeOf.length !== 0) {
-            const trs = rangeOf.map((r) => {
-                return this.createPropertyTableRow(r, true);
-            });
-
-            return '' +
-                '<div id="incoming">' +
-                'Instances of ' + this.createLink(this.browser.term.getIRI(true)) +
-                (isForEnumMember ? ' and its enumeration members or subtypes' : '') +
-                ' may appear as a value for the following properties' +
-                '</div>' +
-                '<br>' +
-                this.createDefinitionTable(['Property', 'On Types', 'Description'], trs);
-        } else {
+        if (rangeOf.length === 0) {
             return '';
         }
+        const trs = rangeOf.map((r) => {
+            return this.createPropertyTableRow(r, true);
+        });
+        const htmlLink = this.createLink(this.browser.term.getIRI(true));
+        const textIsForEnumMember = isForEnumMember ? 'and its enumeration members or subtypes ' : '';
+        const htmlDefinitionTable = this.createHtmlDefinitionTable(['Property', 'On Types', 'Description'], trs);
+        return `<div id="incoming">Instances of ${htmlLink} ${textIsForEnumMember}may appear as a value for the following properties
+            </div><br>${htmlDefinitionTable}`;
     }
 }
 

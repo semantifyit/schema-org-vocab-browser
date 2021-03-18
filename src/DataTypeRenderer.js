@@ -14,10 +14,10 @@ class DataTypeRenderer {
      * Render the DataType.
      */
     render() {
-        const breadCrumbStart = this.util.createFullLink('schema:DataType', null, 'rdfs:subClassOf') + ' > ';
+        const breadCrumbStart = this.util.createHtmlFullLink('schema:DataType', null, 'rdfs:subClassOf') + ' > ';
         const typeStructure = this.util.getTypeStructure(this.browser.term, 'getSuperDataTypes');
-        const mainContent = this.util.createHeader(typeStructure, '', breadCrumbStart) + this.util.createRangesOf();
-        this.browser.elem.innerHTML = this.util.createMainContent('rdfs:Class', mainContent);
+        const mainContent = this.util.createHtmlHeader(typeStructure, '', breadCrumbStart) + this.util.createHtmlRangesOf();
+        this.browser.targetElement.innerHTML = this.util.createHtmlMainContent('rdfs:Class', mainContent);
     }
 }
 

@@ -14,8 +14,8 @@ class ListRenderer {
      * Render the List.
      */
     render() {
-        const mainContent = this.createHeader() + this.createVocabsTable();
-        this.browser.elem.innerHTML = this.util.createMainContent('schema:DataSet', mainContent);
+        const mainContent = this.createHtmlHeader() + this.createHtmlVocabsTable();
+        this.browser.targetElement.innerHTML = this.util.createHtmlMainContent('schema:DataSet', mainContent);
     }
 
     /**
@@ -23,11 +23,13 @@ class ListRenderer {
      *
      * @returns {string} The resulting HTML
      */
-    createHeader() {
-        return '' +
-            '<h1>' + this.browser.list['schema:name'] + '</h1>' +
-            this.util.createExternalLinkLegend() +
-            this.browser.list['schema:description'] || '';
+    createHtmlHeader() {
+        const listName = this.browser.list['schema:name'];
+        const htmlExternalLinkLegend = this.util.createHtmlExternalLinkLegend();
+        const description = this.browser.list['schema:description'] || '';
+        return `<h1>${listName}</h1>
+            ${htmlExternalLinkLegend}
+            ${description}`;
     }
 
     /**
@@ -35,9 +37,9 @@ class ListRenderer {
      *
      * @returns {string} The resulting HTML.
      */
-    createVocabsTable() {
-        return this.util.createDefinitionTable(['Name', 'IRI', 'Author', 'Description'],
-            this.createVocabsTbody(),
+    createHtmlVocabsTable() {
+        return this.util.createHtmlDefinitionTable(['Name', 'IRI', 'Author', 'Description'],
+            this.createHtmlVocabsTbody(),
             {'class': 'supertype'});
     }
 
@@ -46,13 +48,13 @@ class ListRenderer {
      *
      * @returns {string} The resulting HTML.
      */
-    createVocabsTbody() {
+    createHtmlVocabsTbody() {
         return this.browser.list['schema:hasPart'].map((vocab) => {
-            return this.util.createTableRow('http://vocab.sti2.at/ds/Vocabulary',
+            return this.util.createHtmlTableRow('http://vocab.sti2.at/ds/Vocabulary',
                 vocab['@id'],
                 'schema:name',
-                this.util.createJSLink('voc', vocab['@id'].split('/').pop(), vocab['schema:name'] || 'No Name'),
-                this.createVocabsSideCols(vocab)
+                this.util.createHtmlJSLink('voc', vocab['@id'].split('/').pop(), vocab['schema:name'] || 'No Name'),
+                this.createHtmlVocabsSideCols(vocab)
             );
         }).join('');
     }
@@ -63,13 +65,13 @@ class ListRenderer {
      * @param {object} vocab - The vocabulary of the List.
      * @returns {string} The resulting HTML.
      */
-    createVocabsSideCols(vocab) {
-        return '' +
-            '<td property="@id">' + this.util.createExternalLink(vocab['@id']) + '</td>' +
-            '<td property="schema:author">' +
-            ((vocab['schema:author'] && vocab['schema:author']['schema:name']) || '') +
-            '</td>' +
-            '<td property="schema:description">' + (vocab['schema:description'] || '') + '</td>';
+    createHtmlVocabsSideCols(vocab) {
+        const htmlLink = this.util.createExternalLink(vocab['@id']);
+        const htmlAuthor = ((vocab['schema:author'] && vocab['schema:author']['schema:name']) || '');
+        const htmlDescription = (vocab['schema:description'] || '');
+        return `<td property="@id">${htmlLink}</td>
+            <td property="schema:author">${htmlAuthor}</td>
+            <td property="schema:description">${htmlDescription}</td>`;
     }
 }
 

@@ -15,10 +15,10 @@ class EnumerationRenderer {
      */
     render() {
         const typeStructure = this.util.getTypeStructure(this.browser.term);
-        const mainContent = this.util.createHeader(typeStructure, 'rdfs:subClassOf') +
-            this.createEnumerationMembers() +
-            this.util.createRangesOf(true);
-        this.browser.elem.innerHTML = this.util.createMainContent('rdfs:Class', mainContent);
+        const mainContent = this.util.createHtmlHeader(typeStructure, 'rdfs:subClassOf') +
+            this.createHtmlEnumerationMembers() +
+            this.util.createHtmlRangesOf(true);
+        this.browser.targetElement.innerHTML = this.util.createHtmlMainContent('rdfs:Class', mainContent);
     }
 
     /**
@@ -26,25 +26,15 @@ class EnumerationRenderer {
      *
      * @returns {string} The resulting HTML.
      */
-    createEnumerationMembers() {
+    createHtmlEnumerationMembers() {
         const enumMembers = this.browser.term.getEnumerationMembers();
-        if (enumMembers.length !== 0) {
-            return '' +
-                'An Enumeration with:<br>' +
-                '<b>' +
-                '<a id="enumbers" title="Link: #enumbers" href="#enumbers" class="clickableAnchor">' +
-                'Enumeration members' +
-                '</a>' +
-                '</b>' +
-                '<ul>' +
-                enumMembers.map((e) => {
-                    return '<li>' + this.util.createLink(e) + '</li>';
-                }).join('') +
-                '</ul>' +
-                '<br>';
-        } else {
+        if (enumMembers.length === 0) {
             return '';
         }
+        const htmlEnumMembers = enumMembers.map((e) => {
+            return '<li>' + this.util.createLink(e) + '</li>';
+        }).join('');
+        return `An Enumeration with enumeration members:<br><ul>${htmlEnumMembers}</ul><br>`;
     }
 }
 

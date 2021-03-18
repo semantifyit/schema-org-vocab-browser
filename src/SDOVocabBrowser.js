@@ -27,7 +27,7 @@ class SDOVocabBrowser {
     /**
      * Create a SDOVocabBrowser object.
      *
-     * @param {Element} elem - The HTML element in which the vocab browser will be rendered.
+     * @param {Element} targetElement - The HTML element in which the vocab browser will be rendered.
      * @param {string|object} vocabOrList - Can be one of the following:
      * - a vocabulary based on the schema.org vocabulary
      * (see: https://github.com/semantifyit/schema-org-adapter/blob/master/docu/vocabulary.md)
@@ -36,8 +36,8 @@ class SDOVocabBrowser {
      * document or an IRI which points to a JSON-LD document.
      * @param {string} type - The type of the browser, either 'VOCAB' (default) or 'LIST'.
      */
-    constructor(elem, vocabOrList, type = BROWSER_TYPES.VOCAB) {
-        this.elem = elem;
+    constructor(targetElement, vocabOrList, type = BROWSER_TYPES.VOCAB) {
+        this.targetElement = targetElement;
         this.vocabOrList = vocabOrList;
         this.type = type;
 
@@ -50,7 +50,7 @@ class SDOVocabBrowser {
         this.enumerationMemberRenderer = new EnumerationMemberRenderer(this);
         this.dataTypeRenderer = new DataTypeRenderer(this);
 
-        window.addEventListener('popstate', async () => {
+        window.addEventListener('popstate', async() => {
             await this.render();
         });
     }
@@ -62,9 +62,9 @@ class SDOVocabBrowser {
      * @returns {Promise<void>} A 'void' Promise to indicate the process ending.
      */
     async render() {
-        this.elem.innerHTML =
-            '<img src="https://raw.githubusercontent.com/semantifyit/schema-org-vocab-browser/main/images/loading.gif" '
-            + 'alt="Loading Animation" style="margin-top: 6px">';
+        this.targetElement.innerHTML =
+            `<img src="https://raw.githubusercontent.com/semantifyit/schema-org-vocab-browser/main/images/loading.gif"
+            alt="Loading Animation" style="margin-top: 6px">`;
 
         await this.init();
         if (this.isListRendering()) {
@@ -214,23 +214,21 @@ class SDOVocabBrowser {
     renderTerm() {
         const searchParams = new URLSearchParams(window.location.search);
         this.term = this.sdoAdapter.getTerm(searchParams.get('term'));
-
-        let html;
         switch (this.term.getTermType()) {
             case 'rdfs:Class':
-                html = this.classRenderer.render();
+                this.classRenderer.render();
                 break;
             case 'rdf:Property':
-                html = this.propertyRenderer.render();
+                this.propertyRenderer.render();
                 break;
             case 'schema:Enumeration':
-                html = this.enumerationRenderer.render();
+                this.enumerationRenderer.render();
                 break;
             case 'soa:EnumerationMember':
-                html = this.enumerationMemberRenderer.render();
+                this.enumerationMemberRenderer.render();
                 break;
             case 'schema:DataType':
-                html = this.dataTypeRenderer.render();
+                this.dataTypeRenderer.render();
                 break;
         }
     }
@@ -240,10 +238,10 @@ class SDOVocabBrowser {
      * Depending on the user action, the link will either open a new window or trigger the 'render' method.
      */
     addJSLinkEventListener() {
-        const aJSLinks = this.elem.getElementsByClassName('a-js-link');
+        const aJSLinks = this.targetElement.getElementsByClassName('a-js-link');
 
         for (const aJSLink of aJSLinks) { // forEach() not possible ootb for HTMLCollections
-            aJSLink.addEventListener('click', async (event) => {
+            aJSLink.addEventListener('click', async(event) => {
                 if (event.ctrlKey) {
                     window.open(aJSLink.href);
                 } else {

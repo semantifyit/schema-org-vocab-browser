@@ -47,7 +47,7 @@ class VocabRenderer {
             'word-wrap: break-word; ' +
             'white-space: pre-wrap;';
 
-        this.browser.elem.innerHTML = '' +
+        this.browser.targetElement.innerHTML = '' +
             '<pre style="' + preStyle + '">' +
             JSON.stringify(this.browser.vocab, null, 2) +
             '</pre>';
@@ -65,7 +65,7 @@ class VocabRenderer {
             this.createSection(this.browser.enumerations, 'Enumeration') +
             this.createSection(this.browser.enumerationMembers, 'Enumeration Member') +
             this.createSection(this.browser.dataTypes, 'Data Type');
-        this.browser.elem.innerHTML = this.util.createMainContent('schema:DataSet', mainContent);
+        this.browser.targetElement.innerHTML = this.util.createHtmlMainContent('schema:DataSet', mainContent);
     }
 
     /**
@@ -76,13 +76,13 @@ class VocabRenderer {
     createHeading() {
         return '' +
             '<span style="float: right;">' +
-            '(' + this.util.createJSLink('format', 'jsonld', 'JSON-LD serialization') +
+            '(' + this.util.createHtmlJSLink('format', 'jsonld', 'JSON-LD serialization') +
             (this.browser.list ? ' | from List: ' +
-                this.util.createJSLink('voc', null, this.browser.list['schema:name']) : '') +
+                this.util.createHtmlJSLink('voc', null, this.browser.list['schema:name']) : '') +
             ')' +
             '</span>' +
             '<h1>' + (this.browser.vocName ? this.browser.vocName : 'Vocabulary') + '</h1>' +
-            this.util.createExternalLinkLegend();
+            this.util.createHtmlExternalLinkLegend();
     }
 
     /**
@@ -145,7 +145,7 @@ class VocabRenderer {
             const typePlural = TYPES_PLURAL[typeSingular];
             return '' +
                 '<h2 id="' + this.util.underscore(typePlural) + '">' + typePlural + '</h2>' +
-                this.util.createDefinitionTable([typeSingular, 'Description'],
+                this.util.createHtmlDefinitionTable([typeSingular, 'Description'],
                     this.createSectionTbody(terms),
                     {'class': 'supertype'});
         }
@@ -161,10 +161,10 @@ class VocabRenderer {
     createSectionTbody(terms) {
         return terms.map((name) => {
             const term = this.browser.sdoAdapter.getTerm(name);
-            return this.util.createTableRow(term.getTermType(),
+            return this.util.createHtmlTableRow(term.getTermType(),
                 this.util.createIriWithQueryParam('term', name),
                 '@id',
-                this.util.createJSLink('term', name),
+                this.util.createHtmlJSLink('term', name),
                 '<td property="rdfs:comment">' + (term.getDescription() || '') + '</td>');
         }).join('');
     }
