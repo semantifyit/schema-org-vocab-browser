@@ -27,30 +27,24 @@ class VocabRenderer {
      * Render the JSON-LD serialization of the Vocabulary.
      */
     renderJsonld() {
-        const preStyle = '' +
-            // Overwrite schema.org CSS
-            'font-size: medium; ' +
-            'background: none; ' +
-            'text-align: left; ' +
-            'width: auto; ' +
-            'padding: 0; ' +
-            'overflow: visible; ' +
-            'color: rgb(0, 0, 0); ' +
-            'line-height: normal; ' +
-
-            // Defaults for pre https://www.w3schools.com/cssref/css_default_values.asp
-            'display: block; ' +
-            'font-family: monospace; ' +
-            'margin: 1em 0; ' +
-
-            // From Browser when loading json-ld file
-            'word-wrap: break-word; ' +
-            'white-space: pre-wrap;';
-
-        this.browser.targetElement.innerHTML = '' +
-            '<pre style="' + preStyle + '">' +
-            JSON.stringify(this.browser.vocab, null, 2) +
-            '</pre>';
+        // Overwrite schema.org CSS
+        // Defaults for pre https://www.w3schools.com/cssref/css_default_values.asp
+        // From Browser when loading json-ld file
+        const preStyle = `font-size: medium; 
+            background: none; 
+            text-align: left; 
+            width: auto; 
+            padding: 0; 
+            overflow: visible; 
+            color: rgb(0, 0, 0); 
+            line-height: normal; ä
+            display: block; 
+            font-family: monospace; 
+            margin: 1em 0; 
+            word-wrap: break-word; 
+            white-space: pre-wrap;`;
+        const vocabJsonLD = JSON.stringify(this.browser.vocab, null, 2);
+        this.browser.targetElement.innerHTML = `<pre style="${preStyle}">${vocabJsonLD}</pre>`;
     }
 
     /**
@@ -66,6 +60,9 @@ class VocabRenderer {
             this.createSection(this.browser.enumerationMembers, 'Enumeration Member') +
             this.createSection(this.browser.dataTypes, 'Data Type');
         this.browser.targetElement.innerHTML = this.util.createHtmlMainContent('schema:DataSet', mainContent);
+        if (window.location.hash !== "") {
+            this.browser.scrollToSection(window.location.hash.substring(1));
+        }
     }
 
     /**
@@ -74,15 +71,21 @@ class VocabRenderer {
      * @returns {string} The resulting HTML.
      */
     createHeading() {
-        return '' +
-            '<span style="float: right;">' +
-            '(' + this.util.createHtmlJSLink('format', 'jsonld', 'JSON-LD serialization') +
-            (this.browser.list ? ' | from List: ' +
-                this.util.createHtmlJSLink('voc', null, this.browser.list['schema:name']) : '') +
-            ')' +
-            '</span>' +
-            '<h1>' + (this.browser.vocName ? this.browser.vocName : 'Vocabulary') + '</h1>' +
-            this.util.createHtmlExternalLinkLegend();
+        let htmlFormatLink;
+        if (this.browser.locationControl) {
+            htmlFormatLink = this.util.createInternalLink({
+                format: 'jsonld'
+            }, 'JSON-LD serialization');
+        } else {
+            htmlFormatLink = "<a href=\"https://semantify.it/voc/".concat(this.browser.vocId, "?format=jsonld\" target=\"_blank\">JSON-LD serialization</a>");
+        }
+        // const htmlFormatLink = this.util.createInternalLink({format: 'jsonld'}, 'JSON-LD serialization');
+        const htmlListLink = this.browser.list ? ' | from List: ' +
+            this.util.createInternalLink({vocId: null}, this.browser.list['schema:name']) : '';
+        const htmlTitle = this.browser.getVocabName() || 'Vocabulary';
+        const htmlLinkLegend = this.util.createHtmlExternalLinkLegend();
+        return `<span style="float: right;">(${htmlFormatLink} ${htmlListLink})</span>
+                <h1>${htmlTitle}</h1>${htmlLinkLegend}`;
     }
 
     /**
@@ -125,12 +128,14 @@ class VocabRenderer {
      * @returns {string} The resulting HTML.
      */
     createContentListElement(terms, typeSingular) {
-        if (terms.length !== 0) {
-            const typePlural = TYPES_PLURAL[typeSingular];
-            return '<li><a href="#' + this.util.underscore(typePlural) + '">' + terms.length + ' ' +
-                (terms.length === 1 ? typeSingular : typePlural) + '</a></li>';
+        if (terms.length === 0) {
+            return '';
         }
-        return '';
+        const typePlural = TYPES_PLURAL[typeSingular];
+        const hrefLink = this.browser.locationControl ? '#' + this.util.underscore(typePlural) : 'javascript:void(0)';
+        const htmlOnClick = this.browser.locationControl ? 'onclick="return false;"' : '';
+        const linkText = terms.length + ' ' + (terms.length === 1 ? typeSingular : typePlural);
+        return `<li><a class="a-section-link" href="${hrefLink}" data-section-link="${typePlural}" ${htmlOnClick}>${linkText}</a></li>`;
     }
 
     /**
@@ -164,7 +169,7 @@ class VocabRenderer {
             return this.util.createHtmlTableRow(term.getTermType(),
                 this.util.createIriWithQueryParam('term', name),
                 '@id',
-                this.util.createHtmlJSLink('term', name),
+                this.util.createInternalLink({termURI: name}, name),
                 '<td property="rdfs:comment">' + (term.getDescription() || '') + '</td>');
         }).join('');
     }

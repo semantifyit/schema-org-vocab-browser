@@ -18,7 +18,6 @@ class EnumerationMemberRenderer {
             return this.util.getTypeStructure(this.browser.sdoAdapter.getClass(d));
         });
         const breadCrumbEnd = ' :: ' + this.util.createLink(this.browser.term.getIRI(true));
-        // TODO: Can we use @type here?
         const mainContent = this.util.createHtmlHeader(typeStructure, '@type', '', breadCrumbEnd) +
             this.createHtmlDomains();
         this.browser.targetElement.innerHTML = this.util.createHtmlMainContent('rdfs:Class', mainContent);

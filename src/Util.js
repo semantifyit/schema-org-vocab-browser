@@ -131,7 +131,7 @@ class Util {
      * @returns {string} The resulting HTML.
      */
     createHtmlMainCol(rdfaProp, termOrLink, className = null) {
-        const htmlCodeLink = this.createHtmlLink(termOrLink, {'property': rdfaProp});
+        const htmlCodeLink = this.createHtmlCodeWithLink(termOrLink, {'property': rdfaProp});
         const htmlClass = className ? ' class="' + className + '"' : '';
         return `<th ${htmlClass} scope="row">${htmlCodeLink}</th>`;
     }
@@ -145,7 +145,7 @@ class Util {
      * @param {string|null} rdfaProp - The RDFa property of the link.
      * @returns {string} The resulting HTML.
      */
-    createHtmlLink(termOrLink, codeAttr = null, linkAttr = null, rdfaProp = null) {
+    createHtmlCodeWithLink(termOrLink, codeAttr = null, linkAttr = null, rdfaProp = null) {
         const htmlAttr = this.createHtmlAttr(codeAttr);
         const htmlFullLink = this.createHtmlFullLink(termOrLink, linkAttr, rdfaProp);
         return `<code ${htmlAttr}>${htmlFullLink}</code>`;
@@ -170,23 +170,58 @@ class Util {
             (term ? this.createLink(termOrLink, linkAttr) : termOrLink);
     }
 
-    /**
-     * Create a HTML JavaScript link that imitates a standard link with the current browser IRI and the given query
-     * parameter.
-     *
-     * @param {string} queryKey - The query parameter key.
-     * @param {string|null} queryVal - The query parameter value.
-     * @param {string|null} text - The text of the link.
-     * @param {object|null} attr - The HTML attributes of the link.
-     * @returns {string} The resulting HTML.
-     */
-    createHtmlJSLink(queryKey, queryVal, text = null, attr = null) {
-        const iri = this.createIriWithQueryParam(queryKey, queryVal);
-        const href = this.escHtml(iri);
+    createInternalLink(navigationChanges, text = null, attr = null) {
+        text = this.escHtml(text);
+        const hrefLink = this.browser.locationControl ? this.createInternalHref(navigationChanges) : 'javascript:void(0)';
+        const htmlOnClick = this.browser.locationControl ? 'onclick="return false;"' : '';
         const htmlAttr = this.createHtmlAttr(attr);
-        const htmlText = text ? this.escHtml(text) : this.escHtml(queryVal);
-        return `<a class="a-js-link" href="${href}" onclick="return false;" ${htmlAttr}>
-            ${htmlText}</a>`;
+        const htmlState = 'data-state-changes="' + encodeURIComponent(JSON.stringify(navigationChanges)) + '"';
+        return `<a class="a-js-link" href="${hrefLink}" ${htmlAttr} ${htmlOnClick} ${htmlState}>
+        ${text}</a>`;
+    }
+
+    createInternalHref(navigationChanges, htmlEscaped = true) {
+        let navigationState = this.createNavigationState(navigationChanges);
+        let domain = window.location.protocol + '//' + (window.location.host ? window.location.host : '');
+        let url;
+        let urlParameterArray = [];
+        if (navigationState.listId) {
+            // is list
+            url = domain + '/list/' + navigationState.listId;
+            if (navigationState.vocId) {
+                urlParameterArray.push(['voc', navigationState.vocId]);
+            }
+        } else {
+            // must be ds
+            url = domain + '/voc/' + navigationState.vocId;
+        }
+        if (navigationState.termURI) {
+            urlParameterArray.push(['term', navigationState.termURI]);
+        }
+        if (navigationState.format) {
+            urlParameterArray.push(['format', navigationState.format]);
+        }
+        for (let i = 0; i < urlParameterArray.length; i++) {
+            let prefix = '&';
+            if (i === 0) {
+                prefix = '?';
+            }
+            url += prefix + encodeURIComponent(urlParameterArray[i][0]) + '=' + encodeURIComponent(urlParameterArray[i][1]);
+        }
+        return htmlEscaped ? this.escHtml(url) : url;
+    }
+
+    createNavigationState(navigationChanges) {
+        let newState = {};
+        const navigationParameters = ["listId", "vocId", "termURI", "format"];
+        for (const p of navigationParameters) {
+            if (navigationChanges[p] !== undefined) {
+                newState[p] = navigationChanges[p];
+            } else {
+                newState[p] = this.browser[p];
+            }
+        }
+        return newState;
     }
 
     /**
@@ -341,9 +376,10 @@ class Util {
         const term = this.browser.term;
         const termIri = term.getIRI(true);
         const termDescription = term.getDescription() || '';
-        const htmlVocabLink = this.browser.vocName ?
-            '(from Vocabulary: ' + this.createHtmlJSLink('term', null, this.browser.vocName) + ')' :
-            '(go to ' + this.createHtmlJSLink('term', null, 'Vocabulary') + ')';
+        const htmlVocabLink = '(from Vocabulary: ' + this.createInternalLink({termURI: null}, this.browser.getVocabName() || "Vocabulary") + ')';
+        // const htmlVocabLink = this.browser.vocName ?
+        //     '(from Vocabulary: ' + this.createInternalLink({termURI: null}, this.browser.vocName || "Vocabulary") + ')' :
+        //     '(go to ' + this.createInternalLink('term', null, 'Vocabulary') + ')';
         const htmlExternalLinkLegend = this.createHtmlExternalLinkLegend();
         const htmlBreadcrumbs = this.createHtmlTypeStructureBreadcrumbs(typeStructure, supertypeRelationship, breadcrumbStart, breadcrumbEnd);
         return `<span style="float: right;">${htmlVocabLink}</span>
@@ -449,7 +485,7 @@ class Util {
      */
     createLink(term, attr = null) {
         if (this.isTermOfVocab(term)) {
-            return this.createHtmlJSLink('term', term, null, attr);
+            return this.createInternalLink({termURI: term}, term, attr);
         } else {
             return this.createExternalLink(this.createHref(term), term, attr);
         }

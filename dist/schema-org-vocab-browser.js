@@ -16681,8 +16681,7 @@ class EnumerationMemberRenderer {
     var typeStructure = this.browser.term.getDomainEnumerations().flatMap(d => {
       return this.util.getTypeStructure(this.browser.sdoAdapter.getClass(d));
     });
-    var breadCrumbEnd = ' :: ' + this.util.createLink(this.browser.term.getIRI(true)); // TODO: Can we use @type here?
-
+    var breadCrumbEnd = ' :: ' + this.util.createLink(this.browser.term.getIRI(true));
     var mainContent = this.util.createHtmlHeader(typeStructure, '@type', '', breadCrumbEnd) + this.createHtmlDomains();
     this.browser.targetElement.innerHTML = this.util.createHtmlMainContent('rdfs:Class', mainContent);
   }
@@ -16807,7 +16806,9 @@ class ListRenderer {
 
   createHtmlVocabsTbody() {
     return this.browser.list['schema:hasPart'].map(vocab => {
-      return this.util.createHtmlTableRow('http://vocab.sti2.at/ds/Vocabulary', vocab['@id'], 'schema:name', this.util.createHtmlJSLink('voc', vocab['@id'].split('/').pop(), vocab['schema:name'] || 'No Name'), this.createHtmlVocabsSideCols(vocab));
+      return this.util.createHtmlTableRow('http://vocab.sti2.at/ds/Vocabulary', vocab['@id'], 'schema:name', this.util.createInternalLink({
+        vocId: vocab['@id'].split('/').pop()
+      }, vocab['schema:name'] || 'No Name'), this.createHtmlVocabsSideCols(vocab));
     }).join('');
   }
   /**
@@ -16878,7 +16879,7 @@ class PropertyRenderer {
       var title = {
         'title': 'The \'' + this.browser.term.getIRI(true) + '\' property has values that include instances of the' + ' \'' + r + '\' type.'
       };
-      return this.util.createHtmlLink(r, null, title, 'rangeIncludes');
+      return this.util.createHtmlCodeWithLink(r, null, title, 'rangeIncludes');
     }).join('<br>');
     return this.util.createHtmlDefinitionTable('Values expected to be one of these types', '<td>' + ranges + '</td>');
   }
@@ -16894,7 +16895,7 @@ class PropertyRenderer {
       var title = {
         'title': 'The \'' + this.browser.term.getIRI(true) + '\' property ' + 'is used on the \'' + d + '\' ' + 'type'
       };
-      return this.util.createHtmlLink(d, null, title, 'domainIncludes');
+      return this.util.createHtmlCodeWithLink(d, null, title, 'domainIncludes');
     }).join('<br>');
     return this.util.createHtmlDefinitionTable('Used on these types', '<td>' + domains + '</td>');
   }
@@ -16927,7 +16928,7 @@ class PropertyRenderer {
       var title = {
         'title': s + ': \'\'' + (this.browser.sdoAdapter.getProperty(s).getDescription() || '') + '\'\''
       };
-      return this.util.createHtmlLink(s, null, title);
+      return this.util.createHtmlCodeWithLink(s, null, title);
     }).join('<br>');
     return this.util.createHtmlDefinitionTable(th, '<td>' + relatedTermsHTML + '</td>');
   }
@@ -16975,39 +16976,17 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 /**
- * The 2 different types of the vocabulary browser.
- *
- * @type {{VOCAB: string, LIST: string}}
- */
-var BROWSER_TYPES = {
-  VOCAB: 'VOCAB',
-  LIST: 'LIST'
-};
-/**
  * The SDOVocabBrowser is a JS-Class that represents the interface between the user and this library.
  * After the constructor was called, the 'render' method can be used to render the vocab browser.
  */
-
 class SDOVocabBrowser {
-  /**
-   * Create a SDOVocabBrowser object.
-   *
-   * @param {Element} targetElement - The HTML element in which the vocab browser will be rendered.
-   * @param {string|object} vocabOrList - Can be one of the following:
-   * - a vocabulary based on the schema.org vocabulary
-   * (see: https://github.com/semantifyit/schema-org-adapter/blob/master/docu/vocabulary.md)
-   * - a list based on semantify.it specifications (see: https://semantify.it/documentation/lists)
-   * The data type of the vocabulary or the list must be either a JSON-LD object, a string which represents a JSON-LD
-   * document or an IRI which points to a JSON-LD document.
-   * @param {string} type - The type of the browser, either 'VOCAB' (default) or 'LIST'.
-   */
-  constructor(targetElement, vocabOrList) {
+  constructor(params) {
     var _this = this;
 
-    var type = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : BROWSER_TYPES.VOCAB;
-    this.targetElement = targetElement;
-    this.vocabOrList = vocabOrList;
-    this.type = type;
+    this.vocabCache = {}; // cache for already fetched Vocabs - if already opened Vocab is viewed, it has not to be fetched again
+
+    this.sdoCache = []; // cache for already created SDO Adapter - if already used vocabulary combination is needed, it has not to be initialized again
+
     this.util = new _Util.default(this);
     this.listRenderer = new _ListRenderer.default(this);
     this.vocabRenderer = new _VocabRenderer.default(this);
@@ -17015,10 +16994,28 @@ class SDOVocabBrowser {
     this.propertyRenderer = new _PropertyRenderer.default(this);
     this.enumerationRenderer = new _EnumerationRenderer.default(this);
     this.enumerationMemberRenderer = new _EnumerationMemberRenderer.default(this);
-    this.dataTypeRenderer = new _DataTypeRenderer.default(this);
-    window.addEventListener('popstate', /*#__PURE__*/_asyncToGenerator(function* () {
-      yield _this.render();
-    }));
+    this.dataTypeRenderer = new _DataTypeRenderer.default(this); // Initialize mandatory parameters from constructor
+
+    this.targetElement = params.targetElement;
+    this.locationControl = params.locationControl !== false; // Initialize parameters depending on locationControl
+
+    if (this.locationControl) {
+      this.readStateFromUrl();
+    } else {
+      this.listId = params.listId || null;
+      this.vocId = params.vocId || null;
+      this.termURI = params.termURI || null;
+      this.format = params.format || null;
+    } // Add listener for navigation back button
+
+
+    if (this.locationControl) {
+      window.addEventListener('popstate', /*#__PURE__*/_asyncToGenerator(function* () {
+        _this.readStateFromUrl();
+
+        yield _this.render();
+      }));
+    }
   }
   /**
    * Render the vocab browser in the specified HTML element.
@@ -17033,24 +17030,23 @@ class SDOVocabBrowser {
 
     return _asyncToGenerator(function* () {
       _this2.targetElement.innerHTML = "<img src=\"https://raw.githubusercontent.com/semantifyit/schema-org-vocab-browser/main/images/loading.gif\"\n            alt=\"Loading Animation\" style=\"margin-top: 6px\">";
-      yield _this2.init();
+      yield _this2.renderInit();
 
-      if (_this2.isListRendering()) {
+      if (_this2.listId && !_this2.vocId) {
         _this2.listRenderer.render();
-      } else if (_this2.isVocabRendering()) {
-        var searchParams = new URLSearchParams(window.location.search);
-        var format = searchParams.get('format');
-
-        if (format && format === 'jsonld') {
+      } else if (_this2.vocId && !_this2.termURI) {
+        if (_this2.format === "jsonld") {
           _this2.vocabRenderer.renderJsonld();
         } else {
           _this2.vocabRenderer.render();
         }
-      } else if (_this2.isTermRendering()) {
+      } else if (_this2.termURI) {
         _this2.renderTerm();
       }
 
       _this2.addJSLinkEventListener();
+
+      _this2.addSectionLinkEventListener();
 
       document.body.scrollTop = document.documentElement.scrollTop = 0;
     })();
@@ -17062,56 +17058,20 @@ class SDOVocabBrowser {
    */
 
 
-  init() {
+  renderInit() {
     var _this3 = this;
 
     return _asyncToGenerator(function* () {
       // Init list
-      if (_this3.listNeedsInit()) {
-        yield _this3.initList();
+      if (_this3.listId && (!_this3.list || !_this3.list["@id"].endsWith(_this3.listId))) {
+        _this3.list = yield _this3.util.parseToObject("https://semantify.it/list/" + _this3.listId + "?representation=lean");
       } // Init vocab
 
 
-      if (_this3.vocabNeedsInit()) {
+      if (_this3.vocId && (!_this3.vocab || !_this3.vocab["@id"].endsWith(_this3.vocId))) {
         yield _this3.initVocab();
       }
     })();
-  }
-  /**
-   * Check if the list needs initialization.
-   *
-   * @returns {boolean} 'true' if list needs initialization.
-   */
-
-
-  listNeedsInit() {
-    return this.type === BROWSER_TYPES.LIST && !this.list;
-  }
-  /**
-   * Initialize the list.
-   *
-   * @returns {Promise<void>} A 'void' Promise to indicate the process ending.
-   */
-
-
-  initList() {
-    var _this4 = this;
-
-    return _asyncToGenerator(function* () {
-      _this4.list = yield _this4.util.parseToObject(_this4.vocabOrList);
-    })();
-  }
-  /**
-   * Check if the vocabulary needs initialization.
-   *
-   * @returns {boolean} 'true' if no vocabulary was initialized so far or a new vocabulary was selected in the list.
-   */
-
-
-  vocabNeedsInit() {
-    var searchParams = new URLSearchParams(window.location.search);
-    var vocUID = searchParams.get('voc');
-    return this.type === BROWSER_TYPES.LIST && vocUID && vocUID !== this.vocUID || this.type === BROWSER_TYPES.VOCAB && !this.vocab;
   }
   /**
    * Initialize the vocabulary (initializing a new SDOAdapter is part of this step).
@@ -17121,95 +17081,54 @@ class SDOVocabBrowser {
 
 
   initVocab() {
-    var _this5 = this;
+    var _this4 = this;
 
     return _asyncToGenerator(function* () {
-      if (_this5.type === BROWSER_TYPES.VOCAB) {
-        _this5.vocab = yield _this5.util.parseToObject(_this5.vocabOrList);
-      } else if (_this5.type === BROWSER_TYPES.LIST) {
-        var searchParams = new URLSearchParams(window.location.search);
-        _this5.vocUID = searchParams.get('voc');
+      if (!_this4.vocabCache[_this4.vocId]) {
+        var vocab = yield _this4.util.parseToObject("https://semantify.it/voc/" + _this4.vocId); // Create a new SDO Adapter for each vocabulary file, save it in the cache
 
-        for (var part of _this5.list['schema:hasPart']) {
-          var id = part['@id'];
-
-          if (id.split('/').pop() === _this5.vocUID) {
-            _this5.vocab = yield _this5.util.parseToObject(id);
-            _this5.vocName = part['schema:name'];
-            break;
-          }
-        }
+        var newSdoAdapter = new _schemaOrgAdapter.default();
+        var sdoURL = yield newSdoAdapter.constructSDOVocabularyURL('latest');
+        yield newSdoAdapter.addVocabularies([sdoURL, vocab]);
+        _this4.vocabCache[_this4.vocId] = {
+          vocabFile: vocab,
+          sdoAdapter: newSdoAdapter
+        };
       }
 
-      yield _this5.initSDOAdapter();
-    })();
-  }
-  /**
-   * Initialize the SDOAdapter with the latest schema.org vocabulary and the given/selected vocabulary.
-   *
-   * @returns {Promise<void>} A 'void' Promise to indicate the process ending.
-   */
-
-
-  initSDOAdapter() {
-    var _this6 = this;
-
-    return _asyncToGenerator(function* () {
-      _this6.sdoAdapter = new _schemaOrgAdapter.default();
-      var sdoURL = yield _this6.sdoAdapter.constructSDOVocabularyURL('latest');
-      yield _this6.sdoAdapter.addVocabularies([sdoURL, _this6.vocab]);
-      _this6.namespaces = _this6.sdoAdapter.getVocabularies();
-      delete _this6.namespaces['schema'];
-      var vocabNames = Object.keys(_this6.namespaces);
-      _this6.classes = _this6.sdoAdapter.getListOfClasses({
+      _this4.vocab = _this4.vocabCache[_this4.vocId].vocabFile;
+      _this4.sdoAdapter = _this4.vocabCache[_this4.vocId].sdoAdapter;
+      _this4.namespaces = _this4.sdoAdapter.getVocabularies();
+      delete _this4.namespaces['schema'];
+      var vocabNames = Object.keys(_this4.namespaces);
+      _this4.classes = _this4.sdoAdapter.getListOfClasses({
         fromVocabulary: vocabNames
       });
-      _this6.properties = _this6.sdoAdapter.getListOfProperties({
+      _this4.properties = _this4.sdoAdapter.getListOfProperties({
         fromVocabulary: vocabNames
       });
-      _this6.enumerations = _this6.sdoAdapter.getListOfEnumerations({
+      _this4.enumerations = _this4.sdoAdapter.getListOfEnumerations({
         fromVocabulary: vocabNames
       });
-      _this6.enumerationMembers = _this6.sdoAdapter.getListOfEnumerationMembers({
+      _this4.enumerationMembers = _this4.sdoAdapter.getListOfEnumerationMembers({
         fromVocabulary: vocabNames
       });
-      _this6.dataTypes = _this6.sdoAdapter.getListOfDataTypes({
+      _this4.dataTypes = _this4.sdoAdapter.getListOfDataTypes({
         fromVocabulary: vocabNames
       });
     })();
   }
-  /**
-   * Check if the list should be rendered.
-   *
-   * @returns {boolean} 'true' if the list should be rendered.
-   */
 
+  getVocabName() {
+    if (this.vocab && this.list) {
+      var vocabAsListItem = this.list['schema:hasPart'].find(e => e["@id"].split('/').pop() === this.vocId);
 
-  isListRendering() {
-    var searchParams = new URLSearchParams(window.location.search);
-    return this.type === BROWSER_TYPES.LIST && !searchParams.get('voc');
-  }
-  /**
-   * Checks if the vocabulary should be rendered.
-   *
-   * @returns {boolean} 'true' if the vocabulary should be rendered.
-   */
+      if (vocabAsListItem) {
+        return vocabAsListItem['schema:name'];
+      }
+    }
 
-
-  isVocabRendering() {
-    var searchParams = new URLSearchParams(window.location.search);
-    return this.type === BROWSER_TYPES.LIST && searchParams.get('voc') && !searchParams.get('term') || this.type === BROWSER_TYPES.VOCAB && !searchParams.get('term');
-  }
-  /**
-   * Check if a term should be rendered.
-   *
-   * @returns {boolean} 'true' if a term should be rendered.
-   */
-
-
-  isTermRendering() {
-    var searchParams = new URLSearchParams(window.location.search);
-    return searchParams.get('term') !== null;
+    return "";
   }
   /**
    * Render a term.
@@ -17217,8 +17136,7 @@ class SDOVocabBrowser {
 
 
   renderTerm() {
-    var searchParams = new URLSearchParams(window.location.search);
-    this.term = this.sdoAdapter.getTerm(searchParams.get('term'));
+    this.term = this.sdoAdapter.getTerm(this.termURI);
 
     switch (this.term.getTermType()) {
       case 'rdfs:Class':
@@ -17249,7 +17167,7 @@ class SDOVocabBrowser {
 
 
   addJSLinkEventListener() {
-    var _this7 = this;
+    var _this5 = this;
 
     var aJSLinks = this.targetElement.getElementsByClassName('a-js-link');
 
@@ -17257,11 +17175,16 @@ class SDOVocabBrowser {
       // forEach() not possible ootb for HTMLCollections
       aJSLink.addEventListener('click', /*#__PURE__*/function () {
         var _ref2 = _asyncToGenerator(function* (event) {
-          if (event.ctrlKey) {
-            window.open(aJSLink.href);
+          if (_this5.locationControl) {
+            if (event.ctrlKey) {
+              window.open(aJSLink.href);
+            } else {
+              history.pushState(null, null, aJSLink.href);
+
+              _this5.navigate(JSON.parse(decodeURIComponent(aJSLink.getAttribute("data-state-changes"))));
+            }
           } else {
-            history.pushState(null, null, aJSLink.href);
-            yield _this7.render();
+            _this5.navigate(JSON.parse(decodeURIComponent(aJSLink.getAttribute("data-state-changes"))));
           }
         });
 
@@ -17273,6 +17196,124 @@ class SDOVocabBrowser {
 
     for (var aJSLink of aJSLinks) {
       _loop(aJSLink);
+    }
+  }
+
+  addSectionLinkEventListener() {
+    var _this6 = this;
+
+    var aJSLinks = this.targetElement.getElementsByClassName('a-section-link');
+
+    var _loop2 = function _loop2(aJSLink) {
+      // forEach() not possible ootb for HTMLCollections
+      aJSLink.addEventListener('click', /*#__PURE__*/function () {
+        var _ref3 = _asyncToGenerator(function* (event) {
+          if (_this6.locationControl) {
+            if (event.ctrlKey) {
+              window.open(aJSLink.href);
+            } else {
+              history.pushState(null, null, aJSLink.href);
+
+              _this6.scrollToSection(decodeURIComponent(aJSLink.getAttribute("data-section-link")));
+            }
+          } else {
+            _this6.scrollToSection(decodeURIComponent(aJSLink.getAttribute("data-section-link")));
+          }
+        });
+
+        return function (_x2) {
+          return _ref3.apply(this, arguments);
+        };
+      }());
+    };
+
+    for (var aJSLink of aJSLinks) {
+      _loop2(aJSLink);
+    }
+  }
+
+  navigate(newState) {
+    if (newState.listId !== undefined) {
+      this.listId = newState.listId;
+    }
+
+    if (newState.vocId !== undefined) {
+      this.vocId = newState.vocId;
+    }
+
+    if (newState.termURI !== undefined) {
+      this.termURI = newState.termURI;
+    }
+
+    if (newState.format !== undefined) {
+      this.format = newState.format;
+    } // If there is no listId, there shall be no list
+
+
+    if (this.listId === null) {
+      this.list = undefined;
+    } // If there is no vocId, there shall be no vocab
+
+
+    if (this.vocId === null) {
+      this.vocab = undefined;
+    } // If there is no vocab, there shall be no termURI
+
+
+    if (!this.vocab) {
+      this.termURI = null;
+    } // The navigate() function will always lead to a new page -> reset the # anchor set in the URL
+
+
+    if (this.locationControl) {
+      history.replaceState(null, null, ' ');
+    }
+
+    this.render();
+  }
+
+  scrollToSection(sectionId) {
+    sectionId = this.util.underscore(sectionId); // to
+
+    window.scrollTo({
+      top: window.pageYOffset + document.getElementById(sectionId).getBoundingClientRect().top,
+      left: 0,
+      behavior: 'smooth'
+    });
+  }
+
+  readStateFromUrl() {
+    var searchParams = new URLSearchParams(window.location.search);
+    this.format = searchParams.get('format') || null;
+    this.termURI = searchParams.get('term') || null;
+
+    if (window.location.pathname.includes("/voc/")) {
+      this.listId = null;
+      var vocabId = window.location.pathname.substring("/voc/".length);
+
+      if (this.vocId !== vocabId) {
+        this.vocId = vocabId;
+        this.vocab = null;
+      }
+    } else if (window.location.pathname.includes("/list/")) {
+      var listId = window.location.pathname.substring("/list/".length);
+
+      if (this.listId !== listId) {
+        this.listId = listId;
+        this.list = null;
+      }
+
+      var _vocabId = searchParams.get('voc') || null;
+
+      if (this.vocId !== _vocabId) {
+        this.vocId = _vocabId;
+        this.vocab = null;
+      }
+    } else {
+      this.listId = null;
+      this.list = null;
+      this.vocId = null;
+      this.vocab = null;
     }
   }
 
@@ -17438,7 +17479,7 @@ class Util {
 
   createHtmlMainCol(rdfaProp, termOrLink) {
     var className = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var htmlCodeLink = this.createHtmlLink(termOrLink, {
+    var htmlCodeLink = this.createHtmlCodeWithLink(termOrLink, {
       'property': rdfaProp
     });
     var htmlClass = className ? ' class="' + className + '"' : '';
@@ -17455,7 +17496,7 @@ class Util {
    */
 
 
-  createHtmlLink(termOrLink) {
+  createHtmlCodeWithLink(termOrLink) {
     var codeAttr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
     var linkAttr = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
     var rdfaProp = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
@@ -17484,26 +17525,71 @@ class Util {
 
     return (rdfaProp ? this.createHtmlSemanticLink(rdfaProp, termOrLink) : '') + (term ? this.createLink(termOrLink, linkAttr) : termOrLink);
   }
-  /**
-   * Create a HTML JavaScript link that imitates a standard link with the current browser IRI and the given query
-   * parameter.
-   *
-   * @param {string} queryKey - The query parameter key.
-   * @param {string|null} queryVal - The query parameter value.
-   * @param {string|null} text - The text of the link.
-   * @param {object|null} attr - The HTML attributes of the link.
-   * @returns {string} The resulting HTML.
-   */
 
-
-  createHtmlJSLink(queryKey, queryVal) {
-    var text = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var attr = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-    var iri = this.createIriWithQueryParam(queryKey, queryVal);
-    var href = this.escHtml(iri);
+  createInternalLink(navigationChanges) {
+    var text = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+    var attr = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    text = this.escHtml(text);
+    var hrefLink = this.browser.locationControl ? this.createInternalHref(navigationChanges) : 'javascript:void(0)';
+    var htmlOnClick = this.browser.locationControl ? 'onclick="return false;"' : '';
     var htmlAttr = this.createHtmlAttr(attr);
-    var htmlText = text ? this.escHtml(text) : this.escHtml(queryVal);
-    return "<a class=\"a-js-link\" href=\"".concat(href, "\" onclick=\"return false;\" ").concat(htmlAttr, ">\n            ").concat(htmlText, "</a>");
+    var htmlState = 'data-state-changes="' + encodeURIComponent(JSON.stringify(navigationChanges)) + '"';
+    return "<a class=\"a-js-link\" href=\"".concat(hrefLink, "\" ").concat(htmlAttr, " ").concat(htmlOnClick, " ").concat(htmlState, ">\n        ").concat(text, "</a>");
+  }
+
+  createInternalHref(navigationChanges) {
+    var htmlEscaped = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+    var navigationState = this.createNavigationState(navigationChanges);
+    var domain = window.location.protocol + '//' + (window.location.host ? window.location.host : '');
+    var url;
+    var urlParameterArray = [];
+
+    if (navigationState.listId) {
+      // is list
+      url = domain + '/list/' + navigationState.listId;
+
+      if (navigationState.vocId) {
+        urlParameterArray.push(['voc', navigationState.vocId]);
+      }
+    } else {
+      // must be ds
+      url = domain + '/voc/' + navigationState.vocId;
+    }
+
+    if (navigationState.termURI) {
+      urlParameterArray.push(['term', navigationState.termURI]);
+    }
+
+    if (navigationState.format) {
+      urlParameterArray.push(['format', navigationState.format]);
+    }
+
+    for (var i = 0; i < urlParameterArray.length; i++) {
+      var prefix = '&';
+
+      if (i === 0) {
+        prefix = '?';
+      }
+
+      url += prefix + encodeURIComponent(urlParameterArray[i][0]) + '=' + encodeURIComponent(urlParameterArray[i][1]);
+    }
+
+    return htmlEscaped ? this.escHtml(url) : url;
+  }
+
+  createNavigationState(navigationChanges) {
+    var newState = {};
+    var navigationParameters = ["listId", "vocId", "termURI", "format"];
+
+    for (var p of navigationParameters) {
+      if (navigationChanges[p] !== undefined) {
+        newState[p] = navigationChanges[p];
+      } else {
+        newState[p] = this.browser[p];
+      }
+    }
+
+    return newState;
   }
   /**
    * Escape HTML characters.
@@ -17670,7 +17756,12 @@ class Util {
     var term = this.browser.term;
     var termIri = term.getIRI(true);
     var termDescription = term.getDescription() || '';
-    var htmlVocabLink = this.browser.vocName ? '(from Vocabulary: ' + this.createHtmlJSLink('term', null, this.browser.vocName) + ')' : '(go to ' + this.createHtmlJSLink('term', null, 'Vocabulary') + ')';
+    var htmlVocabLink = '(from Vocabulary: ' + this.createInternalLink({
+      termURI: null
+    }, this.browser.getVocabName() || "Vocabulary") + ')'; // const htmlVocabLink = this.browser.vocName ?
+    //     '(from Vocabulary: ' + this.createInternalLink({termURI: null}, this.browser.vocName || "Vocabulary") + ')' :
+    //     '(go to ' + this.createInternalLink('term', null, 'Vocabulary') + ')';
+
     var htmlExternalLinkLegend = this.createHtmlExternalLinkLegend();
     var htmlBreadcrumbs = this.createHtmlTypeStructureBreadcrumbs(typeStructure, supertypeRelationship, breadcrumbStart, breadcrumbEnd);
     return "<span style=\"float: right;\">".concat(htmlVocabLink, "</span>\n            <h1 property=\"rdfs:label\" class=\"page-title\">").concat(termIri, "</h1>\n            ").concat(htmlExternalLinkLegend, " ").concat(htmlBreadcrumbs, "\n            <div property=\"rdfs:comment\">").concat(termDescription, "<br><br></div>");
@@ -17766,7 +17857,9 @@ class Util {
     var attr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
     if (this.isTermOfVocab(term)) {
-      return this.createHtmlJSLink('term', term, null, attr);
+      return this.createInternalLink({
+        termURI: term
+      }, term, attr);
     } else {
       return this.createExternalLink(this.createHref(term), term, attr);
     }
@@ -17918,11 +18011,12 @@ class VocabRenderer {
 
 
   renderJsonld() {
-    var preStyle = '' + // Overwrite schema.org CSS
-    'font-size: medium; ' + 'background: none; ' + 'text-align: left; ' + 'width: auto; ' + 'padding: 0; ' + 'overflow: visible; ' + 'color: rgb(0, 0, 0); ' + 'line-height: normal; ' + // Defaults for pre https://www.w3schools.com/cssref/css_default_values.asp
-    'display: block; ' + 'font-family: monospace; ' + 'margin: 1em 0; ' + // From Browser when loading json-ld file
-    'word-wrap: break-word; ' + 'white-space: pre-wrap;';
-    this.browser.targetElement.innerHTML = '' + '<pre style="' + preStyle + '">' + JSON.stringify(this.browser.vocab, null, 2) + '</pre>';
+    // Overwrite schema.org CSS
+    // Defaults for pre https://www.w3schools.com/cssref/css_default_values.asp
+    // From Browser when loading json-ld file
+    var preStyle = "font-size: medium; \n            background: none; \n            text-align: left; \n            width: auto; \n            padding: 0; \n            overflow: visible; \n            color: rgb(0, 0, 0); \n            line-height: normal; \xE4\n            display: block; \n            font-family: monospace; \n            margin: 1em 0; \n            word-wrap: break-word; \n            white-space: pre-wrap;";
+    var vocabJsonLD = JSON.stringify(this.browser.vocab, null, 2);
+    this.browser.targetElement.innerHTML = "<pre style=\"".concat(preStyle, "\">").concat(vocabJsonLD, "</pre>");
   }
   /**
    * Render the Vocabulary.
@@ -17932,6 +18026,10 @@ class VocabRenderer {
   render() {
     var mainContent = this.createHeading() + this.createNamespaces() + this.createContentSection() + this.createSection(this.browser.classes, 'Class') + this.createSection(this.browser.properties, 'Property') + this.createSection(this.browser.enumerations, 'Enumeration') + this.createSection(this.browser.enumerationMembers, 'Enumeration Member') + this.createSection(this.browser.dataTypes, 'Data Type');
     this.browser.targetElement.innerHTML = this.util.createHtmlMainContent('schema:DataSet', mainContent);
+
+    if (window.location.hash !== "") {
+      this.browser.scrollToSection(window.location.hash.substring(1));
+    }
   }
   /**
    * Create HTML for the heading of the Vocabulary.
@@ -17941,7 +18039,23 @@ class VocabRenderer {
 
 
   createHeading() {
-    return '' + '<span style="float: right;">' + '(' + this.util.createHtmlJSLink('format', 'jsonld', 'JSON-LD serialization') + (this.browser.list ? ' | from List: ' + this.util.createHtmlJSLink('voc', null, this.browser.list['schema:name']) : '') + ')' + '</span>' + '<h1>' + (this.browser.vocName ? this.browser.vocName : 'Vocabulary') + '</h1>' + this.util.createHtmlExternalLinkLegend();
+    var htmlFormatLink;
+
+    if (this.browser.locationControl) {
+      htmlFormatLink = this.util.createInternalLink({
+        format: 'jsonld'
+      }, 'JSON-LD serialization');
+    } else {
+      htmlFormatLink = "<a href=\"https://semantify.it/voc/".concat(this.browser.vocId, "?format=jsonld\" target=\"_blank\">JSON-LD serialization</a>");
+    } // const htmlFormatLink = this.util.createInternalLink({format: 'jsonld'}, 'JSON-LD serialization');
+
+
+    var htmlListLink = this.browser.list ? ' | from List: ' + this.util.createInternalLink({
+      vocId: null
+    }, this.browser.list['schema:name']) : '';
+    var htmlTitle = this.browser.getVocabName() || 'Vocabulary';
+    var htmlLinkLegend = this.util.createHtmlExternalLinkLegend();
+    return "<span style=\"float: right;\">(".concat(htmlFormatLink, " ").concat(htmlListLink, ")</span>\n                <h1>").concat(htmlTitle, "</h1>").concat(htmlLinkLegend);
   }
   /**
    * Create HTML for the namespaces of the Vocabulary.
@@ -17975,12 +18089,15 @@ class VocabRenderer {
 
 
   createContentListElement(terms, typeSingular) {
-    if (terms.length !== 0) {
-      var typePlural = TYPES_PLURAL[typeSingular];
-      return '<li><a href="#' + this.util.underscore(typePlural) + '">' + terms.length + ' ' + (terms.length === 1 ? typeSingular : typePlural) + '</a></li>';
+    if (terms.length === 0) {
+      return '';
     }
 
-    return '';
+    var typePlural = TYPES_PLURAL[typeSingular];
+    var hrefLink = this.browser.locationControl ? '#' + this.util.underscore(typePlural) : 'javascript:void(0)';
+    var htmlOnClick = this.browser.locationControl ? 'onclick="return false;"' : '';
+    var linkText = terms.length + ' ' + (terms.length === 1 ? typeSingular : typePlural);
+    return "<li><a class=\"a-section-link\" href=\"".concat(hrefLink, "\" data-section-link=\"").concat(typePlural, "\" ").concat(htmlOnClick, ">").concat(linkText, "</a></li>");
   }
   /**
    * Create HTML for a section of the Vocabulary.
@@ -18012,7 +18129,9 @@ class VocabRenderer {
   createSectionTbody(terms) {
     return terms.map(name => {
       var term = this.browser.sdoAdapter.getTerm(name);
-      return this.util.createHtmlTableRow(term.getTermType(), this.util.createIriWithQueryParam('term', name), '@id', this.util.createHtmlJSLink('term', name), '<td property="rdfs:comment">' + (term.getDescription() || '') + '</td>');
+      return this.util.createHtmlTableRow(term.getTermType(), this.util.createIriWithQueryParam('term', name), '@id', this.util.createInternalLink({
+        termURI: name
+      }, name), '<td property="rdfs:comment">' + (term.getDescription() || '') + '</td>');
     }).join('');
   }
 

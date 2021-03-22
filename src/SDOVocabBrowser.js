@@ -10,37 +10,13 @@ import EnumerationMemberRenderer from './EnumerationMemberRenderer';
 import DataTypeRenderer from './DataTypeRenderer';
 
 /**
- * The 2 different types of the vocabulary browser.
- *
- * @type {{VOCAB: string, LIST: string}}
- */
-const BROWSER_TYPES = {
-    VOCAB: 'VOCAB',
-    LIST: 'LIST'
-};
-
-/**
  * The SDOVocabBrowser is a JS-Class that represents the interface between the user and this library.
  * After the constructor was called, the 'render' method can be used to render the vocab browser.
  */
 class SDOVocabBrowser {
-    /**
-     * Create a SDOVocabBrowser object.
-     *
-     * @param {Element} targetElement - The HTML element in which the vocab browser will be rendered.
-     * @param {string|object} vocabOrList - Can be one of the following:
-     * - a vocabulary based on the schema.org vocabulary
-     * (see: https://github.com/semantifyit/schema-org-adapter/blob/master/docu/vocabulary.md)
-     * - a list based on semantify.it specifications (see: https://semantify.it/documentation/lists)
-     * The data type of the vocabulary or the list must be either a JSON-LD object, a string which represents a JSON-LD
-     * document or an IRI which points to a JSON-LD document.
-     * @param {string} type - The type of the browser, either 'VOCAB' (default) or 'LIST'.
-     */
-    constructor(targetElement, vocabOrList, type = BROWSER_TYPES.VOCAB) {
-        this.targetElement = targetElement;
-        this.vocabOrList = vocabOrList;
-        this.type = type;
-
+    constructor(params) {
+        this.vocabCache = {}; // cache for already fetched Vocabs - if already opened Vocab is viewed, it has not to be fetched again
+        this.sdoCache = []; // cache for already created SDO Adapter - if already used vocabulary combination is needed, it has not to be initialized again
         this.util = new Util(this);
         this.listRenderer = new ListRenderer(this);
         this.vocabRenderer = new VocabRenderer(this);
@@ -49,10 +25,25 @@ class SDOVocabBrowser {
         this.enumerationRenderer = new EnumerationRenderer(this);
         this.enumerationMemberRenderer = new EnumerationMemberRenderer(this);
         this.dataTypeRenderer = new DataTypeRenderer(this);
-
-        window.addEventListener('popstate', async() => {
-            await this.render();
-        });
+        // Initialize mandatory parameters from constructor
+        this.targetElement = params.targetElement;
+        this.locationControl = params.locationControl !== false;
+        // Initialize parameters depending on locationControl
+        if (this.locationControl) {
+            this.readStateFromUrl();
+        } else {
+            this.listId = params.listId || null;
+            this.vocId = params.vocId || null;
+            this.termURI = params.termURI || null;
+            this.format = params.format || null;
+        }
+        // Add listener for navigation back button
+        if (this.locationControl) {
+            window.addEventListener('popstate', async() => {
+                this.readStateFromUrl();
+                await this.render();
+            });
+        }
     }
 
     /**
@@ -66,22 +57,21 @@ class SDOVocabBrowser {
             `<img src="https://raw.githubusercontent.com/semantifyit/schema-org-vocab-browser/main/images/loading.gif"
             alt="Loading Animation" style="margin-top: 6px">`;
 
-        await this.init();
-        if (this.isListRendering()) {
+        await this.renderInit();
+        if (this.listId && !this.vocId) {
             this.listRenderer.render();
-        } else if (this.isVocabRendering()) {
-            const searchParams = new URLSearchParams(window.location.search);
-            const format = searchParams.get('format');
-            if (format && format === 'jsonld') {
+        } else if (this.vocId && !this.termURI) {
+            if (this.format === "jsonld") {
                 this.vocabRenderer.renderJsonld();
             } else {
                 this.vocabRenderer.render();
             }
-        } else if (this.isTermRendering()) {
+        } else if (this.termURI) {
             this.renderTerm();
         }
 
         this.addJSLinkEventListener();
+        this.addSectionLinkEventListener();
         document.body.scrollTop = document.documentElement.scrollTop = 0;
     }
 
@@ -90,46 +80,15 @@ class SDOVocabBrowser {
      *
      * @returns {Promise<void>} A 'void' Promise to indicate the process ending.
      */
-    async init() {
+    async renderInit() {
         // Init list
-        if (this.listNeedsInit()) {
-            await this.initList();
+        if (this.listId && (!this.list || !this.list["@id"].endsWith(this.listId))) {
+            this.list = await this.util.parseToObject("https://semantify.it/list/" + this.listId + "?representation=lean");
         }
-
         // Init vocab
-        if (this.vocabNeedsInit()) {
+        if (this.vocId && (!this.vocab || !this.vocab["@id"].endsWith(this.vocId))) {
             await this.initVocab();
         }
-    }
-
-    /**
-     * Check if the list needs initialization.
-     *
-     * @returns {boolean} 'true' if list needs initialization.
-     */
-    listNeedsInit() {
-        return (this.type === BROWSER_TYPES.LIST && !this.list);
-    }
-
-    /**
-     * Initialize the list.
-     *
-     * @returns {Promise<void>} A 'void' Promise to indicate the process ending.
-     */
-    async initList() {
-        this.list = await this.util.parseToObject(this.vocabOrList);
-    }
-
-    /**
-     * Check if the vocabulary needs initialization.
-     *
-     * @returns {boolean} 'true' if no vocabulary was initialized so far or a new vocabulary was selected in the list.
-     */
-    vocabNeedsInit() {
-        const searchParams = new URLSearchParams(window.location.search);
-        const vocUID = searchParams.get('voc');
-        return ((this.type === BROWSER_TYPES.LIST && vocUID && vocUID !== this.vocUID) ||
-            (this.type === BROWSER_TYPES.VOCAB && !this.vocab));
     }
 
     /**
@@ -138,38 +97,22 @@ class SDOVocabBrowser {
      * @returns {Promise<void>} A 'void' Promise to indicate the process ending.
      */
     async initVocab() {
-        if (this.type === BROWSER_TYPES.VOCAB) {
-            this.vocab = await this.util.parseToObject(this.vocabOrList);
-        } else if (this.type === BROWSER_TYPES.LIST) {
-            const searchParams = new URLSearchParams(window.location.search);
-            this.vocUID = searchParams.get('voc');
-            for (const part of this.list['schema:hasPart']) {
-                const id = part['@id'];
-                if (id.split('/').pop() === this.vocUID) {
-                    this.vocab = await this.util.parseToObject(id);
-                    this.vocName = part['schema:name'];
-                    break;
-                }
-            }
+        if (!this.vocabCache[this.vocId]) {
+            const vocab = await this.util.parseToObject("https://semantify.it/voc/" + this.vocId);
+            // Create a new SDO Adapter for each vocabulary file, save it in the cache
+            const newSdoAdapter = new SDOAdapter();
+            const sdoURL = await newSdoAdapter.constructSDOVocabularyURL('latest');
+            await newSdoAdapter.addVocabularies([sdoURL, vocab]);
+            this.vocabCache[this.vocId] = {
+                vocabFile: vocab,
+                sdoAdapter: newSdoAdapter
+            };
         }
-
-        await this.initSDOAdapter();
-    }
-
-    /**
-     * Initialize the SDOAdapter with the latest schema.org vocabulary and the given/selected vocabulary.
-     *
-     * @returns {Promise<void>} A 'void' Promise to indicate the process ending.
-     */
-    async initSDOAdapter() {
-        this.sdoAdapter = new SDOAdapter();
-        const sdoURL = await this.sdoAdapter.constructSDOVocabularyURL('latest');
-        await this.sdoAdapter.addVocabularies([sdoURL, this.vocab]);
-
+        this.vocab = this.vocabCache[this.vocId].vocabFile;
+        this.sdoAdapter = this.vocabCache[this.vocId].sdoAdapter;
         this.namespaces = this.sdoAdapter.getVocabularies();
         delete this.namespaces['schema'];
         const vocabNames = Object.keys(this.namespaces);
-
         this.classes = this.sdoAdapter.getListOfClasses({fromVocabulary: vocabNames});
         this.properties = this.sdoAdapter.getListOfProperties({fromVocabulary: vocabNames});
         this.enumerations = this.sdoAdapter.getListOfEnumerations({fromVocabulary: vocabNames});
@@ -177,43 +120,21 @@ class SDOVocabBrowser {
         this.dataTypes = this.sdoAdapter.getListOfDataTypes({fromVocabulary: vocabNames});
     }
 
-    /**
-     * Check if the list should be rendered.
-     *
-     * @returns {boolean} 'true' if the list should be rendered.
-     */
-    isListRendering() {
-        const searchParams = new URLSearchParams(window.location.search);
-        return (this.type === BROWSER_TYPES.LIST && !searchParams.get('voc'));
-    }
-
-    /**
-     * Checks if the vocabulary should be rendered.
-     *
-     * @returns {boolean} 'true' if the vocabulary should be rendered.
-     */
-    isVocabRendering() {
-        const searchParams = new URLSearchParams(window.location.search);
-        return ((this.type === BROWSER_TYPES.LIST && searchParams.get('voc') && !searchParams.get('term')) ||
-            (this.type === BROWSER_TYPES.VOCAB && !searchParams.get('term')));
-    }
-
-    /**
-     * Check if a term should be rendered.
-     *
-     * @returns {boolean} 'true' if a term should be rendered.
-     */
-    isTermRendering() {
-        const searchParams = new URLSearchParams(window.location.search);
-        return (searchParams.get('term') !== null);
+    getVocabName() {
+        if (this.vocab && this.list) {
+            const vocabAsListItem = this.list['schema:hasPart'].find(e => e["@id"].split('/').pop() === this.vocId);
+            if (vocabAsListItem) {
+                return vocabAsListItem['schema:name'];
+            }
+        }
+        return "";
     }
 
     /**
      * Render a term.
      */
     renderTerm() {
-        const searchParams = new URLSearchParams(window.location.search);
-        this.term = this.sdoAdapter.getTerm(searchParams.get('term'));
+        this.term = this.sdoAdapter.getTerm(this.termURI);
         switch (this.term.getTermType()) {
             case 'rdfs:Class':
                 this.classRenderer.render();
@@ -239,16 +160,108 @@ class SDOVocabBrowser {
      */
     addJSLinkEventListener() {
         const aJSLinks = this.targetElement.getElementsByClassName('a-js-link');
-
         for (const aJSLink of aJSLinks) { // forEach() not possible ootb for HTMLCollections
             aJSLink.addEventListener('click', async(event) => {
-                if (event.ctrlKey) {
-                    window.open(aJSLink.href);
+                if (this.locationControl) {
+                    if (event.ctrlKey) {
+                        window.open(aJSLink.href);
+                    } else {
+                        history.pushState(null, null, aJSLink.href);
+                        this.navigate(JSON.parse(decodeURIComponent(aJSLink.getAttribute("data-state-changes"))));
+                    }
                 } else {
-                    history.pushState(null, null, aJSLink.href);
-                    await this.render();
+                    this.navigate(JSON.parse(decodeURIComponent(aJSLink.getAttribute("data-state-changes"))));
                 }
             });
+        }
+    }
+
+    addSectionLinkEventListener() {
+        const aJSLinks = this.targetElement.getElementsByClassName('a-section-link');
+        for (const aJSLink of aJSLinks) { // forEach() not possible ootb for HTMLCollections
+            aJSLink.addEventListener('click', async(event) => {
+                if (this.locationControl) {
+                    if (event.ctrlKey) {
+                        window.open(aJSLink.href);
+                    } else {
+                        history.pushState(null, null, aJSLink.href);
+                        this.scrollToSection(decodeURIComponent(aJSLink.getAttribute("data-section-link")));
+                    }
+                } else {
+                    this.scrollToSection(decodeURIComponent(aJSLink.getAttribute("data-section-link")));
+                }
+            });
+        }
+    }
+
+    navigate(newState) {
+        if (newState.listId !== undefined) {
+            this.listId = newState.listId;
+        }
+        if (newState.vocId !== undefined) {
+            this.vocId = newState.vocId;
+        }
+        if (newState.termURI !== undefined) {
+            this.termURI = newState.termURI;
+        }
+        if (newState.format !== undefined) {
+            this.format = newState.format;
+        }
+        // If there is no listId, there shall be no list
+        if (this.listId === null) {
+            this.list = undefined;
+        }
+        // If there is no vocId, there shall be no vocab
+        if (this.vocId === null) {
+            this.vocab = undefined;
+        }
+        // If there is no vocab, there shall be no termURI
+        if (!this.vocab) {
+            this.termURI = null;
+        }
+        // The navigate() function will always lead to a new page -> reset the # anchor set in the URL
+        if (this.locationControl) {
+            history.replaceState(null, null, ' ');
+        }
+        this.render();
+    }
+
+    scrollToSection(sectionId) {
+        sectionId = this.util.underscore(sectionId); // to
+        window.scrollTo({
+            top: window.pageYOffset + document.getElementById(sectionId).getBoundingClientRect().top,
+            left: 0,
+            behavior: 'smooth'
+        });
+    }
+
+    readStateFromUrl() {
+        const searchParams = new URLSearchParams(window.location.search);
+        this.format = searchParams.get('format') || null;
+        this.termURI = searchParams.get('term') || null;
+        if (window.location.pathname.includes("/voc/")) {
+            this.listId = null;
+            let vocabId = window.location.pathname.substring("/voc/".length);
+            if (this.vocId !== vocabId) {
+                this.vocId = vocabId;
+                this.vocab = null;
+            }
+        } else if (window.location.pathname.includes("/list/")) {
+            let listId = window.location.pathname.substring("/list/".length);
+            if (this.listId !== listId) {
+                this.listId = listId;
+                this.list = null;
+            }
+            let vocabId = searchParams.get('voc') || null;
+            if (this.vocId !== vocabId) {
+                this.vocId = vocabId;
+                this.vocab = null;
+            }
+        } else {
+            this.listId = null;
+            this.list = null;
+            this.vocId = null;
+            this.vocab = null;
         }
     }
 }

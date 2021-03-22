@@ -48,7 +48,7 @@ class PropertyRenderer {
                 'title': 'The \'' + this.browser.term.getIRI(true) +
                     '\' property has values that include instances of the' + ' \'' + r + '\' type.'
             };
-            return this.util.createHtmlLink(r, null, title, 'rangeIncludes');
+            return this.util.createHtmlCodeWithLink(r, null, title, 'rangeIncludes');
         }).join('<br>');
 
         return this.util.createHtmlDefinitionTable('Values expected to be one of these types', '<td>' + ranges + '</td>');
@@ -65,7 +65,7 @@ class PropertyRenderer {
                 'title': 'The \'' + this.browser.term.getIRI(true) + '\' property ' + 'is used on the \'' + d +
                     '\' ' + 'type'
             };
-            return this.util.createHtmlLink(d, null, title, 'domainIncludes');
+            return this.util.createHtmlCodeWithLink(d, null, title, 'domainIncludes');
         }).join('<br>');
 
         return this.util.createHtmlDefinitionTable('Used on these types', '<td>' + domains + '</td>');
@@ -96,7 +96,7 @@ class PropertyRenderer {
             const title = {
                 'title': s + ': \'\'' + (this.browser.sdoAdapter.getProperty(s).getDescription() || '') + '\'\''
             };
-            return this.util.createHtmlLink(s, null, title);
+            return this.util.createHtmlCodeWithLink(s, null, title);
         }).join('<br>');
         return this.util.createHtmlDefinitionTable(th, '<td>' + relatedTermsHTML + '</td>');
     }

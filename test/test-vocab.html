@@ -16,8 +16,14 @@
 <script src="/schema-org-vocab-browser.js"></script>
 <script>
     (async function () {
-        const listURL = 'https://semantify.it/list/I7ikMwcXo?representation=lean';
-        const vocabBrowser = new SDOVocabBrowser(document.getElementById('vocab-container'), listURL, 'LIST');
+        const vocabBrowser = new SDOVocabBrowser({
+                targetElement: document.getElementById('vocab-container'),
+                locationControl: false,
+                listId: "I7ikMwcXo",
+                //vocId: "KEl6e6F0U",
+                //termURI: "ex:Animal",
+                //format: "jsonld"
+            });
         await vocabBrowser.render();
     })();
 </script>
