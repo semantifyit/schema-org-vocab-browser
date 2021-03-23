@@ -16,7 +16,6 @@ import DataTypeRenderer from './DataTypeRenderer';
 class SDOVocabBrowser {
     constructor(params) {
         this.vocabCache = {}; // cache for already fetched Vocabs - if already opened Vocab is viewed, it has not to be fetched again
-        this.sdoCache = []; // cache for already created SDO Adapter - if already used vocabulary combination is needed, it has not to be initialized again
         this.util = new Util(this);
         this.listRenderer = new ListRenderer(this);
         this.vocabRenderer = new VocabRenderer(this);
@@ -28,6 +27,7 @@ class SDOVocabBrowser {
         // Initialize mandatory parameters from constructor
         this.targetElement = params.targetElement;
         this.locationControl = params.locationControl !== false;
+        this.selfFileHost = params.selfFileHost === true; // if this is true, the list and vocab files are being fetched from the same host where the vocab browser is being served (e.g. to make localhost/staging work). Makes only sense if locationControl = true
         // Initialize parameters depending on locationControl
         if (this.locationControl) {
             this.readStateFromUrl();
@@ -83,7 +83,7 @@ class SDOVocabBrowser {
     async renderInit() {
         // Init list
         if (this.listId && (!this.list || !this.list["@id"].endsWith(this.listId))) {
-            this.list = await this.util.parseToObject("https://semantify.it/list/" + this.listId + "?representation=lean");
+            this.list = await this.util.parseToObject(this.util.getFileHost() + "/list/" + this.listId + "?representation=lean");
         }
         // Init vocab
         if (this.vocId && (!this.vocab || !this.vocab["@id"].endsWith(this.vocId))) {
@@ -98,7 +98,7 @@ class SDOVocabBrowser {
      */
     async initVocab() {
         if (!this.vocabCache[this.vocId]) {
-            const vocab = await this.util.parseToObject("https://semantify.it/voc/" + this.vocId);
+            const vocab = await this.util.parseToObject(this.util.getFileHost() + "/voc/" + this.vocId);
             // Create a new SDO Adapter for each vocabulary file, save it in the cache
             const newSdoAdapter = new SDOAdapter();
             const sdoURL = await newSdoAdapter.constructSDOVocabularyURL('latest');

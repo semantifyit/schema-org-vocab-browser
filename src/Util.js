@@ -594,6 +594,14 @@ class Util {
         return `<div id="incoming">Instances of ${htmlLink} ${textIsForEnumMember}may appear as a value for the following properties
             </div><br>${htmlDefinitionTable}`;
     }
+
+    getFileHost() {
+        if (this.browser.selfFileHost) {
+            return window.location.origin;
+        } else {
+            return "https://semantify.it";
+        }
+    }
 }
 
 module.exports = Util;

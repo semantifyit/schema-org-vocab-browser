@@ -16985,8 +16985,6 @@ class SDOVocabBrowser {
 
     this.vocabCache = {}; // cache for already fetched Vocabs - if already opened Vocab is viewed, it has not to be fetched again
 
-    this.sdoCache = []; // cache for already created SDO Adapter - if already used vocabulary combination is needed, it has not to be initialized again
-
     this.util = new _Util.default(this);
     this.listRenderer = new _ListRenderer.default(this);
     this.vocabRenderer = new _VocabRenderer.default(this);
@@ -16997,7 +16995,9 @@ class SDOVocabBrowser {
     this.dataTypeRenderer = new _DataTypeRenderer.default(this); // Initialize mandatory parameters from constructor
 
     this.targetElement = params.targetElement;
-    this.locationControl = params.locationControl !== false; // Initialize parameters depending on locationControl
+    this.locationControl = params.locationControl !== false;
+    this.selfFileHost = params.selfFileHost === true; // if this is true, the list and vocab files are being fetched from the same host where the vocab browser is being served (e.g. to make localhost/staging work). Makes only sense if locationControl = true
+    // Initialize parameters depending on locationControl
 
     if (this.locationControl) {
       this.readStateFromUrl();
@@ -17064,7 +17064,7 @@ class SDOVocabBrowser {
     return _asyncToGenerator(function* () {
       // Init list
       if (_this3.listId && (!_this3.list || !_this3.list["@id"].endsWith(_this3.listId))) {
-        _this3.list = yield _this3.util.parseToObject("https://semantify.it/list/" + _this3.listId + "?representation=lean");
+        _this3.list = yield _this3.util.parseToObject(_this3.util.getFileHost() + "/list/" + _this3.listId + "?representation=lean");
       } // Init vocab
 
 
@@ -17085,7 +17085,7 @@ class SDOVocabBrowser {
 
     return _asyncToGenerator(function* () {
       if (!_this4.vocabCache[_this4.vocId]) {
-        var vocab = yield _this4.util.parseToObject("https://semantify.it/voc/" + _this4.vocId); // Create a new SDO Adapter for each vocabulary file, save it in the cache
+        var vocab = yield _this4.util.parseToObject(_this4.util.getFileHost() + "/voc/" + _this4.vocId); // Create a new SDO Adapter for each vocabulary file, save it in the cache
 
         var newSdoAdapter = new _schemaOrgAdapter.default();
         var sdoURL = yield newSdoAdapter.constructSDOVocabularyURL('latest');
@@ -17977,6 +17977,14 @@ class Util {
     var textIsForEnumMember = isForEnumMember ? 'and its enumeration members or subtypes ' : '';
     var htmlDefinitionTable = this.createHtmlDefinitionTable(['Property', 'On Types', 'Description'], trs);
     return "<div id=\"incoming\">Instances of ".concat(htmlLink, " ").concat(textIsForEnumMember, "may appear as a value for the following properties\n            </div><br>").concat(htmlDefinitionTable);
+  }
+
+  getFileHost() {
+    if (this.browser.selfFileHost) {
+      return window.location.origin;
+    } else {
+      return "https://semantify.it";
+    }
   }
 
 }
