@@ -227,7 +227,11 @@ class SDOVocabBrowser {
     }
 
     scrollToSection(sectionId) {
-        sectionId = this.util.underscore(sectionId); // to
+        sectionId = this.util.underscore(sectionId);
+        const allowedSections = ["Classes", "Properties", "Enumerations", "Enumeration_Members", "Data_Types"];
+        if (!allowedSections.includes(sectionId)) {
+            return;
+        }
         window.scrollTo({
             top: window.pageYOffset + document.getElementById(sectionId).getBoundingClientRect().top,
             left: 0,
