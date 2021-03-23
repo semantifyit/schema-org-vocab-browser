@@ -15,8 +15,8 @@ class ClassRenderer {
      */
     render() {
         const typeStructure = this.util.getTypeStructure(this.browser.term);
-        const mainContent = this.util.createHeader(typeStructure, 'rdfs:subClassOf') + this.createProperties();
-        this.browser.elem.innerHTML = this.util.createMainContent('rdfs:Class', mainContent);
+        const mainContent = this.util.createHtmlHeader(typeStructure, 'rdfs:subClassOf') + this.createHtmlProperties();
+        this.browser.targetElement.innerHTML = this.util.createHtmlMainContent('rdfs:Class', mainContent);
     }
 
     /**
@@ -24,9 +24,9 @@ class ClassRenderer {
      *
      * @returns {string} - The resulting HTML.
      */
-    createProperties() {
+    createHtmlProperties() {
         let html = '<table class="table definition-table">' +
-            this.createPropertiesHeader();
+            this.createHtmlPropertiesHeader();
 
         const classes = [this.browser.term,
             ...this.browser.term.getSuperClasses().map((c) => this.browser.sdoAdapter.getClass(c))];
@@ -34,7 +34,7 @@ class ClassRenderer {
             const properties = c.getProperties(false);
             if (properties.length !== 0) {
                 html += '<tbody>' +
-                    this.createPropertyHeader(c);
+                    this.createHtmlPropertyHeader(c);
                 properties.forEach((p) => {
                     html += this.util.createPropertyTableRow(p);
                 });
@@ -43,7 +43,7 @@ class ClassRenderer {
         });
         html += '</table>' +
             '<br>' +
-            this.createSpecificTypes();
+            this.createHtmlSpecificTypes();
 
         return html;
     }
@@ -53,15 +53,12 @@ class ClassRenderer {
      *
      * @returns {string} - The resulting HTML.
      */
-    createPropertiesHeader() {
-        return '' +
-            '<thead>' +
-            '<tr>' +
-            '<th>Property</th>' +
-            '<th>Expected Type</th>' +
-            '<th>Description</th>' +
-            '</tr>' +
-            '</thead>';
+    createHtmlPropertiesHeader() {
+        return `<thead><tr>
+            <th>Property</th>
+            <th>Expected Type</th>
+            <th>Description</th>
+            </tr></thead>`;
     }
 
     /**
@@ -69,15 +66,12 @@ class ClassRenderer {
      *
      * @returns {string} - The resulting HTML.
      */
-    createPropertyHeader(className) {
-        return '' +
-            '<tbody>' +
-            '<tr class="supertype">' +
-            '<th class="supertype-name" colspan="3">' +
-            'Properties from ' + this.util.createLink(className.getIRI(true)) +
-            '</th>' +
-            '</tr>' +
-            '</tbody>';
+    createHtmlPropertyHeader(className) {
+        const htmlSuperClass = this.util.createLink(className.getIRI(true));
+        return `<tbody><tr class="supertype">
+            <th class="supertype-name" colspan="3">
+            Properties from ${htmlSuperClass}
+            </th></tr></tbody>`;
     }
 
     /**
@@ -85,24 +79,17 @@ class ClassRenderer {
      *
      * @returns {string} - The resulting HTML.
      */
-    createSpecificTypes() {
+    createHtmlSpecificTypes() {
         const subClasses = this.browser.term.getSubClasses(false);
-        if (subClasses.length !== 0) {
-            return '' +
-                '<b>' +
-                '<a id="subtypes" title="Link: #subtypes" href="#subtypes" class="clickableAnchor">' +
-                'More specific Types' +
-                '</a>' +
-                '</b>' +
-                '<ul>' +
-                subClasses.map((s) => {
-                    return '<li>' + this.util.createLink(s) + '</li>';
-                }) +
-                '</ul>' +
-                '<br>';
-        } else {
+        if (subClasses.length === 0) {
             return '';
         }
+        const htmlSubClasses = subClasses.map((s) => {
+            return '<li>' + this.util.createLink(s) + '</li>';
+        });
+        return `<b><a id="subtypes" title="Link: #subtypes" href="#subtypes" class="clickableAnchor">
+            More specific Types</a></b>
+            <ul>${htmlSubClasses}</ul><br>`;
     }
 }
 
