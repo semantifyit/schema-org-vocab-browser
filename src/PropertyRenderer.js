@@ -94,7 +94,7 @@ class PropertyRenderer {
         }
         const relatedTermsHTML = relatedProperties.map((s) => {
             const title = {
-                'title': s + ': \'\'' + (this.browser.sdoAdapter.getProperty(s).getDescription() || '') + '\'\''
+                'title': s + ': \'\'' + this.util.repairLinksInHTMLCode(this.browser.sdoAdapter.getProperty(s).getDescription() || '') + '\'\''
             };
             return this.util.createHtmlCodeWithLink(s, null, title);
         }).join('<br>');

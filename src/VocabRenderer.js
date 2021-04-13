@@ -187,7 +187,7 @@ class VocabRenderer {
                 }
                 sideCols += `<td>${hostEnumHtml}</td>`;
             }
-            sideCols += '<td property="rdfs:comment">' + (term.getDescription() || '') + '</td>';
+            sideCols += '<td property="rdfs:comment">' + this.util.repairLinksInHTMLCode(term.getDescription() || '') + '</td>';
 
             return this.util.createHtmlTableRow(term.getTermType(),
                 this.util.createIriWithQueryParam('term', name),

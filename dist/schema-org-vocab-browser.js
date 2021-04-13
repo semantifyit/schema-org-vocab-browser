@@ -16926,7 +16926,7 @@ class PropertyRenderer {
 
     var relatedTermsHTML = relatedProperties.map(s => {
       var title = {
-        'title': s + ': \'\'' + (this.browser.sdoAdapter.getProperty(s).getDescription() || '') + '\'\''
+        'title': s + ': \'\'' + this.util.repairLinksInHTMLCode(this.browser.sdoAdapter.getProperty(s).getDescription() || '') + '\'\''
       };
       return this.util.createHtmlCodeWithLink(s, null, title);
     }).join('<br>');
@@ -17760,13 +17760,10 @@ class Util {
     var breadcrumbEnd = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
     var term = this.browser.term;
     var termIri = term.getIRI(true);
-    var termDescription = term.getDescription() || '';
+    var termDescription = this.repairLinksInHTMLCode(term.getDescription()) || '';
     var htmlVocabLink = '(from Vocabulary: ' + this.createInternalLink({
       termURI: null
-    }, this.browser.getVocabName() || "Vocabulary") + ')'; // const htmlVocabLink = this.browser.vocName ?
-    //     '(from Vocabulary: ' + this.createInternalLink({termURI: null}, this.browser.vocName || "Vocabulary") + ')' :
-    //     '(go to ' + this.createInternalLink('term', null, 'Vocabulary') + ')';
-
+    }, this.browser.getVocabName() || "Vocabulary") + ')';
     var htmlExternalLinkLegend = this.createHtmlExternalLinkLegend();
     var htmlBreadcrumbs = this.createHtmlTypeStructureBreadcrumbs(typeStructure, supertypeRelationship, breadcrumbStart, breadcrumbEnd);
     return "<span style=\"float: right;\">".concat(htmlVocabLink, "</span>\n            <h1 property=\"rdfs:label\" class=\"page-title\">").concat(termIri, "</h1>\n            ").concat(htmlExternalLinkLegend, " ").concat(htmlBreadcrumbs, "\n            <div property=\"rdfs:comment\">").concat(termDescription, "<br><br></div>");
@@ -17896,7 +17893,7 @@ class Util {
   createHtmlPropertySideCols(property, onlyDomainIncludes) {
     var sdoProperty = this.browser.sdoAdapter.getProperty(property);
     var htmlPropertyRange = this.createHtmlPropertyRange(sdoProperty, onlyDomainIncludes);
-    var htmlPropertyDescription = sdoProperty.getDescription() || '';
+    var htmlPropertyDescription = this.repairLinksInHTMLCode(sdoProperty.getDescription()) || '';
     return "<td class=\"prop-etc\">".concat(htmlPropertyRange, "</td>\n            <td class=\"prop-desc\" property=\"rdfs:comment\">").concat(htmlPropertyDescription, "</td>");
   }
   /**
@@ -17985,6 +17982,50 @@ class Util {
     } else {
       return "https://semantify.it";
     }
+  }
+
+  repairLinksInHTMLCode(htmlCode) {
+    var result = htmlCode; // relative links of schema.org
+
+    result = result.replace(/<a(.*?)href="(.*?)"/g, (match, group1, group2) => {
+      if (group2.startsWith('/')) {
+        group2 = 'http://schema.org' + group2;
+      }
+
+      var style = this.createExternalLinkStyle(group2);
+      return '<a' + group1 + 'href="' + group2 + '" style="' + style + '" target="_blank"';
+    }); // markdown for relative links of schema.org
+
+    result = result.replace(/\[\[(.*?)]]/g, (match, group1) => {
+      var URL = 'http://schema.org/' + group1;
+      var style = this.createExternalLinkStyle(URL);
+      return '<a href="' + URL + '" style="' + style + '" target="_blank">' + group1 + '</a>';
+    }); // markdown for outgoing link
+
+    result = result.replace(/\[(.*?)]\((.*?)\)/g, (match, group1, group2) => {
+      if (group2.startsWith('/')) {
+        group2 = 'http://schema.org' + group2;
+      } else if (!group2.startsWith("http")) {
+        // assume this is a local schema.org link
+        group2 = 'http://schema.org/' + group2;
+      }
+
+      var style = this.createExternalLinkStyle(group2);
+      return '<a href="' + group2 + '" style="' + style + '" target="_blank">' + group1 + '</a>';
+    }); // new line
+
+    result = result.replace(/\\n/g, match => {
+      return "</br>";
+    }); // bold
+
+    result = result.replace(/__(.*?)__/g, (match, group1) => {
+      return "<b>" + group1 + "</b>";
+    }); // code
+
+    result = result.replace(/```(.*?)```/g, (match, group1) => {
+      return "<code>" + group1 + "</code>";
+    });
+    return result;
   }
 
 }
@@ -18171,7 +18212,7 @@ class VocabRenderer {
         sideCols += "<td>".concat(hostEnumHtml, "</td>");
       }
 
-      sideCols += '<td property="rdfs:comment">' + (term.getDescription() || '') + '</td>';
+      sideCols += '<td property="rdfs:comment">' + this.util.repairLinksInHTMLCode(term.getDescription() || '') + '</td>';
       return this.util.createHtmlTableRow(term.getTermType(), this.util.createIriWithQueryParam('term', name), '@id', this.util.createInternalLink({
         termURI: name
       }, name), sideCols);

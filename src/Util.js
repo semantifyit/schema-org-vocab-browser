@@ -375,11 +375,8 @@ class Util {
     createHtmlHeader(typeStructure, supertypeRelationship, breadcrumbStart = '', breadcrumbEnd = '') {
         const term = this.browser.term;
         const termIri = term.getIRI(true);
-        const termDescription = term.getDescription() || '';
+        const termDescription = this.repairLinksInHTMLCode(term.getDescription()) || '';
         const htmlVocabLink = '(from Vocabulary: ' + this.createInternalLink({termURI: null}, this.browser.getVocabName() || "Vocabulary") + ')';
-        // const htmlVocabLink = this.browser.vocName ?
-        //     '(from Vocabulary: ' + this.createInternalLink({termURI: null}, this.browser.vocName || "Vocabulary") + ')' :
-        //     '(go to ' + this.createInternalLink('term', null, 'Vocabulary') + ')';
         const htmlExternalLinkLegend = this.createHtmlExternalLinkLegend();
         const htmlBreadcrumbs = this.createHtmlTypeStructureBreadcrumbs(typeStructure, supertypeRelationship, breadcrumbStart, breadcrumbEnd);
         return `<span style="float: right;">${htmlVocabLink}</span>
@@ -519,7 +516,7 @@ class Util {
     createHtmlPropertySideCols(property, onlyDomainIncludes) {
         const sdoProperty = this.browser.sdoAdapter.getProperty(property);
         const htmlPropertyRange = this.createHtmlPropertyRange(sdoProperty, onlyDomainIncludes);
-        const htmlPropertyDescription = sdoProperty.getDescription() || '';
+        const htmlPropertyDescription = this.repairLinksInHTMLCode(sdoProperty.getDescription()) || '';
         return `<td class="prop-etc">${htmlPropertyRange}</td>
             <td class="prop-desc" property="rdfs:comment">${htmlPropertyDescription}</td>`;
     }
@@ -601,6 +598,48 @@ class Util {
         } else {
             return "https://semantify.it";
         }
+    }
+
+    repairLinksInHTMLCode(htmlCode) {
+        let result = htmlCode;
+        // relative links of schema.org
+        result = result.replace(/<a(.*?)href="(.*?)"/g, (match, group1, group2) => {
+            if (group2.startsWith('/')) {
+                group2 = 'http://schema.org' + group2;
+            }
+            const style = this.createExternalLinkStyle(group2);
+            return '<a' + group1 + 'href="' + group2 + '" style="' + style + '" target="_blank"';
+        });
+        // markdown for relative links of schema.org
+        result = result.replace(/\[\[(.*?)]]/g, (match, group1) => {
+            const URL = 'http://schema.org/' + group1;
+            const style = this.createExternalLinkStyle(URL);
+            return '<a href="' + URL + '" style="' + style + '" target="_blank">' + group1 + '</a>';
+        });
+        // markdown for outgoing link
+        result = result.replace(/\[(.*?)]\((.*?)\)/g, (match, group1, group2) => {
+            if (group2.startsWith('/')) {
+                group2 = 'http://schema.org' + group2;
+            } else if (!group2.startsWith("http")){
+                // assume this is a local schema.org link
+                group2 = 'http://schema.org/' + group2;
+            }
+            const style = this.createExternalLinkStyle(group2);
+            return '<a href="' + group2 + '" style="' + style + '" target="_blank">' + group1 + '</a>';
+        });
+        // new line
+        result = result.replace(/\\n/g,(match) => {
+            return "</br>";
+        });
+        // bold
+        result = result.replace(/__(.*?)__/g, (match, group1 ) => {
+            return "<b>"+group1+"</b>";
+        });
+        // code
+        result = result.replace(/```(.*?)```/g, (match, group1) => {
+            return "<code>"+group1+"</code>";
+        });
+        return result;
     }
 }
 
