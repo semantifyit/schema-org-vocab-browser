@@ -569,7 +569,7 @@ class Util {
             return '<tr>' + tr + '</tr>';
         }).join('');
         const htmlAttr = this.createHtmlAttr(tbodyAttr);
-        return `<table class="definition-table">
+        return `<table class="definition-table table">
             <thead><tr>${htmlThs}</tr></thead>
             <tbody ${htmlAttr}>${htmlTrs}</tbody></table>`;
     }

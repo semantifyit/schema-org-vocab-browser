@@ -25,7 +25,7 @@ class ClassRenderer {
      * @returns {string} - The resulting HTML.
      */
     createHtmlProperties() {
-        let html = '<table class="definition-table">' +
+        let html = '<table class="definition-table table">' +
             this.createHtmlPropertiesHeader();
 
         const classes = [this.browser.term,

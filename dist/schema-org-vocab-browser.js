@@ -16567,7 +16567,7 @@ class ClassRenderer {
 
 
   createHtmlProperties() {
-    var html = '<table class="definition-table">' + this.createHtmlPropertiesHeader();
+    var html = '<table class="definition-table table">' + this.createHtmlPropertiesHeader();
     var classes = [this.browser.term, ...this.browser.term.getSuperClasses().map(c => this.browser.sdoAdapter.getClass(c))];
     classes.forEach(c => {
       var properties = c.getProperties(false);
@@ -17952,7 +17952,7 @@ class Util {
       return '<tr>' + tr + '</tr>';
     }).join('');
     var htmlAttr = this.createHtmlAttr(tbodyAttr);
-    return "<table class=\"definition-table\">\n            <thead><tr>".concat(htmlThs, "</tr></thead>\n            <tbody ").concat(htmlAttr, ">").concat(htmlTrs, "</tbody></table>");
+    return "<table class=\"definition-table table\">\n            <thead><tr>".concat(htmlThs, "</tr></thead>\n            <tbody ").concat(htmlAttr, ">").concat(htmlTrs, "</tbody></table>");
   }
   /**
    * Create HTML for ranges of a vocabulary term.
@@ -18124,7 +18124,15 @@ class VocabRenderer {
   createSection(terms, typeSingular) {
     if (terms.length !== 0) {
       var typePlural = TYPES_PLURAL[typeSingular];
-      return '' + '<h2 id="' + this.util.underscore(typePlural) + '">' + typePlural + '</h2>' + this.util.createHtmlDefinitionTable([typeSingular, 'Description'], this.createSectionTbody(terms), {
+      var ths;
+
+      if (typeSingular === 'Enumeration Member') {
+        ths = [typeSingular, 'of Enumeration', 'Description'];
+      } else {
+        ths = [typeSingular, 'Description'];
+      }
+
+      return '' + '<h2 id="' + this.util.underscore(typePlural) + '">' + typePlural + '</h2>' + this.util.createHtmlDefinitionTable(ths, this.createSectionTbody(terms, typeSingular), {
         'class': 'supertype'
       });
     }
@@ -18135,16 +18143,38 @@ class VocabRenderer {
    * Create HTML table body for a section of the Vocabulary.
    *
    * @param {string[]} terms - The vocabulary terms with the same term type.
+   * @param {?string} typeSingular - The type of the terms
    * @returns {string} The resulting HTML.
    */
 
 
   createSectionTbody(terms) {
+    var typeSingular = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
     return terms.map(name => {
       var term = this.browser.sdoAdapter.getTerm(name);
+      var sideCols = "";
+
+      if (typeSingular === 'Enumeration Member') {
+        var hostEnumHtml = "";
+
+        try {
+          var enumHostArray = this.browser.sdoAdapter.getEnumerationMember(name).getDomainEnumerations(false); // is an array, most of the times it is only 1 element
+
+          for (var enHost of enumHostArray) {
+            hostEnumHtml += this.util.createInternalLink({
+              termURI: enHost
+            }, enHost) + "</br>";
+          }
+        } catch (e) {// error -> add nothing
+        }
+
+        sideCols += "<td>".concat(hostEnumHtml, "</td>");
+      }
+
+      sideCols += '<td property="rdfs:comment">' + (term.getDescription() || '') + '</td>';
       return this.util.createHtmlTableRow(term.getTermType(), this.util.createIriWithQueryParam('term', name), '@id', this.util.createInternalLink({
         termURI: name
-      }, name), '<td property="rdfs:comment">' + (term.getDescription() || '') + '</td>');
+      }, name), sideCols);
     }).join('');
   }
 

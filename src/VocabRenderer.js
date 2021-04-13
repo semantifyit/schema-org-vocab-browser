@@ -148,10 +148,16 @@ class VocabRenderer {
     createSection(terms, typeSingular) {
         if (terms.length !== 0) {
             const typePlural = TYPES_PLURAL[typeSingular];
+            let ths;
+            if (typeSingular === 'Enumeration Member') {
+                ths = [typeSingular, 'of Enumeration', 'Description'];
+            } else {
+                ths = [typeSingular, 'Description'];
+            }
             return '' +
                 '<h2 id="' + this.util.underscore(typePlural) + '">' + typePlural + '</h2>' +
-                this.util.createHtmlDefinitionTable([typeSingular, 'Description'],
-                    this.createSectionTbody(terms),
+                this.util.createHtmlDefinitionTable(ths,
+                    this.createSectionTbody(terms, typeSingular),
                     {'class': 'supertype'});
         }
         return '';
@@ -161,16 +167,33 @@ class VocabRenderer {
      * Create HTML table body for a section of the Vocabulary.
      *
      * @param {string[]} terms - The vocabulary terms with the same term type.
+     * @param {?string} typeSingular - The type of the terms
      * @returns {string} The resulting HTML.
      */
-    createSectionTbody(terms) {
+    createSectionTbody(terms, typeSingular = null) {
         return terms.map((name) => {
             const term = this.browser.sdoAdapter.getTerm(name);
+            let sideCols = "";
+            if (typeSingular === 'Enumeration Member') {
+                let hostEnumHtml = "";
+                try {
+                    let enumHostArray = this.browser.sdoAdapter.getEnumerationMember(name).getDomainEnumerations(false);
+                    // is an array, most of the times it is only 1 element
+                    for (const enHost of enumHostArray) {
+                        hostEnumHtml += this.util.createInternalLink({termURI: enHost}, enHost) + "</br>";
+                    }
+                } catch (e) {
+                    // error -> add nothing
+                }
+                sideCols += `<td>${hostEnumHtml}</td>`;
+            }
+            sideCols += '<td property="rdfs:comment">' + (term.getDescription() || '') + '</td>';
+
             return this.util.createHtmlTableRow(term.getTermType(),
                 this.util.createIriWithQueryParam('term', name),
                 '@id',
                 this.util.createInternalLink({termURI: name}, name),
-                '<td property="rdfs:comment">' + (term.getDescription() || '') + '</td>');
+                sideCols);
         }).join('');
     }
 }

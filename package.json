@@ -1,6 +1,6 @@
 {
   "name": "schema-org-vocab-browser",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Vocabulary Browser for schema.org based vocabularies",
   "repository": {
     "type": "git",
@@ -12,7 +12,7 @@
     "json-ld",
     "semantic web"
   ],
-  "author": "Jan Schlenker for STI Innsbruck",
+  "author": "Jan Schlenker and Omar Holzknecht for STI Innsbruck",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/semantifyit/schema-org-vocab-browser/issues"
