@@ -100,7 +100,10 @@ class SDOVocabBrowser {
         if (!this.vocabCache[this.vocId]) {
             const vocab = await this.util.parseToObject(this.util.getFileHost() + "/voc/" + this.vocId);
             // Create a new SDO Adapter for each vocabulary file, save it in the cache
-            const newSdoAdapter = new SDOAdapter();
+            const newSdoAdapter = new SDOAdapter({
+                schemaHttps: true,
+                equateVocabularyProtocols: true,
+            });
             const sdoURL = await newSdoAdapter.constructSDOVocabularyURL('latest');
             await newSdoAdapter.addVocabularies([sdoURL, vocab]);
             this.vocabCache[this.vocId] = {

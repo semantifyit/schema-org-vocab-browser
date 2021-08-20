@@ -1971,7 +1971,7 @@ module.exports = jsonld => {
 // TODO: move `NQuads` to its own package
 module.exports = require('rdf-canonize').NQuads;
 
-},{"rdf-canonize":62}],34:[function(require,module,exports){
+},{"rdf-canonize":54}],34:[function(require,module,exports){
 /*
  * Copyright (c) 2017-2019 Digital Bazaar, Inc. All rights reserved.
  */
@@ -3223,7 +3223,7 @@ function _checkNestProperty(activeCtx, nestProperty, options) {
   }
 }
 
-},{"./JsonLdError":31,"./context":38,"./graphTypes":45,"./types":49,"./url":50,"./util":51}],37:[function(require,module,exports){
+},{"./JsonLdError":31,"./context":38,"./graphTypes":44,"./types":49,"./url":50,"./util":51}],37:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
@@ -4181,7 +4181,8 @@ api.createTermDefinition = ({
       const protectedMode = (options && options.protectedMode) || 'error';
       if(protectedMode === 'error') {
         throw new JsonLdError(
-          `Invalid JSON-LD syntax; tried to redefine "${term}" which is a protected term.`,
+          `Invalid JSON-LD syntax; tried to redefine "${term}" which is a ` +
+          'protected term.',
           'jsonld.SyntaxError',
           {code: 'protected term redefinition', context: localCtx, term});
       } else if(protectedMode === 'warn') {
@@ -4740,183 +4741,6 @@ const JsonLdError = require('../JsonLdError');
 const RequestQueue = require('../RequestQueue');
 const {prependBase} = require('../url');
 
-/**
- * Creates a built-in node document loader.
- *
- * @param options the options to use:
- *          secure: require all URLs to use HTTPS.
- *          strictSSL: true to require SSL certificates to be valid,
- *            false not to (default: true).
- *          maxRedirects: the maximum number of redirects to permit, none by
- *            default.
- *          request: the object which will make the request, default is
- *            provided by `https://www.npmjs.com/package/request`.
- *          headers: an object (map) of headers which will be passed as request
- *            headers for the requested document. Accept is not allowed.
- *
- * @return the node document loader.
- */
-module.exports = ({
-  secure,
-  strictSSL = true,
-  maxRedirects = -1,
-  request,
-  headers = {}
-} = {strictSSL: true, maxRedirects: -1, headers: {}}) => {
-  headers = buildHeaders(headers);
-  // TODO: use `axios`
-  request = request || require('request');
-  const http = require('http');
-
-  const queue = new RequestQueue();
-  return queue.wrapLoader(function(url) {
-    return loadDocument(url, []);
-  });
-
-  async function loadDocument(url, redirects) {
-    if(url.indexOf('http:') !== 0 && url.indexOf('https:') !== 0) {
-      throw new JsonLdError(
-        'URL could not be dereferenced; only "http" and "https" URLs are ' +
-        'supported.',
-        'jsonld.InvalidUrl', {code: 'loading document failed', url});
-    }
-    if(secure && url.indexOf('https') !== 0) {
-      throw new JsonLdError(
-        'URL could not be dereferenced; secure mode is enabled and ' +
-        'the URL\'s scheme is not "https".',
-        'jsonld.InvalidUrl', {code: 'loading document failed', url});
-    }
-    // TODO: disable cache until HTTP caching implemented
-    let doc = null;//cache.get(url);
-    if(doc !== null) {
-      return doc;
-    }
-
-    let result;
-    let alternate = null;
-    try {
-      result = await _request(request, {
-        url,
-        headers,
-        strictSSL,
-        followRedirect: false
-      });
-    } catch(e) {
-      throw new JsonLdError(
-        'URL could not be dereferenced, an error occurred.',
-        'jsonld.LoadDocumentError',
-        {code: 'loading document failed', url, cause: e});
-    }
-
-    const {res, body} = result;
-
-    doc = {contextUrl: null, documentUrl: url, document: body || null};
-
-    // handle error
-    const statusText = http.STATUS_CODES[res.statusCode];
-    if(res.statusCode >= 400) {
-      throw new JsonLdError(
-        `URL "${url}" could not be dereferenced: ${statusText}`,
-        'jsonld.InvalidUrl', {
-          code: 'loading document failed',
-          url,
-          httpStatusCode: res.statusCode
-        });
-    }
-
-    // handle Link Header
-    if(res.headers.link &&
-      res.headers['content-type'] !== 'application/ld+json') {
-      // only 1 related link header permitted
-      const linkHeaders = parseLinkHeader(res.headers.link);
-      const linkedContext = linkHeaders[LINK_HEADER_CONTEXT];
-      if(Array.isArray(linkedContext)) {
-        throw new JsonLdError(
-          'URL could not be dereferenced, it has more than one associated ' +
-          'HTTP Link Header.',
-          'jsonld.InvalidUrl',
-          {code: 'multiple context link headers', url});
-      }
-      if(linkedContext) {
-        doc.contextUrl = linkedContext.target;
-      }
-
-      // "alternate" link header is a redirect
-      alternate = linkHeaders['alternate'];
-      if(alternate &&
-        alternate.type == 'application/ld+json' &&
-        !(res.headers['content-type'] || '')
-          .match(/^application\/(\w*\+)?json$/)) {
-        res.headers.location = prependBase(url, alternate.target);
-      }
-    }
-
-    // handle redirect
-    if((alternate ||
-      res.statusCode >= 300 && res.statusCode < 400) && res.headers.location) {
-      if(redirects.length === maxRedirects) {
-        throw new JsonLdError(
-          'URL could not be dereferenced; there were too many redirects.',
-          'jsonld.TooManyRedirects', {
-            code: 'loading document failed',
-            url,
-            httpStatusCode: res.statusCode,
-            redirects
-          });
-      }
-      if(redirects.indexOf(url) !== -1) {
-        throw new JsonLdError(
-          'URL could not be dereferenced; infinite redirection was detected.',
-          'jsonld.InfiniteRedirectDetected', {
-            code: 'recursive context inclusion',
-            url,
-            httpStatusCode: res.statusCode,
-            redirects
-          });
-      }
-      redirects.push(url);
-      return loadDocument(res.headers.location, redirects);
-    }
-
-    // cache for each redirected URL
-    redirects.push(url);
-    // TODO: disable cache until HTTP caching implemented
-    /*
-    for(let i = 0; i < redirects.length; ++i) {
-      cache.set(
-        redirects[i],
-        {contextUrl: null, documentUrl: redirects[i], document: body});
-    }
-    */
-
-    return doc;
-  }
-};
-
-function _request(request, options) {
-  return new Promise((resolve, reject) => {
-    request(options, (err, res, body) => {
-      if(err) {
-        reject(err);
-      } else {
-        resolve({res, body});
-      }
-    });
-  });
-}
-
-},{"../JsonLdError":31,"../RequestQueue":34,"../constants":37,"../url":50,"../util":51,"http":28,"request":28}],40:[function(require,module,exports){
-/*
- * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
- */
-'use strict';
-
-const {parseLinkHeader, buildHeaders} = require('../util');
-const {LINK_HEADER_CONTEXT} = require('../constants');
-const JsonLdError = require('../JsonLdError');
-const RequestQueue = require('../RequestQueue');
-const {prependBase} = require('../url');
-
 const REGEX_LINK_HEADER = /(^|(\r\n))link:/i;
 
 /**
@@ -5024,7 +4848,7 @@ function _get(xhr, url, headers) {
   });
 }
 
-},{"../JsonLdError":31,"../RequestQueue":34,"../constants":37,"../url":50,"../util":51}],41:[function(require,module,exports){
+},{"../JsonLdError":31,"../RequestQueue":34,"../constants":37,"../url":50,"../util":51}],40:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
@@ -6141,7 +5965,7 @@ async function _expandIndexMap(
   return rval;
 }
 
-},{"./JsonLdError":31,"./context":38,"./graphTypes":45,"./types":49,"./url":50,"./util":51}],42:[function(require,module,exports){
+},{"./JsonLdError":31,"./context":38,"./graphTypes":44,"./types":49,"./url":50,"./util":51}],41:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
@@ -6181,7 +6005,7 @@ api.flatten = input => {
   return flattened;
 };
 
-},{"./graphTypes":45,"./nodeMap":47}],43:[function(require,module,exports){
+},{"./graphTypes":44,"./nodeMap":46}],42:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
@@ -7008,7 +6832,7 @@ function _valueMatch(pattern, value) {
   return true;
 }
 
-},{"./JsonLdError":31,"./context":38,"./graphTypes":45,"./nodeMap":47,"./types":49,"./url":50,"./util":51}],44:[function(require,module,exports){
+},{"./JsonLdError":31,"./context":38,"./graphTypes":44,"./nodeMap":46,"./types":49,"./url":50,"./util":51}],43:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
@@ -7357,7 +7181,7 @@ function _RDFToObject(o, useNativeTypes, rdfDirection) {
   return rval;
 }
 
-},{"./JsonLdError":31,"./constants":37,"./graphTypes":45,"./types":49,"./util":51}],45:[function(require,module,exports){
+},{"./JsonLdError":31,"./constants":37,"./graphTypes":44,"./types":49,"./util":51}],44:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
@@ -7478,8 +7302,7 @@ api.isBlankNode = v => {
   return false;
 };
 
-},{"./types":49}],46:[function(require,module,exports){
-(function (process,global){(function (){
+},{"./types":49}],45:[function(require,module,exports){
 /**
  * A JavaScript implementation of the JSON-LD API.
  *
@@ -7516,6 +7339,7 @@ api.isBlankNode = v => {
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 const canonize = require('rdf-canonize');
+const platform = require('./platform');
 const util = require('./util');
 const ContextResolver = require('./ContextResolver');
 const IdentifierIssuer = util.IdentifierIssuer;
@@ -7560,12 +7384,6 @@ const {
   createMergedNodeMap: _createMergedNodeMap,
   mergeNodeMaps: _mergeNodeMaps
 } = require('./nodeMap');
-
-// determine if in-browser or using Node.js
-const _nodejs = (
-  typeof process !== 'undefined' && process.versions && process.versions.node);
-const _browser = !_nodejs &&
-  (typeof window !== 'undefined' || typeof self !== 'undefined');
 
 /* eslint-disable indent */
 // attaches jsonld API to the given object
@@ -8163,7 +7981,7 @@ jsonld.toRDF = async function(input, options) {
   if(options.format) {
     if(options.format === 'application/n-quads' ||
       options.format === 'application/nquads') {
-      return await NQuads.serialize(dataset);
+      return NQuads.serialize(dataset);
     }
     throw new JsonLdError(
       'Unknown output format.',
@@ -8420,8 +8238,6 @@ jsonld.getContextValue = require('./context').getContextValue;
  * Document loaders.
  */
 jsonld.documentLoaders = {};
-jsonld.documentLoaders.node = require('./documentLoaders/node');
-jsonld.documentLoaders.xhr = require('./documentLoaders/xhr');
 
 /**
  * Assigns the default document loader for external document URLs to a built-in
@@ -8487,24 +8303,8 @@ jsonld.RequestQueue = require('./RequestQueue');
 /* WebIDL API */
 jsonld.JsonLdProcessor = require('./JsonLdProcessor')(jsonld);
 
-// setup browser global JsonLdProcessor
-if(_browser && typeof global.JsonLdProcessor === 'undefined') {
-  Object.defineProperty(global, 'JsonLdProcessor', {
-    writable: true,
-    enumerable: false,
-    configurable: true,
-    value: jsonld.JsonLdProcessor
-  });
-}
-
-// set platform-specific defaults/APIs
-if(_nodejs) {
-  // use node document loader by default
-  jsonld.useDocumentLoader('node');
-} else if(typeof XMLHttpRequest !== 'undefined') {
-  // use xhr document loader by default
-  jsonld.useDocumentLoader('xhr');
-}
+platform.setupGlobals(jsonld);
+platform.setupDocumentLoaders(jsonld);
 
 function _setDefaults(options, {
   documentLoader = jsonld.documentLoader,
@@ -8531,8 +8331,7 @@ wrapper(factory);
 // export API
 module.exports = factory;
 
-}).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./ContextResolver":30,"./JsonLdError":31,"./JsonLdProcessor":32,"./NQuads":33,"./RequestQueue":34,"./compact":36,"./context":38,"./documentLoaders/node":39,"./documentLoaders/xhr":40,"./expand":41,"./flatten":42,"./frame":43,"./fromRdf":44,"./graphTypes":45,"./nodeMap":47,"./toRdf":48,"./types":49,"./url":50,"./util":51,"_process":53,"lru-cache":52,"rdf-canonize":62}],47:[function(require,module,exports){
+},{"./ContextResolver":30,"./JsonLdError":31,"./JsonLdProcessor":32,"./NQuads":33,"./RequestQueue":34,"./compact":36,"./context":38,"./expand":40,"./flatten":41,"./frame":42,"./fromRdf":43,"./graphTypes":44,"./nodeMap":46,"./platform":47,"./toRdf":48,"./types":49,"./url":50,"./util":51,"lru-cache":52,"rdf-canonize":54}],46:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
@@ -8824,7 +8623,48 @@ api.mergeNodeMaps = graphs => {
   return defaultGraph;
 };
 
-},{"./JsonLdError":31,"./context":38,"./graphTypes":45,"./types":49,"./util":51}],48:[function(require,module,exports){
+},{"./JsonLdError":31,"./context":38,"./graphTypes":44,"./types":49,"./util":51}],47:[function(require,module,exports){
+/*
+ * Copyright (c) 2021 Digital Bazaar, Inc. All rights reserved.
+ */
+'use strict';
+
+const xhrLoader = require('./documentLoaders/xhr');
+
+const api = {};
+module.exports = api;
+
+/**
+ * Setup browser document loaders.
+ *
+ * @param jsonld the jsonld api.
+ */
+api.setupDocumentLoaders = function(jsonld) {
+  if(typeof XMLHttpRequest !== 'undefined') {
+    jsonld.documentLoaders.xhr = xhrLoader;
+    // use xhr document loader by default
+    jsonld.useDocumentLoader('xhr');
+  }
+};
+
+/**
+ * Setup browser globals.
+ *
+ * @param jsonld the jsonld api.
+ */
+api.setupGlobals = function(jsonld) {
+  // setup browser global JsonLdProcessor
+  if(typeof globalThis.JsonLdProcessor === 'undefined') {
+    Object.defineProperty(globalThis, 'JsonLdProcessor', {
+      writable: true,
+      enumerable: false,
+      configurable: true,
+      value: jsonld.JsonLdProcessor
+    });
+  }
+};
+
+},{"./documentLoaders/xhr":39}],48:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
@@ -9106,7 +8946,7 @@ function _objectToRDF(item, issuer, dataset, graphTerm, rdfDirection) {
   return object;
 }
 
-},{"./constants":37,"./context":38,"./graphTypes":45,"./nodeMap":47,"./types":49,"./url":50,"./util":51,"canonicalize":29}],49:[function(require,module,exports){
+},{"./constants":37,"./context":38,"./graphTypes":44,"./nodeMap":46,"./types":49,"./url":50,"./util":51,"canonicalize":29}],49:[function(require,module,exports){
 /*
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
@@ -9956,7 +9796,7 @@ function _labelBlankNodes(issuer, element) {
   return element;
 }
 
-},{"./JsonLdError":31,"./graphTypes":45,"./types":49,"rdf-canonize":62}],52:[function(require,module,exports){
+},{"./JsonLdError":31,"./graphTypes":44,"./types":49,"rdf-canonize":54}],52:[function(require,module,exports){
 'use strict'
 
 // A linked list to keep track of recently-used-ness
@@ -10292,7 +10132,7 @@ const forEachStep = (self, fn, node, thisp) => {
 
 module.exports = LRUCache
 
-},{"yallist":76}],53:[function(require,module,exports){
+},{"yallist":77}],53:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -10479,8 +10319,18 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],54:[function(require,module,exports){
+/**
+ * An implementation of the RDF Dataset Normalization specification.
+ *
+ * @author Dave Longley
+ *
+ * Copyright 2010-2021 Digital Bazaar, Inc.
+ */
+module.exports = require('./lib');
+
+},{"./lib":63}],55:[function(require,module,exports){
 /*
- * Copyright (c) 2016-2020 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2016-2021 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
@@ -10560,9 +10410,9 @@ module.exports = class IdentifierIssuer {
   }
 };
 
-},{}],55:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 /*
- * Copyright (c) 2016-2020 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2016-2021 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
@@ -10611,9 +10461,9 @@ module.exports = class MessageDigest {
   }
 };
 
-},{"setimmediate":73}],56:[function(require,module,exports){
+},{"setimmediate":74}],57:[function(require,module,exports){
 /*
- * Copyright (c) 2016-2020 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2016-2021 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
@@ -11006,9 +10856,9 @@ function _unescape(s) {
   });
 }
 
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 /*
- * Copyright (c) 2016-2020 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2016-2021 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
@@ -11093,10 +10943,10 @@ module.exports = class Permuter {
   }
 };
 
-},{}],58:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 (function (setImmediate){(function (){
 /*
- * Copyright (c) 2016-2020 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2016-2021 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
@@ -11607,9 +11457,9 @@ function _stringHashCompare(a, b) {
 }
 
 }).call(this)}).call(this,require("timers").setImmediate)
-},{"./IdentifierIssuer":54,"./MessageDigest":55,"./NQuads":56,"./Permuter":57,"timers":74}],59:[function(require,module,exports){
+},{"./IdentifierIssuer":55,"./MessageDigest":56,"./NQuads":57,"./Permuter":58,"timers":75}],60:[function(require,module,exports){
 /*
- * Copyright (c) 2016-2020 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2016-2021 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
@@ -12097,9 +11947,9 @@ function _stringHashCompare(a, b) {
   return a.hash < b.hash ? -1 : a.hash > b.hash ? 1 : 0;
 }
 
-},{"./IdentifierIssuer":54,"./MessageDigest":55,"./NQuads":56,"./Permuter":57}],60:[function(require,module,exports){
+},{"./IdentifierIssuer":55,"./MessageDigest":56,"./NQuads":57,"./Permuter":58}],61:[function(require,module,exports){
 /*
- * Copyright (c) 2016-2020 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2016-2021 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
@@ -12189,9 +12039,9 @@ module.exports = class URDNA2012 extends URDNA2015 {
   }
 };
 
-},{"./URDNA2015":58}],61:[function(require,module,exports){
+},{"./URDNA2015":59}],62:[function(require,module,exports){
 /*
- * Copyright (c) 2016-2020 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2016-2021 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
@@ -12275,13 +12125,13 @@ module.exports = class URDNA2012Sync extends URDNA2015Sync {
   }
 };
 
-},{"./URDNA2015Sync":59}],62:[function(require,module,exports){
+},{"./URDNA2015Sync":60}],63:[function(require,module,exports){
 /**
  * An implementation of the RDF Dataset Normalization specification.
  * This library works in the browser and node.js.
  *
  * BSD 3-Clause License
- * Copyright (c) 2016-2020 Digital Bazaar, Inc.
+ * Copyright (c) 2016-2021 Digital Bazaar, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -12422,7 +12272,7 @@ api._canonizeSync = function(dataset, options) {
     'Invalid RDF Dataset Canonicalization algorithm: ' + options.algorithm);
 };
 
-},{"./IdentifierIssuer":54,"./NQuads":56,"./URDNA2015":58,"./URDNA2015Sync":59,"./URGNA2012":60,"./URGNA2012Sync":61,"rdf-canonize-native":28}],63:[function(require,module,exports){
+},{"./IdentifierIssuer":55,"./NQuads":57,"./URDNA2015":59,"./URDNA2015Sync":60,"./URGNA2012":61,"./URGNA2012Sync":62,"rdf-canonize-native":28}],64:[function(require,module,exports){
 "use strict";
 
 // the functions for a class Object
@@ -12580,7 +12430,7 @@ class Class extends Term {
 
 module.exports = Class;
 
-},{"./Term":71,"./utilities":72}],64:[function(require,module,exports){
+},{"./Term":72,"./utilities":73}],65:[function(require,module,exports){
 "use strict";
 
 // the functions for a data type Object
@@ -12710,7 +12560,7 @@ class DataType extends Term {
 
 module.exports = DataType;
 
-},{"./Term":71,"./utilities":72}],65:[function(require,module,exports){
+},{"./Term":72,"./utilities":73}],66:[function(require,module,exports){
 "use strict";
 
 // the functions for a enumeration Object
@@ -12799,7 +12649,7 @@ class Enumeration extends Class {
 
 module.exports = Enumeration;
 
-},{"./Class":63,"./utilities":72}],66:[function(require,module,exports){
+},{"./Class":64,"./utilities":73}],67:[function(require,module,exports){
 "use strict";
 
 // the functions for a enumeration member Object
@@ -12855,7 +12705,7 @@ class EnumerationMember extends Term {
     result.push(...enumObj['soa:enumerationDomainIncludes']);
 
     if (implicit) {
-      var domainEnumerationsToCheck = JSON.parse(JSON.stringify(result));
+      var domainEnumerationsToCheck = util.copByVal(result);
 
       for (var actDE of domainEnumerationsToCheck) {
         result.push(...this.graph.reasoner.inferSuperClasses(actDE));
@@ -12889,7 +12739,7 @@ class EnumerationMember extends Term {
 
 module.exports = EnumerationMember;
 
-},{"./Term":71,"./utilities":72}],67:[function(require,module,exports){
+},{"./Term":72,"./utilities":73}],68:[function(require,module,exports){
 "use strict";
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -12931,7 +12781,7 @@ class Graph {
       rdfs: 'http://www.w3.org/2000/01/rdf-schema#',
       xsd: 'http://www.w3.org/2001/XMLSchema#',
       dc: 'http://purl.org/dc/terms/',
-      schema: 'http://schema.org/',
+      // schema: 'http://schema.org/', this entry will be generated the first time a vocabulary is added to the graph
       soa: 'http://schema-org-adapter.at/vocabTerms/',
       'soa:superClassOf': {
         '@id': 'soa:superClassOf',
@@ -13020,10 +12870,43 @@ class Graph {
     return _asyncToGenerator(function* () {
       var vocabURL = _arguments.length > 1 && _arguments[1] !== undefined ? _arguments[1] : null;
 
-      // this algorithm is well-documented in /docu/algorithm.md
+      // check which protocol version of schema.org is used in the first vocabulary given to the graph, set that version as the namespace for "schema" in the standard @context
+      if (_this.context.schema === undefined) {
+        _this.context.schema = util.discoverUsedSchemaOrgProtocol(vocab) + '://schema.org/';
+      } // this algorithm is well-documented in /docu/algorithm.md
+
+
       try {
         // A) Pre-process Vocabulary
-        // create new context
+        // New: In the following any added vocabularies are slightly changed, if the "equateVocabularyProtocols" option is used and the vocabulary includes namespaces that meet the requirements
+        if (_this.sdoAdapter.equateVocabularyProtocols) {
+          // 1. Check if any namespaces from this.context are used in vocab (context and content) with another protocol (http/https). Create a List of those
+          var equateNamespaces = util.discoverEquateNamespaces(_this.context, vocab); // 2. If the List is not empty, then the vocab needs to be adapted
+
+          if (equateNamespaces.length > 0) {
+            //  - Create adapted context for vocab, which includes IRIs from vocab context + IRIs from the List, use vocab indicators from this.context
+            var adaptedContext = util.copByVal(vocab['@context']);
+            equateNamespaces.forEach(function (ens) {
+              var usedKeyToDelete = Object.keys(adaptedContext).find(el => adaptedContext[el] === ens);
+
+              if (usedKeyToDelete) {
+                delete adaptedContext[usedKeyToDelete];
+              }
+
+              var keyToUse = Object.keys(this.context).find(el => this.context[el] === util.switchIRIProtocol(ens));
+              adaptedContext[keyToUse] = ens;
+            }, _this); //  - jsonld compact vocab with adapted context
+
+            vocab = yield util.preProcessVocab(vocab, adaptedContext); //  - manually change entries of compacted vocab context, so that they use the same protocol as in this.context (the vocab indicators should already be the same)
+
+            equateNamespaces.forEach(function (ens) {
+              var keyToUse = Object.keys(this.context).find(el => this.context[el] === util.switchIRIProtocol(ens));
+              vocab['@context'][keyToUse] = this.context[keyToUse];
+            }, _this);
+          }
+        } // create new context
+
+
         _this.context = util.generateContext(_this.context, vocab['@context']); // pre-process new vocab
 
         vocab = yield util.preProcessVocab(vocab, _this.context); // adapt @graph to new context
@@ -13038,14 +12921,14 @@ class Graph {
          Classify every @graph node based on its @type. The node is transformed to another data-model based on the @type and stored in a new memory storage for an easier further usage. This is the first of two steps for an exact classification of the node, since the @type is not enough for a correct classification. The mapping of our data model and the @type(s) of the corresponding @graph nodes are as follows:
          classes ("@type" = "rdfs:Class")
          properties ("@type" = "rdf:Property")
-         dataTypes ("@type" = "rdfs:Class" + "http://schema.org/DataType")
-         enumerations ("@type" = "rdfs:Class", has "http://schema.org/Enumeration" as implicit super-class)
+         dataTypes ("@type" = "rdfs:Class" + "schema:DataType")
+         enumerations ("@type" = "rdfs:Class", has "schema:Enumeration" as implicit super-class)
          enumerationMembers ("@type" = @id(s) of enumeration(s))
          */
 
 
         for (var i = 0; i < vocab['@graph'].length; i++) {
-          var curNode = JSON.parse(JSON.stringify(vocab['@graph'][i]));
+          var curNode = util.copByVal(vocab['@graph'][i]);
 
           if (util.isString(curNode['@type'])) {
             switch (curNode['@type']) {
@@ -13083,8 +12966,7 @@ class Graph {
               _this.addGraphNode(_this.enumerationMembers, curNode, vocabURL);
             }
           } else {
-            console.log('unexpected @type format for the following node:');
-            console.log(JSON.stringify(curNode, null, 2));
+            _this.sdoAdapter.onError('unexpected @type format for the following node: ' + JSON.stringify(curNode, null, 2));
           }
         } // C) Classification cleaning
 
@@ -13113,7 +12995,7 @@ class Graph {
                 if (actSubClass === 'schema:Enumeration' || _enumKeys.includes(actSubClass)) {
                   if (_this.classes[actClassKey] && !_this.enumerations[actClassKey]) {
                     newEnum = true;
-                    _this.enumerations[actClassKey] = JSON.parse(JSON.stringify(_this.classes[actClassKey]));
+                    _this.enumerations[actClassKey] = util.copByVal(_this.classes[actClassKey]);
                     delete _this.classes[actClassKey];
                   }
                 }
@@ -13140,7 +13022,7 @@ class Graph {
                 if (_actSubClass === 'schema:DataType' || _dtKeys.includes(_actSubClass)) {
                   if (_this.classes[_actClassKey] && !_this.dataTypes[_actClassKey]) {
                     newDatatype = true;
-                    _this.dataTypes[_actClassKey] = JSON.parse(JSON.stringify(_this.classes[_actClassKey]));
+                    _this.dataTypes[_actClassKey] = util.copByVal(_this.classes[_actClassKey]);
                     delete _this.classes[_actClassKey];
                   }
                 }
@@ -13400,7 +13282,8 @@ class Graph {
 
         return true;
       } catch (e) {
-        console.log(e);
+        _this.sdoAdapter.onError(e);
+
         return false;
       }
     })();
@@ -13585,7 +13468,7 @@ class Graph {
 
       return true;
     } catch (e) {
-      console.log(e);
+      this.sdoAdapter.onError(e);
       return false;
     }
   }
@@ -13828,7 +13711,7 @@ class Graph {
 
 
   discoverCompactIRI(input) {
-    if (input.indexOf(':') !== -1) {
+    if (input.includes(':')) {
       // is iri
       var terms = Object.keys(this.context);
 
@@ -13839,9 +13722,9 @@ class Graph {
           if (input.startsWith(actTerm)) {
             // is compactIRI
             return input;
-          } else if (input.startsWith(absoluteIRI)) {
+          } else if (input.startsWith(absoluteIRI) || this.sdoAdapter.equateVocabularyProtocols && input.startsWith(util.switchIRIProtocol(absoluteIRI))) {
             // is absoluteIRI
-            return util.toCompactIRI(input, this.context);
+            return util.toCompactIRI(input, this.context, this.sdoAdapter.equateVocabularyProtocols);
           }
         }
       }
@@ -13912,7 +13795,7 @@ class Graph {
 
 module.exports = Graph;
 
-},{"./Class":63,"./DataType":64,"./Enumeration":65,"./EnumerationMember":66,"./Property":68,"./ReasoningEngine":69,"./utilities":72}],68:[function(require,module,exports){
+},{"./Class":64,"./DataType":65,"./Enumeration":66,"./EnumerationMember":67,"./Property":69,"./ReasoningEngine":70,"./utilities":73}],69:[function(require,module,exports){
 "use strict";
 
 // the functions for a property Object
@@ -14091,7 +13974,7 @@ class Property extends Term {
 
 module.exports = Property;
 
-},{"./Term":71,"./utilities":72}],69:[function(require,module,exports){
+},{"./Term":72,"./utilities":73}],70:[function(require,module,exports){
 "use strict";
 
 var util = require('./utilities');
@@ -14400,7 +14283,7 @@ class ReasoningEngine {
 
 module.exports = ReasoningEngine;
 
-},{"./utilities":72}],70:[function(require,module,exports){
+},{"./utilities":73}],71:[function(require,module,exports){
 "use strict";
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -14422,16 +14305,44 @@ class SDOAdapter {
    * The SDOAdapter is a JS-Class that represents the interface between the user and this library. Its methods enable to add vocabularies to its memory as well as retrieving vocabulary items. It is possible to create multiple instances of this JS-Class which use different vocabularies.
    *
    * @class
-   * @param {string|null} commitBase - The commit from https://github.com/schemaorg/schemaorg which is the base for the adapter (if not given, we take the latest commit of our fork at https://github.com/semantifyit/schemaorg)
+   * @param {object|null} parameterObject - an object with optional parameters for the constructor. There is 'commitBase': The commit string from https://github.com/schemaorg/schemaorg which is the base for the adapter (if not given, we take the latest commit of our fork at https://github.com/semantifyit/schemaorg). There is 'onError': A callback function(string) that is called when an unexpected error happens. There is 'schemaHttps': a boolean flag - use the https version of the schema.org vocabulary, it defaults to true. Only available if for schema.org version 9.0 upwards There is 'equateVocabularyProtocols': a boolean flag - treats namespaces as equal even if their protocols (http/https) are different, it defaults to false.
    */
   constructor() {
-    var commitBase = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-    this.graph = new Graph(this);
+    var parameterObject = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     this.retrievalMemory = {
       versionsFile: null,
       latest: null
-    };
-    this.commitBase = commitBase;
+    }; // option commitBase - defaults to null
+
+    if (parameterObject && parameterObject.commitBase) {
+      this.commitBase = parameterObject.commitBase;
+    } else {
+      this.commitBase = null;
+    } // option onError - defaults to a function that does nothing
+
+
+    if (parameterObject && typeof parameterObject.onError === 'function') {
+      this.onError = parameterObject.onError;
+    } else {
+      this.onError = function () {// do nothing; The users should pass their own function to handle errors, they have else no way to hide automatic error messages once the SDO Adapter is compiled
+      };
+    } // option schemaHttps - defaults to true
+
+
+    if (parameterObject && parameterObject.schemaHttps !== undefined) {
+      this.schemaHttps = parameterObject.schemaHttps;
+    } else {
+      this.schemaHttps = true;
+    } // option equateVocabularyProtocols - defaults to false
+
+
+    if (parameterObject && parameterObject.equateVocabularyProtocols !== undefined) {
+      this.equateVocabularyProtocols = parameterObject.equateVocabularyProtocols;
+    } else {
+      this.equateVocabularyProtocols = false;
+    }
+
+    this.graph = new Graph(this);
   }
   /**
    * Adds vocabularies (in JSON-LD format or as URL) to the memory of this SDOAdapter. The function "constructSDOVocabularyURL()" helps you to construct URLs for the schema.org vocabulary
@@ -14451,26 +14362,26 @@ class SDOAdapter {
 
       if (util.isArray(vocabArray)) {
         // check every vocab if it is a valid JSON-LD. If string -> try to JSON.parse()
-        for (var i = 0; i < vocabArray.length; i++) {
-          if (util.isString(vocabArray[i])) {
-            if (vocabArray[i].startsWith('www') || vocabArray[i].startsWith('http')) {
+        for (var vocab of vocabArray) {
+          if (util.isString(vocab)) {
+            if (vocab.startsWith('www') || vocab.startsWith('http')) {
               // assume it is a URL
               try {
-                var fetchedVocab = yield _this.fetchVocabularyFromURL(vocabArray[i]);
-                yield _this.graph.addVocabulary(fetchedVocab, vocabArray[i]);
+                var fetchedVocab = yield _this.fetchVocabularyFromURL(vocab);
+                yield _this.graph.addVocabulary(fetchedVocab, vocab);
               } catch (e) {
-                throw new Error('The given URL ' + vocabArray[i] + ' did not contain a valid JSON-LD vocabulary.');
+                throw new Error('The given URL ' + vocab + ' did not contain a valid JSON-LD vocabulary.');
               }
             } else {
               // assume it is a string-version of a JSON-LD
               try {
-                yield _this.graph.addVocabulary(JSON.parse(vocabArray[i]));
+                yield _this.graph.addVocabulary(JSON.parse(vocab));
               } catch (e) {
                 throw new Error('Parsing of vocabulary string produced an invalid JSON-LD.');
               }
             }
-          } else if (util.isObject(vocabArray[i])) {
-            yield _this.graph.addVocabulary(vocabArray[i]);
+          } else if (util.isObject(vocab)) {
+            yield _this.graph.addVocabulary(vocab);
           } else {
             // invalid argument type!
             throw new Error('The first argument of the function must be an Array of vocabularies or a single vocabulary (JSON-LD as Object/String)');
@@ -14498,7 +14409,7 @@ class SDOAdapter {
           }
         }).then(function (res) {
           resolve(res.data);
-        }).catch(function (err) {
+        }).catch(function () {
           reject('Could not find any resource at the given URL.');
         });
       });
@@ -14889,14 +14800,14 @@ class SDOAdapter {
         }
       }
 
-      var fileName = util.getFileNameForSchemaOrgVersion(version); // This can throw an error if the version is <= 3.0
+      var fileName = util.getFileNameForSchemaOrgVersion(version, _this2.schemaHttps); // This can throw an error if the version is <= 3.0
 
       return _this2.getReleasesURI() + version + '/' + fileName; // e.g. "https://raw.githubusercontent.com/schemaorg/schemaorg/main/data/releases/3.9/all-layers.jsonld";
     })();
   }
   /**
    * Retrieves the schema.org version listing at https://raw.githubusercontent.com/schemaorg/schemaorg/main/versions.json
-   * and saves it in the local memory. Also sends head-requests to determine if the 'latest' version is really 'fetchable'.
+   * and saves it in the local memory. Also sends head-requests to determine if the 'latest' version is really 'fetch-able'.
    * If not, this head-requests are done again for older versions until the latest valid version is determined and saved in the memory.
    *
    * @returns {Promise<void>} Returns void when the process ends (signalizing the process ending).
@@ -14912,7 +14823,8 @@ class SDOAdapter {
       try {
         versionFile = yield axios.get(_this3.getVersionFileURI());
       } catch (e) {
-        console.log('Unable to retrieve the schema.org versions file at ' + _this3.getVersionFileURI());
+        _this3.onError('Unable to retrieve the schema.org versions file at ' + _this3.getVersionFileURI());
+
         throw e;
       } // 2. determine the latest valid version
 
@@ -14938,7 +14850,9 @@ class SDOAdapter {
 
             if (!_this3.retrievalMemory.latest) {
               var _errMsg = 'Could not find any valid vocabulary file in the Schema.org versions file (to be declared as "latest".';
-              console.log(_errMsg);
+
+              _this3.onError(_errMsg);
+
               throw new Error(_errMsg);
             }
           }
@@ -14947,7 +14861,9 @@ class SDOAdapter {
         }
 
         var errMsg = 'Schema.org versions file has an unexpected structure!';
-        console.log(errMsg + ' -> ' + _this3.getVersionFileURI());
+
+        _this3.onError(errMsg + ' -> ' + _this3.getVersionFileURI());
+
         throw new Error(errMsg);
       }
     })();
@@ -15015,7 +14931,7 @@ class SDOAdapter {
 
 module.exports = SDOAdapter;
 
-},{"./Graph":67,"./utilities":72,"axios":1}],71:[function(require,module,exports){
+},{"./Graph":68,"./utilities":73,"axios":1}],72:[function(require,module,exports){
 "use strict";
 
 // the functions for a term Object
@@ -15209,7 +15125,7 @@ class Term {
 
 module.exports = Term;
 
-},{"./utilities":72}],72:[function(require,module,exports){
+},{"./utilities":73}],73:[function(require,module,exports){
 "use strict";
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -15448,18 +15364,16 @@ function generateContext(currentContext, newContext) {
   var keysCurrentContext = Object.keys(currentContext);
   var keysNewContext = Object.keys(newContext); // add all of the old context
 
-  var resultContext = JSON.parse(JSON.stringify(currentContext)); // add vocabs of new context that are not already used (value is URI)
+  var resultContext = copByVal(currentContext); // add vocabs of new context that are not already used (value is URI)
 
-  for (var i = 0; i < keysNewContext.length; i++) {
-    var actKey = keysNewContext[i];
-
-    if (isString(newContext[actKey])) {
+  for (var keyNC of keysNewContext) {
+    if (isString(newContext[keyNC])) {
       // first: check if the URI is already used, with any indicator
       var foundMatch = false;
 
-      for (var k = 0; k < keysCurrentContext.length; k++) {
-        if (isString(resultContext[keysCurrentContext[k]])) {
-          if (resultContext[keysCurrentContext[k]] === newContext[actKey]) {
+      for (var keyCC of keysCurrentContext) {
+        if (isString(resultContext[keyCC])) {
+          if (resultContext[keyCC] === newContext[keyNC]) {
             // found match, the URI is already covered
             foundMatch = true;
             break;
@@ -15471,21 +15385,21 @@ function generateContext(currentContext, newContext) {
         continue; // URI is already covered, continue with next
       }
 
-      if (!resultContext[actKey]) {
+      if (!resultContext[keyNC]) {
         // add new vocab indicator
-        resultContext[actKey] = newContext[actKey];
+        resultContext[keyNC] = newContext[keyNC];
       } else {
         // check if the URI is the same, if not: add new uri under new vocab indicator
-        if (resultContext[actKey] !== newContext[actKey]) {
+        if (resultContext[keyNC] !== newContext[keyNC]) {
           var foundFreeName = false;
           var counter = 1;
 
           while (foundFreeName === false) {
-            var newVocabIndicator = actKey + counter++;
+            var newVocabIndicator = keyNC + counter++;
 
             if (!resultContext[newVocabIndicator]) {
               foundFreeName = true;
-              resultContext[newVocabIndicator] = newContext[actKey];
+              resultContext[newVocabIndicator] = newContext[keyNC];
             }
           }
         }
@@ -15503,16 +15417,16 @@ function generateContext(currentContext, newContext) {
   var keysResultContext = Object.keys(resultContext);
   var orderedResultContext = {}; // add the Vocab Indicators (value = string)
 
-  for (var _i = 0; _i < keysResultContext.length; _i++) {
-    if (isString(resultContext[keysResultContext[_i]])) {
-      orderedResultContext[keysResultContext[_i]] = resultContext[keysResultContext[_i]];
+  for (var keyRC of keysResultContext) {
+    if (isString(resultContext[keyRC])) {
+      orderedResultContext[keyRC] = resultContext[keyRC];
     }
   } // add the term handlers (value = object)
 
 
-  for (var _i2 = 0; _i2 < keysResultContext.length; _i2++) {
-    if (isObject(resultContext[keysResultContext[_i2]])) {
-      orderedResultContext[keysResultContext[_i2]] = resultContext[keysResultContext[_i2]];
+  for (var _keyRC of keysResultContext) {
+    if (isObject(resultContext[_keyRC])) {
+      orderedResultContext[_keyRC] = resultContext[_keyRC];
     }
   }
 
@@ -15559,14 +15473,12 @@ function _preProcessVocab() {
       }
 
       vocab['@graph'] = copByVal(newGraph);
-    } while (foundInnerGraph === true); // expand to remove the old context
-
-
-    var expandedVocab = yield jsonld.expand(vocab); // compact to apply the new context (which is supposed to have been merged before with the old context through the function generateContext())
+    } while (foundInnerGraph === true); // compact to apply the new context (which is supposed to have been merged before with the old context through the function generateContext())
     // option "graph": true not feasible here, because then vocabs with "@id" result in inner @graphs again
     // solution: edge case handling (see below)
 
-    var compactedVocab = yield jsonld.compact(expandedVocab, newContext); // edge case: @graph had only one node, so values of @graph are in outermost layer
+
+    var compactedVocab = yield jsonld.compact(vocab, newContext); // edge case: @graph had only one node, so values of @graph are in outermost layer
 
     if (compactedVocab['@graph'] === undefined) {
       delete compactedVocab['@context'];
@@ -15635,9 +15547,9 @@ function curateVocabNode(vocabNode, vocabularies) {
       // }]
       var _newVal3 = {};
 
-      for (var _i3 = 0; _i3 < vocabNode['rdfs:label'].length; _i3++) {
-        if (isObject(vocabNode['rdfs:label'][_i3])) {
-          _newVal3[vocabNode['rdfs:label'][_i3]['@language']] = vocabNode['rdfs:label'][_i3]['@value'];
+      for (var _i = 0; _i < vocabNode['rdfs:label'].length; _i++) {
+        if (isObject(vocabNode['rdfs:label'][_i])) {
+          _newVal3[vocabNode['rdfs:label'][_i]['@language']] = vocabNode['rdfs:label'][_i]['@value'];
         }
       }
 
@@ -15680,9 +15592,9 @@ function curateVocabNode(vocabNode, vocabularies) {
     var vocabKeys = Object.keys(vocabularies);
     var vocab;
 
-    for (var _i4 = 0; _i4 < vocabKeys.length; _i4++) {
-      if (vocabNode['@id'].substring(0, vocabNode['@id'].indexOf(':')) === vocabKeys[_i4]) {
-        vocab = vocabularies[vocabKeys[_i4]];
+    for (var _i2 = 0; _i2 < vocabKeys.length; _i2++) {
+      if (vocabNode['@id'].substring(0, vocabNode['@id'].indexOf(':')) === vocabKeys[_i2]) {
+        vocab = vocabularies[vocabKeys[_i2]];
         break;
       }
     }
@@ -15715,18 +15627,27 @@ prefix - A prefix is the first component of a compact IRI which comes from a ter
  *
  * @param {string} absoluteIRI - the absolute IRI to transform
  * @param {object} context - the context object holding key-value pairs that represent indicator-namespace pairs
+ * @param {boolean} equateVocabularyProtocols - treats namespaces as equal even if their protocols (http/https) are different, it defaults to false.
  * @returns {?string} the compact IRI (null, if given context does not contain the used namespace)
  */
 
 
 function toCompactIRI(absoluteIRI, context) {
-  var terms = Object.keys(context);
+  var equateVocabularyProtocols = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-  for (var i = 0; i < terms.length; i++) {
-    var vocabIRI = context[terms[i]];
+  for (var contextTerm of Object.keys(context)) {
+    var vocabIRI = context[contextTerm];
 
     if (isString(vocabIRI) && absoluteIRI.startsWith(vocabIRI)) {
-      return terms[i] + ':' + absoluteIRI.substring(vocabIRI.length);
+      return contextTerm + ':' + absoluteIRI.substring(vocabIRI.length);
+    }
+
+    if (equateVocabularyProtocols && isString(vocabIRI)) {
+      var protocolSwitchedIRI = switchIRIProtocol(vocabIRI);
+
+      if (absoluteIRI.startsWith(protocolSwitchedIRI)) {
+        return contextTerm + ':' + absoluteIRI.substring(protocolSwitchedIRI.length);
+      }
     }
   }
 
@@ -15770,11 +15691,14 @@ function sortReleaseEntriesByDate(releaseLog) {
  * Returns the jsonld filename that holds the schema.org vocabulary for a given version.
  *
  * @param {string} version - the schema.org version
+ * @param {boolean} schemaHttps - use https as protocol for the schema.org vocabulary - works only from version 9.0 upwards
  * @returns {string} - the corresponding jsonld filename
  */
 
 
 function getFileNameForSchemaOrgVersion(version) {
+  var schemaHttps = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
   switch (version) {
     case '2.0':
     case '2.1':
@@ -15803,12 +15727,168 @@ function getFileNameForSchemaOrgVersion(version) {
       return 'all-layers.jsonld';
 
     case '9.0':
-      return 'schemaorg-all-http.jsonld';
+      if (schemaHttps) {
+        return 'schemaorg-all-https.jsonld';
+      } else {
+        return 'schemaorg-all-http.jsonld';
+      }
 
     default:
-      return 'schemaorg-all-http.jsonld';
-    // this is expected for newer releases that are not covered yet
+      // this is expected for newer releases that are not covered yet
+      if (schemaHttps) {
+        return 'schemaorg-all-https.jsonld';
+      } else {
+        return 'schemaorg-all-http.jsonld';
+      }
+
   }
+}
+/**
+ * Returns the protocol version used for schema.org in the given vocabulary. Returns "https" as the default
+ *
+ * @param {object} vocabulary - the vocabulary in question
+ * @returns {?string} - the corresponding protocol version, either "http" or "https"
+ */
+
+
+function discoverUsedSchemaOrgProtocol(vocabulary) {
+  var httpsIRI = 'https://schema.org/';
+  var httpIRI = 'http://schema.org/'; // 1. check if namespace is used in @context
+
+  if (vocabulary['@context']) {
+    for (var contextEntry of Object.values(vocabulary['@context'])) {
+      if (isObject(contextEntry) && contextEntry['@vocab']) {
+        if (contextEntry['@vocab'] === httpsIRI) {
+          return 'https';
+        } else if (contextEntry['@vocab'] === httpIRI) {
+          return 'http';
+        }
+      } else if (isString(contextEntry)) {
+        if (contextEntry === httpsIRI) {
+          return 'https';
+        } else if (contextEntry === httpIRI) {
+          return 'http';
+        }
+      }
+    }
+  } // 2. easiest way -> make a string and count occurrences for each protocol version
+
+
+  var stringifiedVocab = JSON.stringify(vocabulary);
+  var amountHttps = stringifiedVocab.split(httpsIRI).length - 1;
+  var amountHttp = stringifiedVocab.split(httpIRI).length - 1;
+
+  if (amountHttps > amountHttp) {
+    return 'https';
+  } else if (amountHttp > amountHttps) {
+    return 'http';
+  } else {
+    return httpsIRI; // default case
+  }
+}
+/**
+ * Checks if the given vocabulary uses terms (in context or content) that are present in the current given context but with another protocol (http/https), and returns those in a list
+ *
+ * @param {object} currentContext - the current context
+ * @param {object} vocabulary - the vocabulary to be analyzed
+ * @returns {string[]} - an array with the found equate namespaces
+ */
+
+
+function discoverEquateNamespaces(currentContext, vocabulary) {
+  var result = new Set(); // 1. Make List of protocol switched namespaces from the current context
+
+  var protocolSwitchedNamespaces = [];
+  Object.values(currentContext).forEach(function (el) {
+    if (isString(el)) {
+      protocolSwitchedNamespaces.push(switchIRIProtocol(el));
+    }
+  }); // 2. Look in vocabulary context if any protocol switched namespaces are present
+
+  if (vocabulary['@context']) {
+    Object.values(vocabulary['@context']).forEach(function (el) {
+      if (isString(el) && protocolSwitchedNamespaces.includes(el)) {
+        result.add(el);
+      }
+    });
+  } // 3. Look in vocabulary content if any protocol switched namespaces are present (everywhere, where @ids are expected)
+
+
+  if (Array.isArray(vocabulary['@graph'])) {
+    vocabulary['@graph'].forEach(function (vocabNode) {
+      checkIfNamespaceFromListIsUsed(vocabNode['@id'], protocolSwitchedNamespaces, result);
+      checkIfNamespaceFromListIsUsed(vocabNode['@type'], protocolSwitchedNamespaces, result); // super class
+
+      checkIfNamespaceFromListIsUsed(vocabNode['rdfs:subClassOf'], protocolSwitchedNamespaces, result);
+      checkIfNamespaceFromListIsUsed(vocabNode['http://www.w3.org/2000/01/rdf-schema#subClassOf'], protocolSwitchedNamespaces, result); // domain class
+
+      checkIfNamespaceFromListIsUsed(vocabNode['schema:domainIncludes'], protocolSwitchedNamespaces, result);
+      checkIfNamespaceFromListIsUsed(vocabNode['http://schema.org/domainIncludes'], protocolSwitchedNamespaces, result);
+      checkIfNamespaceFromListIsUsed(vocabNode['https://schema.org/domainIncludes'], protocolSwitchedNamespaces, result); // range class
+
+      checkIfNamespaceFromListIsUsed(vocabNode['schema:rangeIncludes'], protocolSwitchedNamespaces, result);
+      checkIfNamespaceFromListIsUsed(vocabNode['http://schema.org/rangeIncludes'], protocolSwitchedNamespaces, result);
+      checkIfNamespaceFromListIsUsed(vocabNode['https://schema.org/rangeIncludes'], protocolSwitchedNamespaces, result); // super property
+
+      checkIfNamespaceFromListIsUsed(vocabNode['rdfs:subPropertyOf'], protocolSwitchedNamespaces, result);
+      checkIfNamespaceFromListIsUsed(vocabNode['http://www.w3.org/2000/01/rdf-schema#subPropertyOf'], protocolSwitchedNamespaces, result); // inverse property
+
+      checkIfNamespaceFromListIsUsed(vocabNode['schema:inverseOf'], protocolSwitchedNamespaces, result);
+      checkIfNamespaceFromListIsUsed(vocabNode['http://schema.org/inverseOf'], protocolSwitchedNamespaces, result);
+      checkIfNamespaceFromListIsUsed(vocabNode['https://schema.org/inverseOf'], protocolSwitchedNamespaces, result);
+    });
+  }
+
+  return Array.from(result);
+}
+/**
+ * Checks if the value includes an absolute IRI that is present in the given namespaceArray. If so, that match is added to the given result Set.
+ *
+ * @param {any} value - the value to check, is expected to be either an array, an object, or a string.
+ * @param {string[]} namespaceArray - an array of IRIs to search for
+ * @param {Set} result - a Set to save the found matches
+ */
+
+
+function checkIfNamespaceFromListIsUsed(value, namespaceArray, result) {
+  if (Array.isArray(value)) {
+    value.forEach(function (val) {
+      checkIfNamespaceFromListIsUsed(val, namespaceArray, result);
+    });
+  } else {
+    var toCheck;
+
+    if (isObject(value) && isString(value['@id'])) {
+      toCheck = value['@id'];
+    } else if (isString(value)) {
+      toCheck = value;
+    }
+
+    if (isString(toCheck) && toCheck.startsWith('http')) {
+      var match = namespaceArray.find(el => toCheck.startsWith(el));
+
+      if (match && !result.has(match)) {
+        result.add(match);
+      }
+    }
+  }
+}
+/**
+ * Returns the given absolute IRI, but with the opposite protocol (http vs. https)
+ *
+ * @param  {string}IRI - the IRI that should be transformed
+ * @returns {string} - the resulting transformed IRI
+ */
+
+
+function switchIRIProtocol(IRI) {
+  if (IRI.startsWith('https://')) {
+    return 'http' + IRI.substring(5);
+  } else if (IRI.startsWith('http://')) {
+    return 'https' + IRI.substring(4);
+  }
+
+  return IRI;
 }
 
 module.exports = {
@@ -15825,10 +15905,13 @@ module.exports = {
   toCompactIRI,
   toAbsoluteIRI,
   sortReleaseEntriesByDate,
-  getFileNameForSchemaOrgVersion
+  getFileNameForSchemaOrgVersion,
+  discoverUsedSchemaOrgProtocol,
+  discoverEquateNamespaces,
+  switchIRIProtocol
 };
 
-},{"jsonld":46}],73:[function(require,module,exports){
+},{"jsonld":45}],74:[function(require,module,exports){
 (function (process,global){(function (){
 (function (global, undefined) {
     "use strict";
@@ -16018,7 +16101,7 @@ module.exports = {
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":53}],74:[function(require,module,exports){
+},{"_process":53}],75:[function(require,module,exports){
 (function (setImmediate,clearImmediate){(function (){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
@@ -16097,7 +16180,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this)}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":53,"timers":74}],75:[function(require,module,exports){
+},{"process/browser.js":53,"timers":75}],76:[function(require,module,exports){
 'use strict'
 module.exports = function (Yallist) {
   Yallist.prototype[Symbol.iterator] = function* () {
@@ -16107,7 +16190,7 @@ module.exports = function (Yallist) {
   }
 }
 
-},{}],76:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 'use strict'
 module.exports = Yallist
 
@@ -16430,7 +16513,7 @@ Yallist.prototype.sliceReverse = function (from, to) {
   return ret
 }
 
-Yallist.prototype.splice = function (start, deleteCount /*, ...nodes */) {
+Yallist.prototype.splice = function (start, deleteCount, ...nodes) {
   if (start > this.length) {
     start = this.length - 1
   }
@@ -16455,8 +16538,8 @@ Yallist.prototype.splice = function (start, deleteCount /*, ...nodes */) {
     walker = walker.prev
   }
 
-  for (var i = 2; i < arguments.length; i++) {
-    walker = insert(this, walker, arguments[i])
+  for (var i = 0; i < nodes.length; i++) {
+    walker = insert(this, walker, nodes[i])
   }
   return ret;
 }
@@ -16535,7 +16618,7 @@ try {
   require('./iterator.js')(Yallist)
 } catch (er) {}
 
-},{"./iterator.js":75}],77:[function(require,module,exports){
+},{"./iterator.js":76}],78:[function(require,module,exports){
 "use strict";
 
 /** This class is responsible to render a schema.org based Class in the HTML element of the browser. */
@@ -16628,7 +16711,7 @@ class ClassRenderer {
 
 module.exports = ClassRenderer;
 
-},{}],78:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 "use strict";
 
 /** This class is responsible to render a schema.org based DataType in the HTML element of the browser. */
@@ -16658,7 +16741,7 @@ class DataTypeRenderer {
 
 module.exports = DataTypeRenderer;
 
-},{}],79:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 "use strict";
 
 /** This class is responsible to render a schema.org based EnumerationMember in the HTML element of the browser. */
@@ -16701,7 +16784,7 @@ class EnumerationMemberRenderer {
 
 module.exports = EnumerationMemberRenderer;
 
-},{}],80:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 "use strict";
 
 /** This class is responsible to render a schema.org based Enumeration in the HTML element of the browser. */
@@ -16749,7 +16832,7 @@ class EnumerationRenderer {
 
 module.exports = EnumerationRenderer;
 
-},{}],81:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 "use strict";
 
 /** This class is responsible to render a semantify.it based List in the HTML element of the browser. */
@@ -16830,7 +16913,7 @@ class ListRenderer {
 
 module.exports = ListRenderer;
 
-},{}],82:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 "use strict";
 
 /** This class is responsible to render a schema.org based Property in the HTML element of the browser. */
@@ -16948,7 +17031,7 @@ class PropertyRenderer {
 
 module.exports = PropertyRenderer;
 
-},{}],83:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 "use strict";
 
 var _schemaOrgAdapter = _interopRequireDefault(require("schema-org-adapter"));
@@ -17087,7 +17170,10 @@ class SDOVocabBrowser {
       if (!_this4.vocabCache[_this4.vocId]) {
         var vocab = yield _this4.util.parseToObject(_this4.util.getFileHost() + "/voc/" + _this4.vocId); // Create a new SDO Adapter for each vocabulary file, save it in the cache
 
-        var newSdoAdapter = new _schemaOrgAdapter.default();
+        var newSdoAdapter = new _schemaOrgAdapter.default({
+          schemaHttps: true,
+          equateVocabularyProtocols: true
+        });
         var sdoURL = yield newSdoAdapter.constructSDOVocabularyURL('latest');
         yield newSdoAdapter.addVocabularies([sdoURL, vocab]);
         _this4.vocabCache[_this4.vocId] = {
@@ -17326,7 +17412,7 @@ class SDOVocabBrowser {
 
 module.exports = SDOVocabBrowser;
 
-},{"./ClassRenderer":77,"./DataTypeRenderer":78,"./EnumerationMemberRenderer":79,"./EnumerationRenderer":80,"./ListRenderer":81,"./PropertyRenderer":82,"./Util":84,"./VocabRenderer":85,"schema-org-adapter":70}],84:[function(require,module,exports){
+},{"./ClassRenderer":78,"./DataTypeRenderer":79,"./EnumerationMemberRenderer":80,"./EnumerationRenderer":81,"./ListRenderer":82,"./PropertyRenderer":83,"./Util":85,"./VocabRenderer":86,"schema-org-adapter":71}],85:[function(require,module,exports){
 "use strict";
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -18032,7 +18118,7 @@ class Util {
 
 module.exports = Util;
 
-},{}],85:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 "use strict";
 
 /**
@@ -18223,5 +18309,5 @@ class VocabRenderer {
 
 module.exports = VocabRenderer;
 
-},{}]},{},[83])(83)
+},{}]},{},[84])(84)
 });
